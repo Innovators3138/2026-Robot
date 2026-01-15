@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRC Flywheel Shooter Simulator</title>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #004999;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 10px 15px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 280px 1fr;
+            }
+            .physics-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .controls-panel {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 12px;
+        }
+        
+        .control-section.shared-settings {
+            background: rgba(100, 100, 100, 0.15);
+            border: 1px dashed #555;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        
+        .control-section.shared-settings h3 {
+            color: #888;
+        }
+        
+        .control-section.shared-settings .shared-label {
+            font-size: 0.65rem;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .control-section h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--primary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group {
+            margin-bottom: 8px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .control-group label span {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .label-with-tip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+            flex-shrink: 0;
+        }
+
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            left: 20px;
+            top: -5px;
+            width: 280px;
+            background: #1e1e2e;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            z-index: 1000;
+            border: 1px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: opacity 0.2s, visibility 0.2s;
+            white-space: pre-line;
+        }
+
+        .tooltip-text::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 10px;
+            border: 4px solid transparent;
+            border-right-color: var(--primary);
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-text .tip-title {
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .tooltip-text .tip-equation {
+            background: #0d1117;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #58a6ff;
+            margin: 6px 0;
+        }
+
+        .value-display {
+            background: var(--bg-dark);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: var(--warning);
+            min-width: 60px;
+            text-align: right;
+            font-size: 0.8rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-dark);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        .simulation-panel {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            border-radius: 6px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #2d3a4f 100%);
+        }
+
+        .results-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .result-item {
+            background: var(--bg-dark);
+            border-radius: 6px;
+            padding: 6px 12px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-item h4 {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .result-item .value {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+        }
+
+        .result-item .unit {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .physics-sidebar {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+            height: fit-content;
+        }
+
+        .physics-sidebar h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .formula {
+            background: #0d1117;
+            border-left: 3px solid var(--primary);
+            padding: 8px 10px;
+            margin: 6px 0;
+            font-family: 'Consolas', monospace;
+            border-radius: 0 6px 6px 0;
+            overflow-x: auto;
+        }
+
+        .formula .label {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            margin-bottom: 2px;
+        }
+
+        .formula .equation {
+            color: #58a6ff;
+            font-size: 0.8rem;
+        }
+
+        .formula .calculated {
+            color: var(--success);
+            margin-top: 3px;
+            font-size: 0.75rem;
+        }
+
+        .shot-status {
+            flex: 1;
+            text-align: center;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .shot-status.success {
+            background: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .shot-status.miss {
+            background: rgba(220, 53, 69, 0.2);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.75rem;
+        }
+
+        .shots-manager {
+            margin-bottom: 12px;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .shots-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .shots-header h4 {
+            font-size: 0.8rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .add-shot-btn {
+            padding: 4px 10px;
+            background: var(--primary);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .add-shot-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .shots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .shot-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .shot-item:hover {
+            background: #1e2a4a;
+        }
+
+        .shot-item.active {
+            border-color: var(--primary);
+            background: #1e2a4a;
+        }
+
+        .shot-item .shot-name {
+            flex: 1;
+            font-size: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .shot-item .shot-name input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            color: white;
+            font-size: 0.75rem;
+            width: 100%;
+            outline: none;
+            cursor: text;
+            padding: 2px 0;
+        }
+        
+        .shot-item .shot-name input:focus {
+            border-bottom: 1px solid var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .shot-item .delete-shot {
+            padding: 2px 6px;
+            background: transparent;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .shot-item .delete-shot:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FRC Flywheel Shooter Simulator</h1>
+        </header>
+
+        <div class="main-layout">
+            <div class="controls-panel">
+                <div class="shots-manager">
+                    <div class="shots-header">
+                        <h4>Saved Shots</h4>
+                        <button class="add-shot-btn" onclick="addNewShot()">+ Add Shot</button>
+                    </div>
+                    <div class="shots-list" id="shotsList">
+                        <!-- Shots will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>Launch Parameters</h3>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Flywheel Speed (RPM)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">🚀 FLYWHEEL SPEED</div>
+                                        How fast the wheel spins! Higher RPM = faster ball.
+                                        <div class="tip-equation">v = ω × r</div>
+                                        <b>v</b> = velocity (m/s), <b>ω</b> = angular velocity (rad/s), <b>r</b> = wheel radius (m)
+                                        <br><br>To convert: ω = RPM × 2π ÷ 60
+                                        <br>Double the RPM = double the ball speed!
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="rpmValue">3000</span>
+                        </label>
+                        <input type="range" id="rpm" min="500" max="8000" value="3000" step="50">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Launch Angle (degrees)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">📐 LAUNCH ANGLE</div>
+                                        The direction the ball leaves the shooter. Velocity splits into:
+                                        <div class="tip-equation">vₓ = v × cos(θ)<br>vᵧ = v × sin(θ)</div>
+                                        <b>vₓ</b> = horizontal velocity, <b>vᵧ</b> = vertical velocity
+                                        <br><b>θ</b> = angle, <b>cos/sin</b> = trig functions
+                                        <br><br>45° gives max range in a vacuum, but with air resistance, lower angles often work better!
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="angleValue">45°</span>
+                        </label>
+                        <input type="range" id="angle" min="10" max="80" value="45" step="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Distance to Hoop (m)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">🎯 DISTANCE TO HOOP</div>
+                                        How far away the target is. Farther = need more speed or better angle.
+                                        <div class="tip-equation">time = distance ÷ vₓ</div>
+                                        <b>vₓ</b> = horizontal velocity (m/s)
+                                        <br><br>The ball drops while flying (due to gravity), so aim higher for distant shots!
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="distanceValue">1.5m</span>
+                        </label>
+                        <input type="range" id="distance" min="0.5" max="4" value="1.5" step="0.1">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Backspin (rad/s)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">🌀 BACKSPIN (Magnus Effect)</div>
+                                        Spinning ball creates pressure difference - low pressure on top, high on bottom.
+                                        <div class="tip-equation">F_lift ∝ spin × velocity</div>
+                                        <b>F_lift</b> = upward force, <b>∝</b> means "proportional to"
+                                        <br><b>rad/s</b> = radians per second (rotation speed)
+                                        <br><br>Like an airplane wing! Backspin helps the ball carry farther.
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="backspinValue">0</span>
+                        </label>
+                        <input type="range" id="backspin" min="0" max="100" value="0" step="5">
+                    </div>
+                </div>
+
+                <div class="control-section shared-settings">
+                    <h3>⚙️ Flywheel Properties</h3>
+                    
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Wheel Diameter (cm)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">⚙️ WHEEL DIAMETER</div>
+                                        Bigger wheel = faster ball at same RPM!
+                                        <div class="tip-equation">v = ω × r</div>
+                                        <b>r</b> = radius = diameter ÷ 2
+                                        <br><br>Trade-off: Bigger wheels are heavier and take longer to spin up.
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="wheelDiamValue">10cm</span>
+                        </label>
+                        <input type="range" id="wheelDiam" min="5" max="20" value="10" step="0.1">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Launcher Height (cm)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">📏 LAUNCHER HEIGHT</div>
+                                        How high off the ground the ball starts.
+                                        <div class="tip-equation">y(t) = h₀ + vᵧt - ½gt²</div>
+                                        <b>y</b> = height at time t, <b>h₀</b> = starting height
+                                        <br><b>vᵧ</b> = vertical velocity, <b>g</b> = gravity (9.81 m/s²)
+                                        <br><br>Higher start = more time in air = more range!
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="launchHeightValue">60cm</span>
+                        </label>
+                        <input type="range" id="launchHeight" min="15" max="120" value="60" step="5">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Ball Compression (mm)
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">🔴 BALL COMPRESSION</div>
+                                        How much the ball squishes against the wheel (in millimeters).
+                                        <br><br>More compression = more grip = better energy transfer!
+                                        <br><br>Think of it like friction - a squished ball grabs the wheel better.
+                                        <br><br>Trade-off: Too much can damage the ball or slow the wheel.
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="compressionValue">12mm</span>
+                        </label>
+                        <input type="range" id="compression" min="1" max="100" value="12" step="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label>
+                            <span class="label-with-tip">
+                                Efficiency
+                                <span class="tooltip-container">
+                                    <span class="info-icon">?</span>
+                                    <span class="tooltip-text">
+                                        <div class="tip-title">⚡ ENERGY TRANSFER</div>
+                                        How much wheel energy transfers to the ball (as a percentage).
+                                        <div class="tip-equation">v_ball = v_wheel × efficiency</div>
+                                        <b>v_ball</b> = ball exit speed, <b>v_wheel</b> = wheel surface speed
+                                        <br><br>Energy lost to: slipping, sound, heat, ball deformation. Real shooters: 60-85% efficient.
+                                    </span>
+                                </span>
+                            </span>
+                            <span class="value-display" id="efficiencyValue">75%</span>
+                        </label>
+                        <input type="range" id="efficiency" min="40" max="95" value="75" step="1">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="simulation-panel">
+                <canvas id="simulationCanvas" width="800" height="350"></canvas>
+
+                <div class="results-bar">
+                    <div class="shot-status" id="shotStatus">
+                        Adjust parameters to see trajectory
+                    </div>
+                    <div class="result-item">
+                        <h4>Exit Vel</h4>
+                        <span class="value" id="exitVelocity">0</span>
+                        <span class="unit">m/s</span>
+                    </div>
+                    <div class="result-item">
+                        <h4>Max Height</h4>
+                        <span class="value" id="maxHeight">0</span>
+                        <span class="unit">m</span>
+                    </div>
+                    <div class="result-item">
+                        <h4>Flight</h4>
+                        <span class="value" id="flightTime">0</span>
+                        <span class="unit">s</span>
+                    </div>
+                    <div class="result-item">
+                        <h4>Range</h4>
+                        <span class="value" id="range">0</span>
+                        <span class="unit">m</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="physics-sidebar">
+                <h3>📐 Physics</h3>
+                
+                <div class="formula">
+                    <div class="label">Surface Velocity:</div>
+                    <div class="equation" title="v = velocity, ω = angular velocity (rad/s), r = wheel radius">v = ω × r</div>
+                    <div class="calculated" id="surfaceVelCalc">= 0 m/s</div>
+                </div>
+
+                <div class="formula">
+                    <div class="label">Exit Velocity:</div>
+                    <div class="equation" title="Ball speed = surface velocity × efficiency × compression factor">v_ball = v × eff × comp</div>
+                    <div class="calculated" id="exitVelCalc">= 0 m/s</div>
+                </div>
+
+                <div class="formula">
+                    <div class="label">Velocity Components:</div>
+                    <div class="equation" title="vₓ = horizontal velocity, vᵧ = vertical velocity, θ = launch angle">vₓ=v·cos(θ), vᵧ=v·sin(θ)</div>
+                    <div class="calculated" id="velComponentsCalc">vₓ=0, vᵧ=0</div>
+                </div>
+
+                <div class="formula">
+                    <div class="label">Position at time t:</div>
+                    <div class="equation" title="x = horizontal position, h₀ = starting height, g = gravity (9.81 m/s²)">x(t) = vₓ × t</div>
+                    <div class="equation" title="Ball rises then falls due to gravity pulling it down">y(t) = h₀ + vᵧt - ½gt²</div>
+                </div>
+
+                <div class="formula">
+                    <div class="label">Drag Force:</div>
+                    <div class="equation" title="ρ = air density, v = speed, Cd = drag coefficient, A = ball cross-section area">F = ½ρv²CdA</div>
+                    <div class="calculated">Cd ≈ 0.47 (sphere)</div>
+                </div>
+                
+                <div class="formula" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #444;">
+                    <div class="label" style="font-weight: bold; color: #888;">Variable Key:</div>
+                    <div style="font-size: 0.7rem; color: #aaa; line-height: 1.5;">
+                        <b>v</b> = velocity (m/s)<br>
+                        <b>ω</b> = angular velocity (rad/s)<br>
+                        <b>r</b> = radius (m)<br>
+                        <b>θ</b> = angle (degrees)<br>
+                        <b>g</b> = gravity (9.81 m/s²)<br>
+                        <b>t</b> = time (seconds)<br>
+                        <b>ρ</b> = air density (kg/m³)<br>
+                        <b>Cd</b> = drag coefficient
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const GRAVITY = 9.81; // m/s²
+        const AIR_DENSITY = 1.225; // kg/m³
+        const DRAG_COEFFICIENT = 0.47; // sphere
+        const BALL_DIAMETER = 0.15; // 15cm in meters
+        const BALL_MASS = 0.227; // 0.5 lbs in kg
+        const BALL_RADIUS = BALL_DIAMETER / 2;
+        const BALL_AREA = Math.PI * BALL_RADIUS * BALL_RADIUS;
+        
+        // Hoop properties
+        const HOOP_HEIGHT = 1.83; // 1.83 meters (6 feet)
+        const HOOP_DIAMETER = 1.07; // 1.07 meters (42 inches)
+        const HOOP_RADIUS = HOOP_DIAMETER / 2;
+
+        // Canvas setup
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Scale: pixels per meter
+        let SCALE = 70;
+        let GROUND_Y = canvas.height - 40;
+        
+        // Trajectory state
+        let trajectoryPoints = [];
+        let idealTrajectoryPoints = [];
+
+        // Get DOM elements
+        const elements = {
+            rpm: document.getElementById('rpm'),
+            angle: document.getElementById('angle'),
+            distance: document.getElementById('distance'),
+            wheelDiam: document.getElementById('wheelDiam'),
+            launchHeight: document.getElementById('launchHeight'),
+            compression: document.getElementById('compression'),
+            efficiency: document.getElementById('efficiency'),
+            backspin: document.getElementById('backspin')
+        };
+
+        // Value display elements
+        const displays = {
+            rpmValue: document.getElementById('rpmValue'),
+            angleValue: document.getElementById('angleValue'),
+            distanceValue: document.getElementById('distanceValue'),
+            wheelDiamValue: document.getElementById('wheelDiamValue'),
+            launchHeightValue: document.getElementById('launchHeightValue'),
+            compressionValue: document.getElementById('compressionValue'),
+            efficiencyValue: document.getElementById('efficiencyValue'),
+            backspinValue: document.getElementById('backspinValue')
+        };
+
+        // Update display values and recalculate trajectory
+        function updateDisplays() {
+            displays.rpmValue.textContent = elements.rpm.value;
+            displays.angleValue.textContent = elements.angle.value + '°';
+            displays.distanceValue.textContent = elements.distance.value + 'm';
+            displays.wheelDiamValue.textContent = elements.wheelDiam.value + 'cm';
+            displays.launchHeightValue.textContent = elements.launchHeight.value + 'cm';
+            displays.compressionValue.textContent = elements.compression.value + 'mm';
+            displays.efficiencyValue.textContent = elements.efficiency.value + '%';
+            displays.backspinValue.textContent = elements.backspin.value;
+            
+            // Save current shot parameters to localStorage
+            if (typeof saveCurrentShotParams === 'function') {
+                saveCurrentShotParams();
+            }
+            
+            updatePhysicsCalculations();
+            calculateTrajectory();
+            drawScene();
+            
+            // Update results
+            const hoopDistance = parseFloat(elements.distance.value); // Already in meters
+            const result = checkHoopHit(trajectoryPoints, hoopDistance);
+            updateResults(result);
+        }
+
+        // Add event listeners for sliders
+        elements.rpm.addEventListener('input', updateDisplays);
+        elements.angle.addEventListener('input', updateDisplays);
+        elements.distance.addEventListener('input', updateDisplays);
+        elements.wheelDiam.addEventListener('input', updateDisplays);
+        elements.launchHeight.addEventListener('input', updateDisplays);
+        elements.compression.addEventListener('input', updateDisplays);
+        elements.efficiency.addEventListener('input', updateDisplays);
+        
+        // Add event listener for backspin
+        elements.backspin.addEventListener('input', updateDisplays);
+
+        // Unit conversion helpers
+        function cmToMeters(cm) {
+            return cm / 100;
+        }
+        
+        function mmToMeters(mm) {
+            return mm / 1000;
+        }
+
+        // Calculate exit velocity
+        function calculateExitVelocity() {
+            const rpm = parseFloat(elements.rpm.value);
+            const wheelDiamCm = parseFloat(elements.wheelDiam.value);
+            const wheelRadius = cmToMeters(wheelDiamCm) / 2;
+            const efficiency = parseFloat(elements.efficiency.value) / 100;
+            const compressionMm = parseFloat(elements.compression.value);
+            
+            // Angular velocity (rad/s)
+            const omega = (rpm * 2 * Math.PI) / 60;
+            
+            // Surface velocity
+            const surfaceVelocity = omega * wheelRadius;
+            
+            // Compression factor increases grip and energy transfer
+            // More compression = more grip = less slip = better energy transfer
+            // Ball is 150mm diameter, compression reduces slip between ball and wheel
+            // Realistic range: 1.0 (no compression) to ~1.15 (max compression)
+            const compressionFactor = 1 + (compressionMm * 0.004);
+            
+            // Exit velocity
+            const exitVelocity = surfaceVelocity * efficiency * compressionFactor;
+            
+            return {
+                surfaceVelocity,
+                exitVelocity,
+                omega
+            };
+        }
+
+        // Calculate trajectory with optional air resistance
+        function calculateTrajectory() {
+            const velocities = calculateExitVelocity();
+            const angle = parseFloat(elements.angle.value) * Math.PI / 180;
+            const launchHeight = cmToMeters(parseFloat(elements.launchHeight.value));
+            const includeAir = true; // Always include air resistance
+            const backspinRate = parseFloat(elements.backspin.value);
+            
+            let vx = velocities.exitVelocity * Math.cos(angle);
+            let vy = velocities.exitVelocity * Math.sin(angle);
+            
+            let x = 0;
+            let y = launchHeight;
+            
+            const dt = 0.002; // Time step (2ms for performance)
+            trajectoryPoints = [{x, y, vx, vy}];
+            
+            // Safety limit to prevent infinite loops
+            let iterations = 0;
+            const maxIterations = 10000;
+            
+            // Calculate trajectory
+            while (y >= 0 && x < 15 && iterations < maxIterations) {
+                iterations++;
+                const v = Math.sqrt(vx * vx + vy * vy);
+                
+                if (includeAir && v > 0) {
+                    // Drag force
+                    const dragForce = 0.5 * AIR_DENSITY * v * v * DRAG_COEFFICIENT * BALL_AREA;
+                    const dragAccel = dragForce / BALL_MASS;
+                    
+                    // Drag components (opposite to velocity)
+                    const ax_drag = -dragAccel * (vx / v);
+                    const ay_drag = -dragAccel * (vy / v);
+                    
+                    // Magnus effect (backspin creates lift) - realistic values
+                    let ay_magnus = 0;
+                    if (backspinRate > 0) {
+                        // Magnus lift coefficient for a spinning sphere
+                        // Lift = 0.5 * rho * v^2 * Cl * A, where Cl depends on spin
+                        const liftCoeff = 0.15 * (backspinRate * BALL_RADIUS / v); // Spin ratio
+                        const maxLift = 0.3; // Cap the lift coefficient
+                        const clampedLift = Math.min(liftCoeff, maxLift);
+                        const liftForce = 0.5 * AIR_DENSITY * v * v * clampedLift * BALL_AREA;
+                        ay_magnus = liftForce / BALL_MASS;
+                    }
+                    
+                    vx += ax_drag * dt;
+                    vy += (ay_drag - GRAVITY + ay_magnus) * dt;
+                } else {
+                    vy -= GRAVITY * dt;
+                }
+                
+                x += vx * dt;
+                y += vy * dt;
+                
+                trajectoryPoints.push({x, y, vx, vy});
+            }
+            
+            // Calculate ideal trajectory (no air resistance)
+            // Always calculate ideal trajectory (no air resistance)
+            let vx_ideal = velocities.exitVelocity * Math.cos(angle);
+            let vy_ideal = velocities.exitVelocity * Math.sin(angle);
+            let x_ideal = 0;
+            let y_ideal = launchHeight;
+            let iter = 0;
+            
+            idealTrajectoryPoints = [{x: x_ideal, y: y_ideal}];
+            
+            while (y_ideal >= 0 && x_ideal < 15 && iter < maxIterations) {
+                iter++;
+                vy_ideal -= GRAVITY * dt;
+                x_ideal += vx_ideal * dt;
+                y_ideal += vy_ideal * dt;
+                idealTrajectoryPoints.push({x: x_ideal, y: y_ideal});
+            }
+            
+            return trajectoryPoints;
+        }
+
+        // Check if ball goes through hoop
+        function checkHoopHit(trajectory, hoopDistance) {
+            // hoopDistance is distance to FRONT of hoop
+            const hoopLeft = hoopDistance;
+            const hoopRight = hoopDistance + HOOP_DIAMETER;
+            
+            // Find where the ball crosses HOOP_HEIGHT while descending
+            let crossingX = null;
+            let crossingFound = false;
+            let wentUpThroughHoop = false;
+            
+            for (let i = 1; i < trajectory.length; i++) {
+                const prev = trajectory[i - 1];
+                const curr = trajectory[i];
+                
+                // Check if ball crossed hoop height going DOWN
+                if (prev.y > HOOP_HEIGHT && curr.y <= HOOP_HEIGHT && curr.vy < 0) {
+                    // Interpolate to find exact x position at crossing
+                    const t = (HOOP_HEIGHT - prev.y) / (curr.y - prev.y);
+                    crossingX = prev.x + t * (curr.x - prev.x);
+                    crossingFound = true;
+                }
+                
+                // Check if ball crossed hoop height going UP while in hoop zone
+                const inHoopZone = (curr.x >= hoopLeft && curr.x <= hoopRight) || 
+                                   (prev.x >= hoopLeft && prev.x <= hoopRight);
+                if (inHoopZone && prev.y < HOOP_HEIGHT && curr.y >= HOOP_HEIGHT && curr.vy > 0) {
+                    wentUpThroughHoop = true;
+                }
+            }
+            
+            // Ball went up through hoop - invalid
+            if (wentUpThroughHoop) {
+                return { hit: false, y: HOOP_HEIGHT, message: "Wrong way! ⬆️ Ball went up through hoop" };
+            }
+            
+            // Check if the crossing point is within the hoop bounds
+            if (crossingFound && crossingX !== null) {
+                if (crossingX >= hoopLeft && crossingX <= hoopRight) {
+                    // Ball crossed through the hoop plane while descending - it's a make!
+                    return { hit: true, y: HOOP_HEIGHT, message: "Swish! Perfect shot! 🎯" };
+                } else if (crossingX < hoopLeft) {
+                    // Crossed hoop height before reaching the hoop
+                    return { hit: false, y: HOOP_HEIGHT, message: "Too short! 💨 Need more power" };
+                } else {
+                    // Crossed hoop height after passing the hoop
+                    return { hit: false, y: HOOP_HEIGHT, message: "Overshot! ⬇️ Reduce power" };
+                }
+            }
+            
+            // Ball never crossed hoop height while descending
+            const maxX = Math.max(...trajectory.map(p => p.x));
+            const maxY = Math.max(...trajectory.map(p => p.y));
+            
+            if (maxX < hoopLeft) {
+                return { hit: false, y: 0, message: "Too short! 💨 Need more power" };
+            } else if (maxY < HOOP_HEIGHT) {
+                return { hit: false, y: maxY, message: "Too low! ⬆️ Increase power or angle" };
+            } else {
+                return { hit: false, y: 0, message: "Missed! Adjust parameters" };
+            }
+        }
+
+        // Draw the scene
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const hoopDistance = parseFloat(elements.distance.value); // Already in meters
+            const launchHeight = cmToMeters(parseFloat(elements.launchHeight.value));
+            
+            // Robot platform/box dimensions (calculated early for grid positioning)
+            // Box dimensions: 21" high x 38" long, shooter 10.5" from far end (away from hoop)
+            const BOX_HEIGHT = 0.5334; // 21 inches in meters
+            const BOX_LENGTH = 0.9906; // 39 inches in meters
+            const SHOOTER_FROM_LEFT = 0.0762; // 3 inches from left edge (far end from hoop)
+            
+            // Box starts at left edge of canvas area
+            const boxLeftX = 50;
+            
+            // Adjust scale based on distance (include full hoop width and box)
+            SCALE = Math.min(80, (canvas.width - 150) / (SHOOTER_FROM_LEFT + hoopDistance + HOOP_DIAMETER + 1));
+            
+            // Calculate shooter position (used for grid and trajectory)
+            const robotX = boxLeftX + SHOOTER_FROM_LEFT * SCALE;
+            
+            // Draw grid (starting from shooter position)
+            ctx.strokeStyle = '#2a3f5f';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines (every meter from shooter position)
+            for (let x = 0; x <= hoopDistance + HOOP_DIAMETER + 1; x++) {
+                const px = robotX + x * SCALE;
+                ctx.beginPath();
+                ctx.moveTo(px, 0);
+                ctx.lineTo(px, GROUND_Y);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines (every meter)
+            for (let y = 0; y <= 4; y++) {
+                const py = GROUND_Y - y * SCALE;
+                ctx.beginPath();
+                ctx.moveTo(boxLeftX, py);
+                ctx.lineTo(canvas.width - 20, py);
+                ctx.stroke();
+                
+                // Label
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(y + 'm', 45, py + 4);
+            }
+            
+            // Draw ground axis line
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(boxLeftX, GROUND_Y);
+            ctx.lineTo(canvas.width - 20, GROUND_Y);
+            ctx.stroke();
+            
+            // Draw tick marks and labels on ground axis
+            ctx.fillStyle = '#888';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            for (let x = 0; x <= hoopDistance + HOOP_DIAMETER + 1; x += 0.5) {
+                const px = robotX + x * SCALE;
+                const tickHeight = (x % 1 === 0) ? 8 : 4; // Longer ticks for whole meters
+                
+                ctx.beginPath();
+                ctx.moveTo(px, GROUND_Y);
+                ctx.lineTo(px, GROUND_Y + tickHeight);
+                ctx.stroke();
+                
+                // Label whole meters only
+                if (x % 1 === 0) {
+                    ctx.fillText(x + 'm', px, GROUND_Y + 20);
+                }
+            }
+            
+            // Draw robot platform/box (dimensions defined above for grid positioning)
+            const boxTopY = GROUND_Y - BOX_HEIGHT * SCALE;
+            
+            // Draw box
+            ctx.fillStyle = '#4a5568';
+            ctx.fillRect(boxLeftX, boxTopY, BOX_LENGTH * SCALE, BOX_HEIGHT * SCALE);
+            ctx.strokeStyle = '#2d3748';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(boxLeftX, boxTopY, BOX_LENGTH * SCALE, BOX_HEIGHT * SCALE);
+            
+            // Launcher sits on top of box, launchHeight is measured from ground
+            const launchY = GROUND_Y - launchHeight * SCALE;
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(robotX, launchY, BALL_RADIUS * SCALE, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw launcher direction indicator
+            const angle = parseFloat(elements.angle.value) * Math.PI / 180;
+            ctx.strokeStyle = '#ffc107';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(robotX, launchY);
+            ctx.lineTo(robotX + Math.cos(angle) * 40, launchY - Math.sin(angle) * 40);
+            ctx.stroke();
+            
+            // Draw hoop (hoopDistance is to front edge of hoop, from launcher position)
+            const hoopFrontX = robotX + hoopDistance * SCALE;
+            const hoopBackX = robotX + (hoopDistance + HOOP_DIAMETER) * SCALE;
+            const hoopY = GROUND_Y - HOOP_HEIGHT * SCALE;
+            
+            // Hoop (orange line)
+            ctx.strokeStyle = '#ff6b35';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(hoopFrontX, hoopY);
+            ctx.lineTo(hoopBackX, hoopY);
+            ctx.stroke();
+            
+            // Hoop height label
+            ctx.fillStyle = '#ff6b35';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('1.83m', hoopBackX + 8, hoopY + 4);
+            
+            // Draw wall (vertical line down from front of hoop)
+            ctx.strokeStyle = '#888888';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(hoopFrontX, hoopY);
+            ctx.lineTo(hoopFrontX, GROUND_Y);
+            ctx.stroke();
+            
+            // Draw ideal trajectory (no air resistance) - dashed white line
+            if (idealTrajectoryPoints.length > 0) {
+                ctx.strokeStyle = '#888888';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 4]);
+                ctx.beginPath();
+                
+                for (let i = 0; i < idealTrajectoryPoints.length; i += 10) {
+                    const point = idealTrajectoryPoints[i];
+                    const px = robotX + point.x * SCALE;
+                    const py = GROUND_Y - point.y * SCALE;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(px, py);
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            // Draw legend
+            const legendX = canvas.width - 180;
+            const legendY = 15;
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.fillRect(legendX - 10, legendY - 5, 175, 50);
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(legendX - 10, legendY - 5, 175, 50);
+            
+            // Ideal path legend
+            ctx.strokeStyle = '#888888';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath();
+            ctx.moveTo(legendX, legendY + 10);
+            ctx.lineTo(legendX + 30, legendY + 10);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#aaa';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Ideal (no air)', legendX + 40, legendY + 14);
+            
+            // Real path legend
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(legendX, legendY + 30);
+            ctx.lineTo(legendX + 30, legendY + 30);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#aaa';
+            ctx.fillText('With air resistance', legendX + 40, legendY + 34);
+            
+            // Draw trajectory
+            if (trajectoryPoints.length > 0) {
+                // Draw full trajectory path
+                ctx.strokeStyle = '#667eea';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let i = 0; i < trajectoryPoints.length; i += 5) {
+                    const point = trajectoryPoints[i];
+                    const px = robotX + point.x * SCALE;
+                    const py = GROUND_Y - point.y * SCALE;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(px, py);
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                }
+                ctx.stroke();
+                
+                // Draw ball at launch position
+                const launchPoint = trajectoryPoints[0];
+                const launchPx = robotX + launchPoint.x * SCALE;
+                const launchPy = GROUND_Y - launchPoint.y * SCALE;
+                
+                // Draw ball at landing/end position
+                const endPoint = trajectoryPoints[trajectoryPoints.length - 1];
+                const endPx = robotX + endPoint.x * SCALE;
+                const endPy = GROUND_Y - endPoint.y * SCALE;
+                
+                // Find position at hoop distance
+                const hoopDist = parseFloat(elements.distance.value); // Already in meters
+                let ballAtHoop = null;
+                for (let i = 1; i < trajectoryPoints.length; i++) {
+                    if (trajectoryPoints[i-1].x <= hoopDist && trajectoryPoints[i].x >= hoopDist) {
+                        const t = (hoopDist - trajectoryPoints[i-1].x) / (trajectoryPoints[i].x - trajectoryPoints[i-1].x);
+                        ballAtHoop = {
+                            x: hoopDist,
+                            y: trajectoryPoints[i-1].y + t * (trajectoryPoints[i].y - trajectoryPoints[i-1].y)
+                        };
+                        break;
+                    }
+                }
+                
+                // Draw ball at hoop position if it reaches
+                if (ballAtHoop) {
+                    const ballPx = robotX + ballAtHoop.x * SCALE;
+                    const ballPy = GROUND_Y - ballAtHoop.y * SCALE;
+                    
+                    // Ball
+                    const gradient = ctx.createRadialGradient(
+                        ballPx - 3, ballPy - 3, 0,
+                        ballPx, ballPy, BALL_RADIUS * SCALE
+                    );
+                    gradient.addColorStop(0, '#ffdd44');
+                    gradient.addColorStop(1, '#ff8800');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(ballPx, ballPy, BALL_RADIUS * SCALE, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#cc6600';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Update physics calculations display
+        function updatePhysicsCalculations() {
+            const velocities = calculateExitVelocity();
+            const angle = parseFloat(elements.angle.value);
+            const angleRad = angle * Math.PI / 180;
+            
+            document.getElementById('surfaceVelCalc').textContent = 
+                `= ${velocities.surfaceVelocity.toFixed(1)} m/s`;
+            
+            document.getElementById('exitVelCalc').textContent = 
+                `= ${velocities.exitVelocity.toFixed(1)} m/s`;
+            
+            const vx = velocities.exitVelocity * Math.cos(angleRad);
+            const vy = velocities.exitVelocity * Math.sin(angleRad);
+            document.getElementById('velComponentsCalc').textContent = 
+                `vₓ=${vx.toFixed(1)}, vᵧ=${vy.toFixed(1)}`;
+        }
+
+        // Update results display
+        function updateResults(hoopResult) {
+            const velocities = calculateExitVelocity();
+            const trajectory = trajectoryPoints;
+            
+            // Exit velocity (m/s)
+            document.getElementById('exitVelocity').textContent = velocities.exitVelocity.toFixed(1);
+            
+            // Max height (meters)
+            const maxHeight = Math.max(...trajectory.map(p => p.y));
+            document.getElementById('maxHeight').textContent = maxHeight.toFixed(2);
+            
+            // Flight time (approximate) - subtract 1 because first point is at t=0
+            const flightTime = (trajectory.length - 1) * 0.002; // dt is 0.002
+            document.getElementById('flightTime').textContent = flightTime.toFixed(2);
+            
+            // Range (meters)
+            const range = trajectory[trajectory.length - 1].x;
+            document.getElementById('range').textContent = range.toFixed(2);
+            
+            // Shot status
+            const statusEl = document.getElementById('shotStatus');
+            if (hoopResult.hit) {
+                statusEl.className = 'shot-status success';
+                statusEl.textContent = hoopResult.message;
+            } else {
+                statusEl.className = 'shot-status miss';
+                statusEl.textContent = hoopResult.message;
+            }
+        }
+
+        // Load presets
+        // ========== SHOT MANAGEMENT ==========
+        const STORAGE_KEY = 'frc-shooter-shots';
+        const FLYWHEEL_STORAGE_KEY = 'frc-shooter-flywheel';
+        let shots = [];
+        let currentShotIndex = 0;
+        
+        // Default flywheel properties (shared across all shots)
+        const defaultFlywheelProps = {
+            wheelDiam: 10,        // cm
+            launchHeight: 60,     // cm
+            compression: 12,      // mm
+            efficiency: 75        // %
+        };
+        
+        // Load flywheel properties from storage
+        function loadFlywheelProps() {
+            try {
+                const stored = localStorage.getItem(FLYWHEEL_STORAGE_KEY);
+                if (stored) {
+                    const props = JSON.parse(stored);
+                    elements.wheelDiam.value = props.wheelDiam ?? defaultFlywheelProps.wheelDiam;
+                    elements.launchHeight.value = props.launchHeight ?? defaultFlywheelProps.launchHeight;
+                    elements.compression.value = props.compression ?? defaultFlywheelProps.compression;
+                    elements.efficiency.value = props.efficiency ?? defaultFlywheelProps.efficiency;
+                } else {
+                    elements.wheelDiam.value = defaultFlywheelProps.wheelDiam;
+                    elements.launchHeight.value = defaultFlywheelProps.launchHeight;
+                    elements.compression.value = defaultFlywheelProps.compression;
+                    elements.efficiency.value = defaultFlywheelProps.efficiency;
+                }
+            } catch (e) {
+                console.error('Error loading flywheel props:', e);
+            }
+        }
+        
+        // Save flywheel properties to storage
+        function saveFlywheelProps() {
+            try {
+                localStorage.setItem(FLYWHEEL_STORAGE_KEY, JSON.stringify({
+                    wheelDiam: parseFloat(elements.wheelDiam.value),
+                    launchHeight: parseFloat(elements.launchHeight.value),
+                    compression: parseFloat(elements.compression.value),
+                    efficiency: parseFloat(elements.efficiency.value)
+                }));
+            } catch (e) {
+                console.error('Error saving flywheel props:', e);
+            }
+        }
+        
+        // Add event listeners for flywheel properties (save when changed)
+        elements.wheelDiam.addEventListener('input', saveFlywheelProps);
+        elements.launchHeight.addEventListener('input', saveFlywheelProps);
+        elements.compression.addEventListener('input', saveFlywheelProps);
+        elements.efficiency.addEventListener('input', saveFlywheelProps);
+
+        // Default shot parameters
+        function getDefaultShot(name = 'Shot 1') {
+            return {
+                name: name,
+                rpm: 3000,
+                angle: 45,
+                distance: 1.5,        // meters
+                backspin: 0
+            };
+        }
+
+        // Load shots from localStorage
+        function loadShotsFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    shots = data.shots || [];
+                    currentShotIndex = data.currentIndex || 0;
+                    if (shots.length === 0) {
+                        shots = [getDefaultShot()];
+                        currentShotIndex = 0;
+                    }
+                } else {
+                    shots = [getDefaultShot()];
+                    currentShotIndex = 0;
+                }
+            } catch (e) {
+                console.error('Error loading shots:', e);
+                shots = [getDefaultShot()];
+                currentShotIndex = 0;
+            }
+            // Ensure currentShotIndex is valid
+            if (currentShotIndex >= shots.length) {
+                currentShotIndex = 0;
+            }
+        }
+
+        // Save shots to localStorage
+        function saveShotsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    shots: shots,
+                    currentIndex: currentShotIndex
+                }));
+            } catch (e) {
+                console.error('Error saving shots:', e);
+            }
+        }
+
+        // Save current slider values to the current shot (shot-specific params only)
+        function saveCurrentShotParams() {
+            if (shots[currentShotIndex]) {
+                shots[currentShotIndex].rpm = parseFloat(elements.rpm.value);
+                shots[currentShotIndex].angle = parseFloat(elements.angle.value);
+                shots[currentShotIndex].distance = parseFloat(elements.distance.value);
+                shots[currentShotIndex].backspin = parseFloat(elements.backspin.value);
+                saveShotsToStorage();
+            }
+        }
+
+        // Load shot parameters into sliders (shot-specific params only)
+        function loadShotParams(shot) {
+            elements.rpm.value = shot.rpm;
+            elements.angle.value = shot.angle;
+            elements.distance.value = shot.distance;
+            elements.backspin.value = shot.backspin;
+        }
+
+        // Switch to a different shot
+        function switchToShot(index) {
+            if (index >= 0 && index < shots.length && index !== currentShotIndex) {
+                currentShotIndex = index;
+                loadShotParams(shots[index]);
+                saveShotsToStorage();
+                renderShotsList();
+                updateDisplays();
+            }
+        }
+
+        // Add a new shot
+        function addNewShot() {
+            const newName = 'Shot ' + (shots.length + 1);
+            const newShot = getDefaultShot(newName);
+            // Copy current shot-specific parameters to new shot
+            newShot.rpm = parseFloat(elements.rpm.value);
+            newShot.angle = parseFloat(elements.angle.value);
+            newShot.distance = parseFloat(elements.distance.value);
+            newShot.backspin = parseFloat(elements.backspin.value);
+            
+            shots.push(newShot);
+            currentShotIndex = shots.length - 1;
+            saveShotsToStorage();
+            renderShotsList();
+        }
+
+        // Delete a shot
+        function deleteShot(index, event) {
+            event.stopPropagation();
+            if (shots.length <= 1) {
+                alert('You must have at least one shot!');
+                return;
+            }
+            shots.splice(index, 1);
+            if (currentShotIndex >= shots.length) {
+                currentShotIndex = shots.length - 1;
+            }
+            loadShotParams(shots[currentShotIndex]);
+            saveShotsToStorage();
+            renderShotsList();
+            updateDisplays();
+        }
+
+        // Rename a shot
+        function renameShot(index, newName) {
+            if (shots[index]) {
+                shots[index].name = newName || 'Shot ' + (index + 1);
+                saveShotsToStorage();
+            }
+        }
+
+        // Render the shots list UI
+        function renderShotsList() {
+            const container = document.getElementById('shotsList');
+            container.innerHTML = '';
+            
+            shots.forEach((shot, index) => {
+                const item = document.createElement('div');
+                item.className = 'shot-item' + (index === currentShotIndex ? ' active' : '');
+                item.onclick = () => switchToShot(index);
+                
+                item.innerHTML = `
+                    <span class="shot-name">
+                        <input type="text" value="${shot.name}" 
+                            onmousedown="event.stopPropagation(); switchToShot(${index});"
+                            onchange="renameShot(${index}, this.value)"
+                            onblur="renameShot(${index}, this.value)">
+                    </span>
+                    <button class="delete-shot" onclick="deleteShot(${index}, event)" title="Delete shot">×</button>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Initialize
+        loadFlywheelProps();  // Load shared flywheel properties first
+        loadShotsFromStorage();
+        loadShotParams(shots[currentShotIndex]);
+        renderShotsList();
+        updateDisplays();
+    </script>
+</body>
+</html>

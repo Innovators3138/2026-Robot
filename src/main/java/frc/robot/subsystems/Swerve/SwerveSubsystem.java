@@ -24,7 +24,7 @@ public class SwerveSubsystem extends SubsystemBase {
           .publish();
 
   public SwerveSubsystem() {
-    File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/neo);");
+    File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/neo");
     try {
       m_SwerveDrive =
           new SwerveParser(swerveJsonDirectory)

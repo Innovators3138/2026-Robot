@@ -20,6 +20,6 @@ public class RobotContainer {
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox));
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
 
-    operatorXbox.rightTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(60)));
+    operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(2250)));
   }
 }

@@ -3,9 +3,9 @@ package frc.robot;
 import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 
 public class RobotContainer {
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
@@ -24,6 +24,6 @@ public class RobotContainer {
 
     operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(2250)));
 
-    driverXbox.rightTrigger(0.5).whileTrue(intakeSubsyste)
+    driverXbox.rightTrigger(0.5).whileTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
   }
 }

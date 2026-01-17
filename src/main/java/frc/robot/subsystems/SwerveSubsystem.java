@@ -64,4 +64,8 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.updateOdometry();
     posePublisher.set(swerveDrive.getPose());
   }
+
+  public Pose2d getPose() {
+    return swerveDrive.getPose();
+  }
 }

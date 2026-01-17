@@ -7,10 +7,10 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
-  private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private final CommandXboxController driverXbox = new CommandXboxController(0);
-  private final CommandXboxController operatorXbox = new CommandXboxController(1);
+  public final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  public final CommandXboxController driverXbox = new CommandXboxController(0);
+  public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
   public RobotContainer() {
     configureBindings();

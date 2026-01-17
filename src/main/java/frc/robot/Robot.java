@@ -1,13 +1,16 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.simulation.ShotSimulator;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
-
-  public final RobotContainer robotContainer;
+  private RobotContainer robotContainer;
+  private ShotSimulator shotSimulator;
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -46,8 +49,12 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {}
 
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    shotSimulator = new ShotSimulator(robotContainer);
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    shotSimulator.update(Seconds.of(getPeriod()));
+  }
 }

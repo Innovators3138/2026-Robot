@@ -17,7 +17,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox));
+    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
 
     operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(2250)));

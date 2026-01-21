@@ -10,10 +10,13 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.RebuiltField;
 import java.io.File;
 import java.io.IOException;
 import swervelib.SwerveDrive;
@@ -48,20 +51,37 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  public Command driveFieldOriented(CommandXboxController controller) {
+  public Command driveFieldOriented(
+      CommandXboxController driverController, CommandXboxController operatorController) {
     SwerveInputStream inputStream =
         SwerveInputStream.of(
-                swerveDrive, () -> controller.getLeftY() * -1, () -> controller.getLeftX() * -1)
-            .withControllerRotationAxis(() -> controller.getRightX() * -1)
+                swerveDrive,
+                () -> driverController.getLeftY() * -1,
+                () -> driverController.getLeftX() * -1)
+            .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .allianceRelativeControl(true);
+            .allianceRelativeControl(true)
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
-    return run(() -> swerveDrive.driveFieldOriented(inputStream.get()));
+    return run(
+        () -> {
+          var target = RebuiltField.BLUE_HUB;
+          if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            target = RebuiltField.RED_HUB;
+          }
+
+          inputStream.aim(target);
+          swerveDrive.driveFieldOriented(inputStream.get());
+        });
   }
 
   @Override
   public void periodic() {
     swerveDrive.updateOdometry();
     posePublisher.set(swerveDrive.getPose());
+  }
+
+  public Pose2d getPose() {
+    return swerveDrive.getPose();
   }
 }

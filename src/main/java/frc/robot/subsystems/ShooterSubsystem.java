@@ -13,12 +13,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -31,9 +33,10 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class ShooterSubsystem extends SubsystemBase {
+  InterpolatingDoubleTreeMap distanceToRPM = new InterpolatingDoubleTreeMap();
+
   public static final Distance WHEEL_DIAMETER = Inches.of(4);
   public static final Distance WHEEL_RADIUS = WHEEL_DIAMETER.div(2);
-  public static final double EFFICIENCY = 0.75;
 
   public static final Distance SHOOTER_OFFSET_X = Meters.of(0.3);
   public static final Distance SHOOTER_OFFSET_Y = Meters.of(0);
@@ -73,6 +76,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private FlyWheel shooter = new FlyWheel(flywheelConfig);
 
+  public ShooterSubsystem() {}
+
   @Override
   public void periodic() {
     shooter.updateTelemetry();
@@ -88,6 +93,10 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command setAngularVelocity(AngularVelocity angularVelocity) {
+    return shooter.setSpeed(angularVelocity);
+  }
+
+  public Command setAngularVelocity(Supplier<AngularVelocity> angularVelocity) {
     return shooter.setSpeed(angularVelocity);
   }
 }

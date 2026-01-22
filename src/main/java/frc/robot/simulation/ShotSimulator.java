@@ -33,7 +33,7 @@ public class ShotSimulator {
   private static final Distance RED_HUB_Y = BLUE_HUB_Y;
   private static final Time MAX_BALL_LIFETIME = Seconds.of(5.0);
   private static final Time FIRE_INTERVAL = Milliseconds.of(200);
-
+  public static final double EFFICIENCY = 0.75;
   private final List<SimulatedBall> activeBalls = new ArrayList<>();
   private final RobotContainer robotContainer;
   private int scoredCount = 0;
@@ -94,10 +94,14 @@ public class ShotSimulator {
   }
 
   private void shoot() {
-    var robotPose = robotContainer.swerveSubsystem.getPose();
+    var robotPose =
+        robotContainer
+            .swerveSubsystem
+            .getSimulatedPose()
+            .orElse(robotContainer.swerveSubsystem.getPose());
     var omegaRadPerSec = robotContainer.shooterSubsystem.getAngularVelocity().in(RadiansPerSecond);
     var wheelRadiusMeters = ShooterSubsystem.WHEEL_RADIUS.in(Meters);
-    var exitVelocityMps = omegaRadPerSec * wheelRadiusMeters * ShooterSubsystem.EFFICIENCY;
+    var exitVelocityMps = omegaRadPerSec * wheelRadiusMeters * EFFICIENCY;
 
     var robotHeading = robotPose.getRotation().getRadians();
     var launchAngleRad = ShooterSubsystem.LAUNCH_ANGLE.in(Radians);

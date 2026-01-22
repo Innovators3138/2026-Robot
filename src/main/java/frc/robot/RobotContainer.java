@@ -10,6 +10,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class RobotContainer {
   public final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
@@ -20,6 +21,7 @@ public class RobotContainer {
   private void configureBindings() {
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
+    intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
 
     operatorXbox
         .leftTrigger(0.5)

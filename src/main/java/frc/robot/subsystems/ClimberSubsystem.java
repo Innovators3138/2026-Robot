@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,8 @@ public class ClimberSubsystem extends SubsystemBase {
               4.0, 0.0, 0.0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
           .withTelemetry("ClimberMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+          .withFeedforward(new ElevatorFeedforward(0, 0, 0))
+          .withSimFeedforward(new ElevatorFeedforward(0, 0, 0))
           .withMotorInverted(false)
           .withIdleMode(MotorMode.BRAKE)
           .withStatorCurrentLimit(Amps.of(40))

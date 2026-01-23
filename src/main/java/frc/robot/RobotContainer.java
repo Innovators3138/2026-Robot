@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.FireCommand;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -29,14 +30,11 @@ public class RobotContainer {
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
 
-    operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(2250)));
-    operatorXbox
-        .rightTrigger()
-        .whileTrue(
-            feederSubsystem
-                .setFeederAngularVelocity(RPM.of(500))
-                .alongWith(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(180))));
+    operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
 
     driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
+    operatorXbox
+        .leftTrigger(0.5)
+        .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
   }
 }

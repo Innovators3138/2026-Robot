@@ -2,6 +2,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.RPM;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Commands.FireCommand;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -14,8 +19,13 @@ public class RobotContainer {
   public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
+  private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
   }
 
@@ -27,5 +37,13 @@ public class RobotContainer {
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
+  }
+
+  public Command getAutonomousCommand() {
+    return new PathPlannerAuto("Example auto");
+  }
+
+  public Command getAutonomousCOmmand() {
+    return autoChooser.getSelected();
   }
 }

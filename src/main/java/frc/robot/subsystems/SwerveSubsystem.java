@@ -4,12 +4,18 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,6 +38,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final StructPublisher<Pose2d> simulatedPosePublisher;
 
   public SwerveSubsystem() {
+
     estimatedPosePublisher =
         NetworkTableInstance.getDefault()
             .getStructTopic("Subsystems/Swerve/EstimatedPose", Pose2d.struct)
@@ -52,6 +59,48 @@ public class SwerveSubsystem extends SubsystemBase {
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
+    RobotConfig config;
+    try {
+      config = RobotConfig.fromGUISettings(); // Configure AutoBuilder last
+      AutoBuilder.configure(
+          this::getPose, // Robot pose supplier
+          this::resetOdometry, // Method to reset odometry (will be called if your auto has a
+          // starting
+          // pose)
+          this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+          (speeds, feedforwards) ->
+              driveRobotRelative(
+                  speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds.
+          // Also optionally outputs individual module feedforwards
+          new PPHolonomicDriveController(
+              // controller for holonomic drive trains
+              new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+              new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+              ),
+          config, // The robot configuration
+          () -> {
+            // Boolean supplier that controls when the path will be mirrored for the red alliance
+            // This will flip the path being followed to the red side of the field.
+            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+            var alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()) {
+              return alliance.get() == DriverStation.Alliance.Red;
+            }
+            return false;
+          },
+          this // Reference to this subsystem to set requirements
+          );
+
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+  }
+
+  private Object driveRobotRelative(ChassisSpeeds speeds) {
+
+    throw new UnsupportedOperationException("Unimplemented method 'driveRobotRelative'");
   }
 
   public Command driveFieldOriented(
@@ -99,5 +148,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Pose2d getPose() {
     return swerveDrive.getPose();
+  }
+
+  public void resetOdometry(Pose2d robotPose) {
+    swerveDrive.resetOdometry(InitialPose);
+  }
+
+  public ChassisSpeeds getRobotVelocity() {
+    return swerveDrive.getRobotVelocity();
   }
 }

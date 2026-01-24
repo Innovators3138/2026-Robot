@@ -41,7 +41,7 @@ public class ClimberSubsystem extends SubsystemBase {
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
           .withFeedforward(new ElevatorFeedforward(0, 0, 0.1))
           .withSimFeedforward(new ElevatorFeedforward(0.02, 0.61, 1.46))
-          .withMotorInverted(false)
+          .withMotorInverted(true)
           .withIdleMode(MotorMode.BRAKE)
           .withStatorCurrentLimit(Amps.of(40))
           .withClosedLoopRampRate(Second.of(0.25))

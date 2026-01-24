@@ -33,7 +33,7 @@ public class ShotSimulator {
   private static final Distance RED_HUB_Y = BLUE_HUB_Y;
   private static final Time MAX_BALL_LIFETIME = Seconds.of(5.0);
   private static final Time FIRE_INTERVAL = Milliseconds.of(200);
-  public static final double EFFICIENCY = 0.75;
+  public static final double EFFICIENCY = 0.86;
   private final List<SimulatedBall> activeBalls = new ArrayList<>();
   private final RobotContainer robotContainer;
   private int scoredCount = 0;

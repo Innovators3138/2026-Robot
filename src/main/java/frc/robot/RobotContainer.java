@@ -1,9 +1,11 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.FireCommand;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -21,7 +23,11 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
+
+    climberSubsystem.setDefaultCommand(climberSubsystem.setHeight(Meters.of(0)));
   }
+
+  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   private void configureBindings() {
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));

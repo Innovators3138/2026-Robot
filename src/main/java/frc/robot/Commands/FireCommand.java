@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.RebuiltField;
+import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -28,7 +28,7 @@ public class FireCommand extends Command {
     return shooterSubsystem.setAngularVelocity(
         () -> {
           var translation = swerveSubsystem.getPose().getTranslation();
-          var target = RebuiltField.getHub();
+          var target = Constants.getHub();
           var distance = target.getTranslation().getDistance(translation);
           var distanceInMeters = Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X);
           var shooterSpeed = distanceToRPM.get(distanceInMeters.in(Meter));

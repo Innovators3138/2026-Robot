@@ -108,9 +108,9 @@ public class SwerveSubsystem extends SubsystemBase {
     PathfindingCommand.warmupCommand().schedule();
   }
 
-  private Object driveRobotRelative(ChassisSpeeds speeds) {
+  private void driveRobotRelative(ChassisSpeeds speeds) {
 
-    throw new UnsupportedOperationException("Unimplemented method 'driveRobotRelative'");
+    swerveDrive.drive(speeds);
   }
 
   public Command driveFieldOriented(

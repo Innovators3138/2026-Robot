@@ -3,10 +3,9 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.Drive.DriveToBase;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.FireCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
@@ -39,7 +38,6 @@ public class RobotContainer {
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
-    driverXbox.rightBumper().onTrue(new DriveToBase(swerveSubsystem));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
 
@@ -49,9 +47,13 @@ public class RobotContainer {
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
+    if (Robot.isSimulation()) {
+      driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
+    }
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Example auto");
+    return AutoCommands.firstAuto(
+        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
   }
 }

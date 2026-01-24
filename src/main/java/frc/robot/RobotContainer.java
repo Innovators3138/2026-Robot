@@ -17,16 +17,16 @@ public class RobotContainer {
   public RobotContainer() {
     configureBindings();
 
-    m_climberSubsystem.setDefaultCommand(m_climberSubsystem.setHeight(Meters.of(0)));
+    climberSubsystem.setDefaultCommand(climberSubsystem.setHeight(Meters.of(0)));
   }
 
-  private final ClimberSubsystem m_climberSubsystem = new ClimberSubsystem();
+  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   private void configureBindings() {
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox));
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
 
     operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(2250)));
-    operatorXbox.b().toggleOnTrue(m_climberSubsystem.setHeight(Meters.of(1)));
+    operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
   }
 }

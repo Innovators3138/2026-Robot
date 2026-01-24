@@ -27,10 +27,6 @@ public class RobotContainer {
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
 
     operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(RPM.of(2250)));
-    operatorXbox.a().whileTrue(m_climberSubsystem.setHeight(Meters.of(0.5)));
-    operatorXbox.b().whileTrue(m_climberSubsystem.setHeight(Meters.of(1)));
-    operatorXbox.y().whileTrue(m_climberSubsystem.set((0.3)));
-    operatorXbox.x().whileTrue(m_climberSubsystem.set(-0.3));
-    ;
+    operatorXbox.b().toggleOnTrue(m_climberSubsystem.setHeight(Meters.of(1)));
   }
 }

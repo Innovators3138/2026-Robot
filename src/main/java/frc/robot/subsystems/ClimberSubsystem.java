@@ -34,13 +34,13 @@ public class ClimberSubsystem extends SubsystemBase {
           .withControlMode(ControlMode.CLOSED_LOOP)
           .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
           .withClosedLoopController(
-              4.0, 0.0, 0.0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
+              0.0, 0.0, 0.0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
           .withSimClosedLoopController(
-              4.0, 0.0, 0.0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
+              0.0, 0.0, 0.0, MetersPerSecond.of(0.5), MetersPerSecondPerSecond.of(0.5))
           .withTelemetry("ClimberMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
-          .withFeedforward(new ElevatorFeedforward(0, 0, 0))
-          .withSimFeedforward(new ElevatorFeedforward(0, 0, 0))
+          .withFeedforward(new ElevatorFeedforward(0, 0, 0.1))
+          .withSimFeedforward(new ElevatorFeedforward(0.02, 0.61, 1.46))
           .withMotorInverted(false)
           .withIdleMode(MotorMode.BRAKE)
           .withStatorCurrentLimit(Amps.of(40))

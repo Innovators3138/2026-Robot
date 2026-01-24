@@ -1,4 +1,4 @@
-package frc.robot.Commands.Drive;
+package frc.robot.commands.Drive;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -11,7 +11,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveToBase extends Command {
   private final Pose2d baselineup = new Pose2d(12.873, 4.07278, Rotation2d.kZero);
-  private final Pose2d basePosition = Constants.getHub();
+  private final Pose2d basePosition = Constants.FieldConstants.getHub();
   private final SwerveSubsystem swerveSubsystem;
   private Command driveToPose;
   PathConstraints constraints =

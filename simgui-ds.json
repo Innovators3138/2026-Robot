@@ -10,14 +10,13 @@
           "decKey": 87,
           "incKey": 83
         },
-        {},
-        {},
         {
-          "decKey": 263,
-          "incKey": 262
+          "decKey": 69,
+          "decayRate": 0.0,
+          "keyRate": 0.009999999776482582
         }
       ],
-      "axisCount": 6,
+      "axisCount": 4,
       "buttonCount": 4,
       "buttonKeys": [
         90,
@@ -101,7 +100,8 @@
       "useGamepad": true
     },
     {
-      "guid": "Keyboard1"
+      "guid": "78696e70757401000000000000000000",
+      "useGamepad": true
     }
   ]
 }

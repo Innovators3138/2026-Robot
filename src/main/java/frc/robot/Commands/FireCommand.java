@@ -1,4 +1,4 @@
-package frc.robot.Commands;
+package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.RPM;
@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.RPM;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -28,11 +30,17 @@ public class FireCommand extends Command {
     return shooterSubsystem.setAngularVelocity(
         () -> {
           var translation = swerveSubsystem.getPose().getTranslation();
-          var target = Constants.getHub();
+          var target = Constants.FieldConstants.getHub();
           var distance = target.getTranslation().getDistance(translation);
           var distanceInMeters = Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X);
           var shooterSpeed = distanceToRPM.get(distanceInMeters.in(Meter));
           return RPM.of(shooterSpeed);
         });
+  }
+
+  public static Command fire(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem) {
+    return feedersubsystem
+        .setFeederAngularVelocity(RPM.of(500))
+        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180)));
   }
 }

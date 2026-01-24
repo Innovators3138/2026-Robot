@@ -38,7 +38,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final Distance WHEEL_DIAMETER = Inches.of(4);
   public static final Distance WHEEL_RADIUS = WHEEL_DIAMETER.div(2);
 
-  public static final Distance SHOOTER_OFFSET_X = Meters.of(0.3);
+  public static final Distance SHOOTER_OFFSET_X = Meters.of(-0.5);
   public static final Distance SHOOTER_OFFSET_Y = Meters.of(0);
   public static final Distance SHOOTER_OFFSET_Z = Meters.of(0.6);
   public static final Translation3d SHOOTER_OFFSET =

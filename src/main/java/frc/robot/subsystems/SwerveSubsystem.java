@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.RebuiltField;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import swervelib.parser.SwerveParser;
@@ -26,14 +28,18 @@ public class SwerveSubsystem extends SubsystemBase {
   public static Pose2d InitialPose = new Pose2d(16, 7, Rotation2d.kZero);
 
   private final SwerveDrive swerveDrive;
-  private final StructPublisher<Pose2d> posePublisher;
+  private final StructPublisher<Pose2d> estimatedPosePublisher;
+  private final StructPublisher<Pose2d> simulatedPosePublisher;
 
   public SwerveSubsystem() {
-    posePublisher =
+    estimatedPosePublisher =
         NetworkTableInstance.getDefault()
-            .getStructTopic("Subsystems/Swerve/Pose", Pose2d.struct)
+            .getStructTopic("Subsystems/Swerve/EstimatedPose", Pose2d.struct)
             .publish();
-
+    simulatedPosePublisher =
+        NetworkTableInstance.getDefault()
+            .getStructTopic("Subsystems/Swerve/SimulatedPose", Pose2d.struct)
+            .publish();
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/neo");
 
     try {
@@ -48,20 +54,50 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  public Command driveFieldOriented(CommandXboxController controller) {
+  public Command driveFieldOriented(
+      CommandXboxController driverController, CommandXboxController operatorController) {
     SwerveInputStream inputStream =
         SwerveInputStream.of(
-                swerveDrive, () -> controller.getLeftY() * -1, () -> controller.getLeftX() * -1)
-            .withControllerRotationAxis(() -> controller.getRightX() * -1)
+                swerveDrive,
+                () -> driverController.getLeftY() * -1,
+                () -> driverController.getLeftX() * -1)
+            .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .allianceRelativeControl(true);
+            .allianceRelativeControl(true)
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
-    return run(() -> swerveDrive.driveFieldOriented(inputStream.get()));
+    return run(
+        () -> {
+          var target = RebuiltField.getHub();
+
+          inputStream.aim(target);
+          swerveDrive.driveFieldOriented(inputStream.get());
+        });
   }
 
   @Override
   public void periodic() {
     swerveDrive.updateOdometry();
-    posePublisher.set(swerveDrive.getPose());
+    estimatedPosePublisher.set(swerveDrive.getPose());
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    swerveDrive
+        .getSimulationDriveTrainPose()
+        .ifPresent(
+            pose -> {
+              simulatedPosePublisher.set(pose);
+            });
+
+    ;
+  }
+
+  public Optional<Pose2d> getSimulatedPose() {
+    return swerveDrive.getSimulationDriveTrainPose();
+  }
+
+  public Pose2d getPose() {
+    return swerveDrive.getPose();
   }
 }

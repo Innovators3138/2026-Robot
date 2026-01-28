@@ -17,6 +17,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
+  public void robotInit() {}
+
+  @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
   }
@@ -26,6 +29,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {}
+
+  @Override
+  public void autonomousInit() {
+    autonomousCommand = robotContainer.getAutonomousCommand();
+    if (autonomousCommand != null) {
+      autonomousCommand.schedule();
+    }
+  }
 
   @Override
   public void autonomousPeriodic() {}
@@ -50,7 +61,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationInit() {
-    shotSimulator = new ShotSimulator(robotContainer);
+    shotSimulator = new ShotSimulator(robotContainer, robotContainer.feederSubsystem);
   }
 
   @Override

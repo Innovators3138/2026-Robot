@@ -61,7 +61,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationInit() {
-    shotSimulator = new ShotSimulator(robotContainer);
+    shotSimulator = new ShotSimulator(robotContainer, robotContainer.feederSubsystem);
   }
 
   @Override

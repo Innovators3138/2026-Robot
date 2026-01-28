@@ -2,12 +2,12 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -38,7 +38,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final Distance WHEEL_DIAMETER = Inches.of(4);
   public static final Distance WHEEL_RADIUS = WHEEL_DIAMETER.div(2);
 
-  public static final Distance SHOOTER_OFFSET_X = Meters.of(-0.5);
+  public static final Distance SHOOTER_OFFSET_X = Meters.of(-0.4);
   public static final Distance SHOOTER_OFFSET_Y = Meters.of(0);
   public static final Distance SHOOTER_OFFSET_Z = Meters.of(0.6);
   public static final Translation3d SHOOTER_OFFSET =
@@ -51,10 +51,10 @@ public class ShooterSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           .withClosedLoopController(
-              0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+              0, 0, 0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withSimClosedLoopController(
-              0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.25, 0))
+              0, 0, 0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.25, 0))
           .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(2)))
@@ -71,7 +71,7 @@ public class ShooterSubsystem extends SubsystemBase {
       new FlyWheelConfig(motorController)
           .withDiameter(Inches.of(4))
           .withMass(Pounds.of(1))
-          .withUpperSoftLimit(RPM.of(2500))
+          .withUpperSoftLimit(RPM.of(6000))
           .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
 
   private FlyWheel shooter = new FlyWheel(flywheelConfig);

@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class ShotSimulator {
   private static final Distance RED_HUB_Y = BLUE_HUB_Y;
   private static final Time MAX_BALL_LIFETIME = Seconds.of(5.0);
   private static final Time FIRE_INTERVAL = Milliseconds.of(200);
-  public static final double EFFICIENCY = 0.86;
+  public static final double EFFICIENCY = 0.9;
   private final List<SimulatedBall> activeBalls = new ArrayList<>();
   private final RobotContainer robotContainer;
   private int scoredCount = 0;
@@ -41,11 +42,15 @@ public class ShotSimulator {
   private final StructArrayPublisher<Pose3d> ballPosesPublisher;
   private final IntegerPublisher activeBallCountPublisher;
   private final IntegerPublisher scoredCountPublisher;
+  private final FeederSubsystem feederSubsystem;
 
   private static class SimulatedBall {
-    double x, y, z;
-    double vx, vy, vz;
-
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
     double timeAlive;
 
     SimulatedBall(double x, double y, double z, double vx, double vy, double vz) {
@@ -59,8 +64,9 @@ public class ShotSimulator {
     }
   }
 
-  public ShotSimulator(RobotContainer robotContainer) {
-    this.robotContainer = robotContainer;
+  public ShotSimulator(RobotContainer robotContainerm, FeederSubsystem feederSubsystem) {
+    this.robotContainer = robotContainerm;
+    this.feederSubsystem = feederSubsystem;
 
     var nt = NetworkTableInstance.getDefault();
     ballPosesPublisher =
@@ -79,7 +85,7 @@ public class ShotSimulator {
   private void checkAndFire(Time dt) {
     var fireHeld = robotContainer.operatorXbox.rightTrigger(0.5).getAsBoolean();
 
-    if (fireHeld) {
+    if (feederSubsystem.feeder.getSpeed().gte(RPM.of(1))) {
       timeSinceLastShot += dt.in(Seconds);
       var fireIntervalSeconds = FIRE_INTERVAL.in(Seconds);
       var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity();

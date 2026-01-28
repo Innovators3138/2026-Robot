@@ -37,8 +37,8 @@ public class RobotContainer {
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
 
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-
-    driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
+    operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));

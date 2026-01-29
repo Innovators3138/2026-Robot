@@ -1,53 +1,87 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.InvertType;
+
+// --- NEW 2026 REV IMPORTS ---
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.RelativeEncoder;
 
 public class Robot extends TimedRobot {
 
     // --- Constants ---
     private static final int MASTER_ID = 3;
     private static final int FOLLOWER_ID = 2;
-    private static final double ENCODER_TICKS_PER_REV = 4096.0;
 
-    // --- Tuning Parameters (Initial Guesses) ---
-    // kS: Voltage to overcome static friction (Start small, e.g., 0.5)
-    // kV: Voltage per RPM (Approx 12V / MaxRPM). If max is 6000, kV ~ 0.002
-    // kP: Proportional Error Correction. Start at 0.
-    private static final double INITIAL_kS = 1.0;
+    // --- Tuning Parameters ---
+    // REMEMBER: Spark Flex Hardware PID is duty-cycle based (-1 to 1).
+    // Scale your old Volts-based kP by 1/12.
+    private static final double INITIAL_kS = 0.1;
     private static final double INITIAL_kV = 0.002;
-    private static final double INITIAL_kP = 0.02;
-    private static final double INITIAL_kD = 0.0001;  //pid derivative
+    private static final double INITIAL_kP = 0.0001;
+    private static final double INITIAL_kD = 0.0;
 
     // --- Hardware ---
-    private final WPI_TalonSRX masterMotor = new WPI_TalonSRX(MASTER_ID);
-    private final WPI_TalonSRX followerMotor = new WPI_TalonSRX(FOLLOWER_ID);
+    private final SparkFlex masterMotor = new SparkFlex(MASTER_ID, MotorType.kBrushless);
+    private final SparkFlex followerMotor = new SparkFlex(FOLLOWER_ID, MotorType.kBrushless);
 
     // --- Control Objects ---
-    private final PIDController pid = new PIDController(INITIAL_kP, 0, INITIAL_kD);
-    // Feedforward calculates the voltage required to sustain a specific velocity
+    private final SparkClosedLoopController masterController = masterMotor.getClosedLoopController();
+    private final RelativeEncoder masterEncoder = masterMotor.getEncoder();
+
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(INITIAL_kS, INITIAL_kV);
+
+    // --- Configuration State ---
+    // We keep a copy of the config object to modify and re-apply during tuning
+    private final SparkFlexConfig masterConfig = new SparkFlexConfig();
+    private final SparkFlexConfig followerConfig = new SparkFlexConfig();
+
+    // Trackers for Live Tuning (to avoid spamming CAN bus)
+    private double lastP = INITIAL_kP;
+    private double lastD = INITIAL_kD;
 
     @Override
     public void robotInit() {
-        // 1. Configure Motors
-        masterMotor.configFactoryDefault();
-        followerMotor.configFactoryDefault();
+        // --- 1. Setup Master Config ---
+        masterConfig.idleMode(IdleMode.kCoast);
+        masterConfig.smartCurrentLimit(40); // Always good practice
+        masterConfig.voltageCompensation(12.0);
 
-        masterMotor.setNeutralMode(NeutralMode.Coast);
-        followerMotor.setNeutralMode(NeutralMode.Coast);
+        // Configure PID in the config object
+        masterConfig.closedLoop
+            .pid(INITIAL_kP, 0.0, INITIAL_kD)
+            .velocityFF(0.0) // We use Arbitrary Feedforward, so set internal kF to 0
+            .outputRange(-1, 1)
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
-        // 2. Setup Follower
-        followerMotor.follow(masterMotor);
-        followerMotor.setInverted(InvertType.OpposeMaster);
-        masterMotor.setInverted(false);
+        // --- 2. Setup Follower Config ---
+        followerConfig.idleMode(IdleMode.kCoast);
+        followerConfig.smartCurrentLimit(40);
+        followerConfig.voltageCompensation(12.0);
 
-        // 3. Initialize Dashboard for Live Tuning
+        // Configure Follower Mode
+        // "true" means inverted relative to master
+        followerConfig.follow(MASTER_ID, true);
+
+        // --- 3. Apply Configs ---
+        // configure() takes (config, ResetMode, PersistMode)
+        // ResetSafeParameters: Clears old settings to ensure clean state
+        // PersistParameters: Saves to flash (like burnFlash used to)
+        masterMotor.configure(masterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        // --- 4. Dashboard ---
         SmartDashboard.putNumber("Tuning kS", INITIAL_kS);
         SmartDashboard.putNumber("Tuning kV", INITIAL_kV);
         SmartDashboard.putNumber("Tuning kP", INITIAL_kP);
@@ -57,13 +91,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        // --- RPM Calculation ---
-        // Get raw velocity (ticks per 100ms)
-        double rawVelocity = masterMotor.getSelectedSensorVelocity();
-        // Convert to RPM
-        double currentRpm = (rawVelocity * 10.0 * 60.0) / ENCODER_TICKS_PER_REV;
-
-        SmartDashboard.putNumber("Actual RPM", currentRpm);
+        SmartDashboard.putNumber("Actual RPM", masterEncoder.getVelocity());
+        SmartDashboard.putNumber("Applied Output", masterMotor.getAppliedOutput());
     }
 
     @Override
@@ -75,34 +104,36 @@ public class Robot extends TimedRobot {
         double kD = SmartDashboard.getNumber("Tuning derivative", 0);
         double targetRpm = SmartDashboard.getNumber("Target RPM", 0);
 
-        // 2. Update Controller Settings
-        if (pid.getP() != kP) pid.setP(kP);
-        if (pid.getD() != kD) pid.setD(kD);
+        // 2. Live PID Tuning Logic
+        // In the new API, we must update the config object and re-apply it.
+        // We MUST check if values changed, otherwise we will crash the CAN bus
+        // by writing to flash 50 times a second.
+        if (kP != lastP || kD != lastD) {
+            masterConfig.closedLoop.pid(kP, 0.0, kD);
 
-        // (Re-creating this object every loop is fine for prototyping)
+            // Apply ONLY to RAM (NoPersist) for tuning to be fast and save flash life
+            masterMotor.configure(masterConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
+            lastP = kP;
+            lastD = kD;
+            System.out.println("Updated PID: P=" + kP + " D=" + kD);
+        }
+
+        // 3. Calculate Feedforward (SimpleMotorFeedforward is still valid and useful)
         feedforward = new SimpleMotorFeedforward(kS, kV);
-
-        // 3. Calculate Outputs
-        // Feedforward: "I predict I need X volts to go this fast"
         double ffVolts = feedforward.calculate(targetRpm);
 
-        // PID: "I am off by Y amount, so add Z volts to fix it"
-        double pidVolts = pid.calculate(SmartDashboard.getNumber("Actual RPM", 0), targetRpm);
+        // 4. Command the Motor
+        // setReference is deprecated/removed in favor of setReference (with different args) or strict use of controller
+        // The new API uses the controller object specifically:
+        masterController.setReference(
+            targetRpm,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot0, // Use default PID slot 0
+            ffVolts // Arbitrary Feedforward (Volts because we enabled voltage comp)
+        );
 
-        // 4. Combine and Clamp
-        double totalVolts = ffVolts + pidVolts;
-
-        // Safety Clamp (Safe range for 12V battery)
-        if (totalVolts > 12.0) totalVolts = 12.0;
-        if (totalVolts < 0) totalVolts = 0.0;
-
-        // 5. Apply to Motor
-        masterMotor.setVoltage(totalVolts);
-
-        // 6. Debug Data
-        SmartDashboard.putNumber("Applied Volts", totalVolts);
         SmartDashboard.putNumber("FF Volts", ffVolts);
-        SmartDashboard.putNumber("PID Volts", pidVolts);
     }
 
     @Override

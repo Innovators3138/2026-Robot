@@ -36,8 +36,8 @@ public class HotdogSubsystem extends SubsystemBase {
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(9), DegreesPerSecondPerSecond.of(6))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.1, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0, 0.8, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 1.25, 0))
+          .withSimFeedforward(new SimpleMotorFeedforward(0, 1.25, 0))
           // Telemetry name and verbosity level
           .withTelemetry("HotdogMotor", TelemetryVerbosity.HIGH)
           // Gearing from the motor rotor to final shaft.
@@ -45,7 +45,7 @@ public class HotdogSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(10)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
@@ -58,9 +58,9 @@ public class HotdogSubsystem extends SubsystemBase {
 
   private final FlyWheelConfig hflywheelConfig =
       new FlyWheelConfig(hotdogSmartMotorController)
-          .withDiameter(Inches.of(3.50))
-          .withMass(Pounds.of(0.5))
-          .withUpperSoftLimit(RPM.of(180))
+          .withDiameter(Inches.of(1.5))
+          .withMass(Pounds.of(3))
+          .withUpperSoftLimit(RPM.of(360))
           .withTelemetry("HotdogMech", TelemetryVerbosity.HIGH);
 
   private FlyWheel Hotdog = new FlyWheel(hflywheelConfig);

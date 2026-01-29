@@ -21,6 +21,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShooterSubsystem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ShotSimulator {
   private static final LinearAcceleration GRAVITY = MetersPerSecondPerSecond.of(9.81);
@@ -35,12 +36,15 @@ public class ShotSimulator {
   private static final Time FIRE_INTERVAL = Milliseconds.of(200);
   public static final double EFFICIENCY = 0.86;
   private final List<SimulatedBall> activeBalls = new ArrayList<>();
+  private final List<SimulatedBall> passiveBalls = new ArrayList<>();
   private final RobotContainer robotContainer;
   private int scoredCount = 0;
   private double timeSinceLastShot = 0;
   private final StructArrayPublisher<Pose3d> ballPosesPublisher;
   private final IntegerPublisher activeBallCountPublisher;
   private final IntegerPublisher scoredCountPublisher;
+  private int currentAmmo = 8;
+  private final IntegerPublisher currentAmmoPublisher;
 
   private static class SimulatedBall {
     double x, y, z;
@@ -68,11 +72,13 @@ public class ShotSimulator {
     activeBallCountPublisher =
         nt.getIntegerTopic("Simulation/ShotSimulator/ActiveBallCount").publish();
     scoredCountPublisher = nt.getIntegerTopic("Simulation/ShotSimulator/ScoredCount").publish();
+    currentAmmoPublisher = nt.getIntegerTopic("Simulation/ShotSimulator/CurrentAmmo").publish();
   }
 
   public void update(Time dt) {
     checkAndFire(dt);
     updateBalls(dt);
+    checkIntake();
     logOutputs();
   }
 
@@ -84,7 +90,9 @@ public class ShotSimulator {
       var fireIntervalSeconds = FIRE_INTERVAL.in(Seconds);
       var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity();
 
-      if (timeSinceLastShot >= fireIntervalSeconds && angularVelocity.gte(RPM.of(100))) {
+      if (timeSinceLastShot >= fireIntervalSeconds
+          && angularVelocity.gte(RPM.of(100))
+          && currentAmmo > 0) {
         shoot();
         timeSinceLastShot = 0;
       }
@@ -126,6 +134,15 @@ public class ShotSimulator {
     var vz = verticalVelocity;
 
     activeBalls.add(new SimulatedBall(launchX, launchY, launchZ, vx, vy, vz));
+    currentAmmo -= 1;
+  }
+
+  public void generateBalls() {
+    for (int j = 0; j < 10; j++) {
+      for (int i = 0; i < 10; i++) {
+        passiveBalls.add(new SimulatedBall(8 + 0.2 * i, 4 + 0.2 * j, 0.15, 0, 0, 0));
+      }
+    }
   }
 
   private void updateBalls(Time dt) {
@@ -162,6 +179,8 @@ public class ShotSimulator {
     }
   }
 
+  private void checkIntake() {}
+
   private boolean checkHubScoring(SimulatedBall ball, double prevZ, double hubHeightMeters) {
     var hubOpeningHalfWidth = HUB_OPENING_WIDTH.in(Meters) / 2.0;
     var blueHubX = BLUE_HUB_X.in(Meters);
@@ -185,13 +204,17 @@ public class ShotSimulator {
   }
 
   private void logOutputs() {
-    var poses =
-        activeBalls.stream()
-            .map(ball -> new Pose3d(ball.x, ball.y, ball.z, new Rotation3d()))
+    var allBallPoses =
+        Stream.concat(
+                activeBalls.stream()
+                    .map(ball -> new Pose3d(ball.x, ball.y, ball.z, new Rotation3d())),
+                passiveBalls.stream()
+                    .map(ball -> new Pose3d(ball.x, ball.y, ball.z, new Rotation3d())))
             .toArray(Pose3d[]::new);
 
-    ballPosesPublisher.set(poses);
+    ballPosesPublisher.set(allBallPoses);
     activeBallCountPublisher.set(activeBalls.size());
     scoredCountPublisher.set(scoredCount);
+    currentAmmoPublisher.set(currentAmmo);
   }
 }

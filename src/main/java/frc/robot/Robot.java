@@ -25,13 +25,10 @@ public class Robot extends TimedRobot {
     private static final int MASTER_ID = 3;
     private static final int FOLLOWER_ID = 2;
 
-    private static final double INITIAL_kS = 0.1;
+    private static final double INITIAL_kS = 0.3;
     private static final double INITIAL_kV = 0.002;
-
-    //Note: divide by 12 is in place because values were originally used in PID that was -12 to +12, not -1 to 1
-
-    private static final double INITIAL_kP = 0.0001 / 12.0;
-    private static final double INITIAL_kD = 0.0 / 12.0;
+    private static final double INITIAL_kP = 0.0001;
+    private static final double INITIAL_kD = 0.005;
 
     private final SparkFlex masterMotor = new SparkFlex(MASTER_ID, MotorType.kBrushless);
     private final SparkFlex followerMotor = new SparkFlex(FOLLOWER_ID, MotorType.kBrushless);
@@ -103,8 +100,10 @@ public class Robot extends TimedRobot {
             lastD = kD;
         }
 
+        System.out.println("KS, KV = " + kS + ", " + kV);
         feedforward = new SimpleMotorFeedforward(kS, kV);
         double ffVolts = feedforward.calculate(targetRpm);
+        System.out.println("FF Volts: " + ffVolts);
 
         // --- 4. Updated Command (setSetpoint) ---
         masterController.setSetpoint(
@@ -116,7 +115,6 @@ public class Robot extends TimedRobot {
         );
 
         SmartDashboard.putNumber("FF Volts", ffVolts);
-
     }
 
     @Override

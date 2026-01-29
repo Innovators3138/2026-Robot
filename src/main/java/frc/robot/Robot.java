@@ -71,7 +71,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Tuning kS", INITIAL_kS);
         SmartDashboard.putNumber("Tuning kV", INITIAL_kV);
         SmartDashboard.putNumber("Tuning kP", INITIAL_kP);
-        SmartDashboard.putNumber("Tuning derivative", INITIAL_kD);
+        SmartDashboard.putNumber("Tuning kD", INITIAL_kD);
         SmartDashboard.putNumber("Target RPM", 0.0);
     }
 
@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
         double kS = SmartDashboard.getNumber("Tuning kS", INITIAL_kS);
         double kV = SmartDashboard.getNumber("Tuning kV", INITIAL_kV);
         double kP = SmartDashboard.getNumber("Tuning kP", INITIAL_kP);
-        double kD = SmartDashboard.getNumber("Tuning derivative", 0);
+        double kD = SmartDashboard.getNumber("Tuning kD", 0);
         double targetRpm = SmartDashboard.getNumber("Target RPM", 0);
 
         // Live Tuning

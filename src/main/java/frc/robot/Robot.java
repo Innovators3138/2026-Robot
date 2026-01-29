@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
     private final WPI_TalonSRX followerMotor = new WPI_TalonSRX(FOLLOWER_ID);
 
     // --- Control Objects ---
-    private final PIDController pid = new PIDController(INITIAL_kP, 0, 0);
+    private final PIDController pid = new PIDController(INITIAL_kP, 0, INITIAL_kD);
     // Feedforward calculates the voltage required to sustain a specific velocity
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(INITIAL_kS, INITIAL_kV);
 

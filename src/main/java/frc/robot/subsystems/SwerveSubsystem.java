@@ -12,7 +12,6 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -36,7 +35,6 @@ import swervelib.parser.SwerveParser;
 public class SwerveSubsystem extends SubsystemBase {
   public static LinearVelocity MaxDriveSpeed = MetersPerSecond.of(5);
   public static AngularVelocity MaxRotationSpeed = RotationsPerSecond.of(3);
-  public static Pose2d InitialPose = new Pose2d(16, 7, Rotation2d.k180deg);
 
   private final SwerveDrive swerveDrive;
   private final StructPublisher<Pose2d> estimatedPosePublisher;
@@ -57,7 +55,8 @@ public class SwerveSubsystem extends SubsystemBase {
     try {
       swerveDrive =
           new SwerveParser(swerveJsonDirectory)
-              .createSwerveDrive(MaxDriveSpeed.in(MetersPerSecond), InitialPose);
+              .createSwerveDrive(
+                  MaxDriveSpeed.in(MetersPerSecond), Constants.FieldConstants.getInitialPose());
 
       swerveDrive.setMaximumAllowableSpeeds(
           MaxDriveSpeed.in(MetersPerSecond), MaxRotationSpeed.in(RadiansPerSecond));
@@ -172,7 +171,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d robotPose) {
-    swerveDrive.resetOdometry(InitialPose);
+    swerveDrive.resetOdometry(robotPose);
   }
 
   public ChassisSpeeds getRobotVelocity() {

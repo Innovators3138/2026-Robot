@@ -63,4 +63,9 @@ public class Constants {
     public static final Distance CLIMBER_THRESHOLD = Inches.of(0.125);
     public static final SparkBase CLIMBER_MOTOR_ID = null;
   }
+
+  public static final class IntakeConstants {
+
+    public static final double MINIMUM_SIMULATED_INTAKE_DISTANCE = 1.0;
+  }
 }

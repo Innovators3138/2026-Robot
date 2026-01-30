@@ -15,6 +15,8 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -49,8 +51,22 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private SparkMax spark = new SparkMax(23, MotorType.kBrushless);
 
+  private Servo ratchetServo = new Servo(19);
+
   private SmartMotorController sparkSmartMotorController =
       new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
+
+  public Command enableRatchet(double value) {
+    return new edu.wpi.first.wpilibj2.command.InstantCommand(() -> ratchetServo.set(value), this);
+  }
+
+  public Command disableRatchet(double value) {
+    return new edu.wpi.first.wpilibj2.command.InstantCommand(() -> ratchetServo.set(value), this);
+  }
+
+  public double getRatchetPosition() {
+    return ratchetServo.get();
+  }
 
   private ElevatorConfig climbconfig =
       new ElevatorConfig(sparkSmartMotorController)
@@ -76,6 +92,8 @@ public class ClimberSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     climb.updateTelemetry();
+
+    SmartDashboard.putNumber("Climber/RatchetPosition", getRatchetPosition());
   }
 
   @Override

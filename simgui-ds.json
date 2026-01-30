@@ -1,14 +1,14 @@
 {
-  "Keyboard 1 Settings": {
-  "Joysticks": {
-    "window": {
-      "visible": false
-    }
-  }
-  },
   "Keyboard 0 Settings": {
     "window": {
       "visible": true
+    }
+  },
+  "Keyboard 1 Settings": {
+    "Joysticks": {
+      "window": {
+        "visible": false
+      }
     }
   },
   "keyboardJoysticks": [

@@ -77,5 +77,6 @@ public class Constants {
   public static final class IntakeConstants {
 
     public static final double MINIMUM_SIMULATED_INTAKE_DISTANCE = 1.0;
+    public static final int SIMULATED_CAPACITY = 30;
   }
 }

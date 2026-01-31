@@ -3,7 +3,9 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AutoCommands;
 import frc.robot.commands.FireCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
@@ -22,6 +24,9 @@ public class RobotContainer {
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
   public RobotContainer() {
+
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
 
     climberSubsystem.setDefaultCommand(climberSubsystem.setHeight(Meters.of(0)));
@@ -40,8 +45,19 @@ public class RobotContainer {
     operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
     operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
+    operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
+
+    driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
+    if (Robot.isSimulation()) {
+      driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
+    }
+  }
+
+  public Command getAutonomousCommand() {
+    return AutoCommands.firstAuto(
+        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
   }
 }

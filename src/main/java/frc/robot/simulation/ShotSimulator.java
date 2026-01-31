@@ -17,10 +17,14 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.Time;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ShotSimulator {
   private static final LinearAcceleration GRAVITY = MetersPerSecondPerSecond.of(9.81);
@@ -33,20 +37,32 @@ public class ShotSimulator {
   private static final Distance RED_HUB_Y = BLUE_HUB_Y;
   private static final Time MAX_BALL_LIFETIME = Seconds.of(5.0);
   private static final Time FIRE_INTERVAL = Milliseconds.of(200);
-  public static final double EFFICIENCY = 0.86;
+  public static final double EFFICIENCY = 0.9;
   private final List<SimulatedBall> activeBalls = new ArrayList<>();
+  private final List<SimulatedBall> passiveBalls = new ArrayList<>();
   private final RobotContainer robotContainer;
   private int scoredCount = 0;
   private double timeSinceLastShot = 0;
   private final StructArrayPublisher<Pose3d> ballPosesPublisher;
   private final IntegerPublisher activeBallCountPublisher;
   private final IntegerPublisher scoredCountPublisher;
+  private int currentAmmo = 8;
+  private final IntegerPublisher currentAmmoPublisher;
+  private final FeederSubsystem feederSubsystem;
+  private final SwerveSubsystem swerveSubsystem;
 
   private static class SimulatedBall {
-    double x, y, z;
-    double vx, vy, vz;
-
+    double x;
+    double y;
+    double z;
+    double vx;
+    double vy;
+    double vz;
     double timeAlive;
+
+    public edu.wpi.first.math.geometry.Translation2d getTranslation() {
+      return new edu.wpi.first.math.geometry.Translation2d(x, y);
+    }
 
     SimulatedBall(double x, double y, double z, double vx, double vy, double vz) {
       this.x = x;
@@ -59,8 +75,13 @@ public class ShotSimulator {
     }
   }
 
-  public ShotSimulator(RobotContainer robotContainer) {
-    this.robotContainer = robotContainer;
+  public ShotSimulator(
+      RobotContainer robotContainerm,
+      FeederSubsystem feederSubsystem,
+      SwerveSubsystem swerveSubsystem) {
+    this.robotContainer = robotContainerm;
+    this.feederSubsystem = feederSubsystem;
+    this.swerveSubsystem = swerveSubsystem;
 
     var nt = NetworkTableInstance.getDefault();
     ballPosesPublisher =
@@ -68,25 +89,33 @@ public class ShotSimulator {
     activeBallCountPublisher =
         nt.getIntegerTopic("Simulation/ShotSimulator/ActiveBallCount").publish();
     scoredCountPublisher = nt.getIntegerTopic("Simulation/ShotSimulator/ScoredCount").publish();
+    currentAmmoPublisher = nt.getIntegerTopic("Simulation/ShotSimulator/CurrentAmmo").publish();
   }
 
   public void update(Time dt) {
     checkAndFire(dt);
     updateBalls(dt);
+    checkIntake();
     logOutputs();
   }
 
   private void checkAndFire(Time dt) {
     var fireHeld = robotContainer.operatorXbox.rightTrigger(0.5).getAsBoolean();
 
-    if (fireHeld) {
+    if (feederSubsystem.feeder.getSpeed().gte(RPM.of(1))) {
       timeSinceLastShot += dt.in(Seconds);
       var fireIntervalSeconds = FIRE_INTERVAL.in(Seconds);
       var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity();
 
-      if (timeSinceLastShot >= fireIntervalSeconds && angularVelocity.gte(RPM.of(100))) {
+      if (timeSinceLastShot >= fireIntervalSeconds
+          && angularVelocity.gte(RPM.of(100))
+          && currentAmmo > 0) {
         shoot();
         timeSinceLastShot = 0;
+
+      } else if (currentAmmo <= 0) {
+        respawnBalls();
+        timeSinceLastShot = FIRE_INTERVAL.in(Seconds);
       }
     } else {
       timeSinceLastShot = FIRE_INTERVAL.in(Seconds);
@@ -126,6 +155,20 @@ public class ShotSimulator {
     var vz = verticalVelocity;
 
     activeBalls.add(new SimulatedBall(launchX, launchY, launchZ, vx, vy, vz));
+    currentAmmo -= 1;
+  }
+
+  public void respawnBalls() {
+    passiveBalls.clear();
+    generateBalls();
+  }
+
+  public void generateBalls() {
+    for (int j = 0; j < 10; j++) {
+      for (int i = 0; i < 10; i++) {
+        passiveBalls.add(new SimulatedBall(8 + 0.2 * i, 4 + 0.2 * j, 0.15, 0, 0, 0));
+      }
+    }
   }
 
   private void updateBalls(Time dt) {
@@ -162,6 +205,22 @@ public class ShotSimulator {
     }
   }
 
+  private void checkIntake() {
+
+    var translation = swerveSubsystem.getPose().getTranslation();
+    for (int i = 0; i < passiveBalls.size(); i++) {
+      var targetBall = passiveBalls.get(i);
+      var targetTranslation = targetBall.getTranslation();
+      double intakeDistance = targetTranslation.getDistance(translation);
+      if (intakeDistance <= IntakeConstants.MINIMUM_SIMULATED_INTAKE_DISTANCE
+          && currentAmmo < IntakeConstants.SIMULATED_CAPACITY) {
+        passiveBalls.remove(i);
+        i--;
+        currentAmmo++;
+      }
+    }
+  }
+
   private boolean checkHubScoring(SimulatedBall ball, double prevZ, double hubHeightMeters) {
     var hubOpeningHalfWidth = HUB_OPENING_WIDTH.in(Meters) / 2.0;
     var blueHubX = BLUE_HUB_X.in(Meters);
@@ -185,13 +244,17 @@ public class ShotSimulator {
   }
 
   private void logOutputs() {
-    var poses =
-        activeBalls.stream()
-            .map(ball -> new Pose3d(ball.x, ball.y, ball.z, new Rotation3d()))
+    var allBallPoses =
+        Stream.concat(
+                activeBalls.stream()
+                    .map(ball -> new Pose3d(ball.x, ball.y, ball.z, new Rotation3d())),
+                passiveBalls.stream()
+                    .map(ball -> new Pose3d(ball.x, ball.y, ball.z, new Rotation3d())))
             .toArray(Pose3d[]::new);
 
-    ballPosesPublisher.set(poses);
+    ballPosesPublisher.set(allBallPoses);
     activeBallCountPublisher.set(activeBalls.size());
     scoredCountPublisher.set(scoredCount);
+    currentAmmoPublisher.set(currentAmmo);
   }
 }

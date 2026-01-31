@@ -42,13 +42,14 @@ public class RobotContainer {
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
-    ledSubsystem.setDefaultCommand(ledSubsystem.setToRed());
 
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
     operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
-    operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
+    operatorXbox
+        .rightTrigger(0.5)
+        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem).alongWith(null));
 
     driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox

@@ -113,8 +113,7 @@ public class ShotSimulator {
         shoot();
         timeSinceLastShot = 0;
 
-      }
-      else if (currentAmmo <= 0){
+      } else if (currentAmmo <= 0) {
         respawnBalls();
         timeSinceLastShot = FIRE_INTERVAL.in(Seconds);
       }
@@ -158,10 +157,12 @@ public class ShotSimulator {
     activeBalls.add(new SimulatedBall(launchX, launchY, launchZ, vx, vy, vz));
     currentAmmo -= 1;
   }
+
   public void respawnBalls() {
     passiveBalls.clear();
     generateBalls();
   }
+
   public void generateBalls() {
     for (int j = 0; j < 10; j++) {
       for (int i = 0; i < 10; i++) {
@@ -211,7 +212,8 @@ public class ShotSimulator {
       var targetBall = passiveBalls.get(i);
       var targetTranslation = targetBall.getTranslation();
       double intakeDistance = targetTranslation.getDistance(translation);
-      if (intakeDistance <= IntakeConstants.MINIMUM_SIMULATED_INTAKE_DISTANCE) {
+      if (intakeDistance <= IntakeConstants.MINIMUM_SIMULATED_INTAKE_DISTANCE
+          && currentAmmo < IntakeConstants.SIMULATED_CAPACITY) {
         passiveBalls.remove(i);
         i--;
         currentAmmo++;

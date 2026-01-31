@@ -38,8 +38,7 @@ public class RobotContainer {
 
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
-    operatorXbox.y().toggleOnTrue(climberSubsystem.enableRatchet(1.0));
-    operatorXbox.y().toggleOnFalse(climberSubsystem.disableRatchet(0.0));
+    operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
     operatorXbox
         .leftTrigger(0.5)

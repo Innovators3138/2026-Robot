@@ -28,6 +28,7 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -194,9 +195,9 @@ public class SwerveSubsystem extends SubsystemBase {
         // Add the measurement to our estimator
         swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
         swerveDrive.updateOdometry();
-        estimatedPosePublisher.set(swerveDrive.getPose());
       }
     }
+    estimatedPosePublisher.set(swerveDrive.getPose());
   }
 
   @Override
@@ -206,6 +207,8 @@ public class SwerveSubsystem extends SubsystemBase {
         .ifPresent(
             pose -> {
               simulatedPosePublisher.set(pose);
+              swerveDrive.addVisionMeasurement(
+                  pose, Timer.getFPGATimestamp() - 0.02, QUESTNAV_STD_DEVS);
             });
 
     ;

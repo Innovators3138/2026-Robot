@@ -109,7 +109,10 @@
       "guid": "Keyboard0"
     },
     {
-      "guid": "Keyboard1"
+      "useGamepad": true
+    },
+    {
+      "useGamepad": true
     }
   ]
 }

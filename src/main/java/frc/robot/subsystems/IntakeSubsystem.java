@@ -1,11 +1,10 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -26,18 +25,17 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private boolean test = false;
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+              0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           .withSimClosedLoopController(
-              0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+              0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.1, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0, 0.1, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
+          .withSimFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
           // Telemetry name and verbosity level
           .withTelemetry("IntakeMotor", TelemetryVerbosity.HIGH)
           // Gearing from the motor rotor to final shaft.
@@ -45,7 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(4)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
@@ -58,9 +56,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final FlyWheelConfig flywheelConfig =
       new FlyWheelConfig(intakeSmartMotorController)
-          .withDiameter(Inches.of(3.50))
+          .withDiameter(Inches.of(2))
           .withMass(Pounds.of(0.5))
-          .withUpperSoftLimit(RPM.of(500))
+          .withUpperSoftLimit(RotationsPerSecond.of(25))
           .withTelemetry("IntakeMech", TelemetryVerbosity.HIGH);
 
   private FlyWheel Intake = new FlyWheel(flywheelConfig);

@@ -11,6 +11,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -20,6 +21,7 @@ public class RobotContainer {
   public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem feederSubsystem = new FeederSubsystem();
   public final HotdogSubsystem hotdogSubsystem = new HotdogSubsystem();
+  public final LEDSubsystem ledSubsystem = new LEDSubsystem();
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
@@ -45,7 +47,9 @@ public class RobotContainer {
     operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
     operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
-    operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
+    operatorXbox
+        .rightTrigger(0.5)
+        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem).alongWith(null));
 
     driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox

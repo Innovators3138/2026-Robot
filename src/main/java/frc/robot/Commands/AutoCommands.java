@@ -39,7 +39,7 @@ public class AutoCommands {
     return collectionZone;
   }
 
-  public static Command firstAuto(
+  public static Command basicAuto(
       SwerveSubsystem swerveSubsystem,
       ShooterSubsystem shooterSubsystem,
       FeederSubsystem feederSubsystem,
@@ -75,13 +75,14 @@ public class AutoCommands {
       var pathplannerAuto = PathPlannerPath.fromPathFile("MakeItOutOfAllianceZoneInAuto");
       var driveToLaunchPosition =
           swerveSubsystem.drivetoPose(
-              getCollectionPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
+              getLaunchPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
       var driveToClimb =
           swerveSubsystem.drivetoPose(
               new Pose2d(15.4, 5.25, Rotation2d.fromDegrees(180)),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
       return AutoBuilder.pathfindThenFollowPath(pathplannerAuto, constraints)
+          .andThen(driveToLaunchPosition)
           .alongWith(FireCommand.targetLock(shooterSubsystem, swerveSubsystem))
           .until(() -> driveToLaunchPosition.isFinished())
           .andThen(FireCommand.fire(feederSubsystem, hotdogSubsystem).withTimeout(8))

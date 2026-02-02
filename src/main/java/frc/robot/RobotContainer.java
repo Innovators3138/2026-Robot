@@ -47,9 +47,7 @@ public class RobotContainer {
     operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
     operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
-    operatorXbox
-        .rightTrigger(0.5)
-        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem).alongWith(null));
+    operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
 
     driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox
@@ -60,8 +58,12 @@ public class RobotContainer {
     }
   }
 
-  public Command getAutonomousCommand() {
+  /*  public Command getAutonomousCommand() {
     return AutoCommands.firstAuto(
+        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+  }*/
+  public Command getAutonomousCommand() {
+    return AutoCommands.pathfindToPathAuto(
         swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
   }
 }

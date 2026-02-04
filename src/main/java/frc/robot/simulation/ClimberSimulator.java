@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.subsystems.ClimberSubsystem;
 
 public class ClimberSimulator {
+  private final MechanismLigament2d ratchet;
   private final ClimberSubsystem climberSubsystem;
   private final Mechanism2d mech2d;
   private final MechanismLigament2d climberExtender;
@@ -33,14 +34,20 @@ public class ClimberSimulator {
     this.climberExtender =
         new MechanismLigament2d("Climber Extender", 0, 0, 4, new Color8Bit(Color.kMaroon));
     climberLigament.append(climberExtender);
-    var ratchetRoot =
-        mech2d.getRoot(
-            "Ratchet", ClimberSubsystem.BASE_LENGTH.in(Inches), 90, 6, new Color8Bit(Color.kRed));
+    var ratchetRoot = mech2d.getRoot("Ratchet", 18, 0);
+    this.ratchet =
+        new MechanismLigament2d("Ratchet Ligament", 4, 0, 6, new Color8Bit(Color.kGreen));
+    ratchetRoot.append(ratchet);
     SmartDashboard.putData("ClimberMechanism", mech2d);
   }
 
   public void update(Time dt) {
     var speed = calculateVelocity(dt);
+    if (climberSubsystem.isRatchetEngaged()) {
+      ratchet.setColor(new Color8Bit(Color.kGreen));
+    } else {
+      ratchet.setColor(new Color8Bit(Color.kRed));
+    }
     if (climberSubsystem.isRatchetEngaged() && speed.gt(MetersPerSecond.zero())) {
       speed = MetersPerSecond.zero();
     }

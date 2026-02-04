@@ -13,11 +13,11 @@ public class LEDSubsystem extends SubsystemBase {
   private final CANdle candle;
   private final SolidColor greenColor = new SolidColor(0, 50);
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
-  private final FeederSubsystem feederSubsystem;
+  private final ShooterSubsystem shooterSubsystem;
 
 
-  public LEDSubsystem(FeederSubsystem feederSubsystem) {
-    this.feederSubsystem = feederSubsystem;
+  public LEDSubsystem(ShooterSubsystem shooterSubsystem) {
+    this.shooterSubsystem = shooterSubsystem;
     this.candle = new CANdle(36);
   }
 
@@ -26,8 +26,8 @@ public class LEDSubsystem extends SubsystemBase {
 
     return runOnce(
         () -> {
-          var feederCheck = feederSubsystem.feederGetAngularVelocity().minus(RPM.of(2400)).abs(RPM);
-           if (feederCheck <= 20)  {
+          var shooterCheck = shooterSubsystem.getRealAngularVelocity().minus(shooterSubsystem.getAngularVelocity());
+           if (shooterCheck.ltew(RPM.of(20) ) ) {
               greenColor.withColor(green);
               candle.setControl(greenColor);}
             } );

@@ -9,8 +9,8 @@ public enum ClimberState {
   Dismount(0),
   Retracting(1);
   public final double motorPower;
-  ClimberState(double motorPower){
-this.motorPower= motorPower
 
+  ClimberState(double motorPower) {
+    this.motorPower = motorPower;
   }
 }

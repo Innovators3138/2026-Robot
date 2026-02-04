@@ -21,7 +21,7 @@ public class RobotContainer {
   public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem feederSubsystem = new FeederSubsystem();
   public final HotdogSubsystem hotdogSubsystem = new HotdogSubsystem();
-  public final LEDSubsystem ledSubsystem = new LEDSubsystem();
+  public final LEDSubsystem ledSubsystem = new LEDSubsystem(feederSubsystem);
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
@@ -46,13 +46,13 @@ public class RobotContainer {
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
     operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox
         .rightTrigger(0.5)
         .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem)
         .alongWith(ledSubsystem.setToGreen()));
 
-    driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
+
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));

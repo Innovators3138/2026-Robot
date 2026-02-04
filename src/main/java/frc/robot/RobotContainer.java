@@ -49,7 +49,8 @@ public class RobotContainer {
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1200)));
     operatorXbox
         .rightTrigger(0.5)
-        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem).alongWith(null));
+        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem)
+        .alongWith(ledSubsystem.setToGreen()));
 
     driverXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox

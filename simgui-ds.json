@@ -1,5 +1,5 @@
 {
-  "Keyboard 0 Settings": {
+  "Keyboard 1 Settings": {
     "window": {
       "visible": true
     }
@@ -109,7 +109,7 @@
       "guid": "Keyboard0"
     },
     {
-      "useGamepad": true
+      "guid": "Keyboard1"
     },
     {
       "useGamepad": true

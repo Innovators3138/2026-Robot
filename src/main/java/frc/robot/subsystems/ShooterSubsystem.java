@@ -20,7 +20,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import java.util.Optional;
 import java.util.function.Supplier;
 import yams.gearing.GearBox;
@@ -93,6 +92,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public AngularVelocity getRealAngularVelocity() {
     return shooter.getSpeed();
   }
+
   public Optional<AngularVelocity> getAngularVelocity() {
     return shooter.getMotorController().getMechanismSetpointVelocity();
   }

@@ -8,29 +8,29 @@ import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 public class LEDSubsystem extends SubsystemBase {
   private final CANdle candle;
   private final SolidColor greenColor = new SolidColor(0, 50);
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
   private final ShooterSubsystem shooterSubsystem;
 
-
   public LEDSubsystem(ShooterSubsystem shooterSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
     this.candle = new CANdle(36);
   }
 
-
   public Command setToGreen() {
 
     return runOnce(
         () -> {
-          var shooterCheck = shooterSubsystem.getRealAngularVelocity().minus(shooterSubsystem.getAngularVelocity());
-           if (shooterCheck.ltew(RPM.of(20) ) ) {
-              greenColor.withColor(green);
-              candle.setControl(greenColor);}
-            } );
-
+          var shooterCheck =
+              shooterSubsystem
+                  .getRealAngularVelocity()
+                  .minus(shooterSubsystem.getAngularVelocity().orElse(RPM.of(0)));
+          if (shooterCheck.lte(RPM.of(20))) {
+            greenColor.withColor(green);
+            candle.setControl(greenColor);
+          }
+        });
   }
 }

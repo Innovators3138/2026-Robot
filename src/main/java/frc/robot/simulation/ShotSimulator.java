@@ -105,7 +105,7 @@ public class ShotSimulator {
     if (feederSubsystem.feeder.getSpeed().gte(RPM.of(1))) {
       timeSinceLastShot += dt.in(Seconds);
       var fireIntervalSeconds = FIRE_INTERVAL.in(Seconds);
-      var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity();
+      var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity().orElse(RPM.of(0));
 
       if (timeSinceLastShot >= fireIntervalSeconds
           && angularVelocity.gte(RPM.of(100))
@@ -128,7 +128,8 @@ public class ShotSimulator {
             .swerveSubsystem
             .getSimulatedPose()
             .orElse(robotContainer.swerveSubsystem.getPose());
-    var omegaRadPerSec = robotContainer.shooterSubsystem.getAngularVelocity().in(RadiansPerSecond);
+    var omegaRadPerSec =
+        robotContainer.shooterSubsystem.getAngularVelocity().orElse(RPM.of(0)).in(RadiansPerSecond);
     var wheelRadiusMeters = ShooterSubsystem.WHEEL_RADIUS.in(Meters);
     var exitVelocityMps = omegaRadPerSec * wheelRadiusMeters * EFFICIENCY;
 

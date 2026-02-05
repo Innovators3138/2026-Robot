@@ -1,4 +1,4 @@
-package frc.robot.kommands;
+package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.RPM;

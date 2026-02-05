@@ -5,8 +5,8 @@ import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.kommands.AutoCommands;
-import frc.robot.kommands.FireCommand;
+import frc.robot.commands.AutoCommands;
+import frc.robot.commands.FireCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;

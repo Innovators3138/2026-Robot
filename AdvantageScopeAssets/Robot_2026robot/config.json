@@ -14,5 +14,11 @@
       }
   ], 
     "position": [0, 0, 0],
-    "cameras":  []
+    "cameras":  [],
+    "components": [
+  {
+    "zeroedRotations": [{ "axis": "x", "degrees": 0 }] ,
+    "zeroedPosition": [0, 0, 0] 
+  }
+]
   }

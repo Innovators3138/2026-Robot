@@ -3,6 +3,8 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
@@ -16,6 +18,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
+
   public final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
@@ -24,14 +27,23 @@ public class RobotContainer {
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem);
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
+  private final Command pathfindToPathAuto =
+      AutoCommands.pathfindToPathAuto(
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+  private final Command basicAuto =
+      AutoCommands.basicAuto(swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+  SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   public RobotContainer() {
+    autoChooser.setDefaultOption("Basic Auto", basicAuto);
+    autoChooser.addOption("Pathfind to Path Auto", pathfindToPathAuto);
 
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
 
     climberSubsystem.setDefaultCommand(climberSubsystem.setHeight(Meters.of(0)));
+    SmartDashboard.putData(autoChooser);
   }
 
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
@@ -58,8 +70,15 @@ public class RobotContainer {
     }
   }
 
-  public Command getAutonomousCommand() {
+  /*  public Command getAutonomousCommand() {
     return AutoCommands.firstAuto(
         swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+  }*/
+  /* public Command getAutonomousCommand() {
+    return AutoCommands.pathfindToPathAuto(
+        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+  } */
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
   }
 }

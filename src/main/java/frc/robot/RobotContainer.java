@@ -27,17 +27,12 @@ public class RobotContainer {
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem);
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
-  private final Command pathfindToPathAuto =
-      AutoCommands.pathfindToPathAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
-  private final Command basicAuto =
-      AutoCommands.basicAuto(swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
-  SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+  SendableChooser<String> autoChooser = new SendableChooser<>();
 
   public RobotContainer() {
-    autoChooser.setDefaultOption("Basic Auto", basicAuto);
-    autoChooser.addOption("Pathfind to Path Auto", pathfindToPathAuto);
-
+    autoChooser.setDefaultOption("Basic Auto", "Basic Auto");
+    autoChooser.addOption("Pathfind to Path Auto", "Pathfind to Path Auto");
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
@@ -79,6 +74,19 @@ public class RobotContainer {
         swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
   } */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    var selectedAuto = autoChooser.getSelected();
+    if (selectedAuto == null) {
+      return AutoCommands.basicAuto(
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+    }
+    if (selectedAuto.equals("Basic Auto")) {
+      return AutoCommands.basicAuto(
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+    }
+    if (selectedAuto.equals("Pathfind to Path Auto")) {
+      return AutoCommands.pathfindToPathAuto(
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+    }
+    throw new RuntimeException("Unknown auto selected: " + selectedAuto);
   }
 }

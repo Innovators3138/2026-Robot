@@ -33,26 +33,22 @@ public class ClimberSimulator {
     this.climberExtender =
         new MechanismLigament2d("Climber Extender", 0, 0, 4, new Color8Bit(Color.kMaroon));
     climberLigament.append(climberExtender);
+    var ratchetRoot =
+        mech2d.getRoot(
+            "Ratchet", ClimberSubsystem.BASE_LENGTH.in(Inches), 90, 6, new Color8Bit(Color.kRed));
     SmartDashboard.putData("ClimberMechanism", mech2d);
   }
 
   public void update(Time dt) {
-
-    if (climberSubsystem.getRatchetPosition() > 0.5) {
-      var downAcceleration = MetersPerSecond.of(-0.5);
-      var speed = downAcceleration;
-      var distance = speed.times(dt);
-      var updatedExtenderLength = distance.plus(Inches.of(climberExtender.getLength()));
-      var minLength = Math.max(updatedExtenderLength.in(Inches), 0);
-      climberExtender.setLength(minLength);
-    } else {
-      var speed = calculateVelocity(dt);
-      var distance = speed.times(dt);
-      var updatedExtenderLength = distance.plus(Inches.of(climberExtender.getLength()));
-      var clampedLength =
-          Math.min(updatedExtenderLength.in(Inches), ClimberSubsystem.MAX_EXTENSION.in(Inches));
-      climberExtender.setLength(clampedLength);
+    var speed = calculateVelocity(dt);
+    if (climberSubsystem.isRatchetEngaged() && speed.gt(MetersPerSecond.zero())) {
+      speed = MetersPerSecond.zero();
     }
+    var distance = speed.times(dt);
+    var updatedExtenderLength = distance.plus(Inches.of(climberExtender.getLength()));
+    var clampedLength =
+        Math.min(updatedExtenderLength.in(Inches), ClimberSubsystem.MAX_EXTENSION.in(Inches));
+    climberExtender.setLength(clampedLength);
   }
 
   private LinearVelocity calculateVelocity(Time dt) {

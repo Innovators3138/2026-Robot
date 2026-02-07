@@ -16,22 +16,32 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final Distance BASE_LENGTH = Inches.of(12);
   public static final Distance MAX_EXTENSION = Inches.of(9);
   public static final Force SPRING_FORCE = PoundsForce.of(7);
-  public static final Mass CLIMBER_MASS = Pounds.of(0.5);
-  private Servo ratchetServo = new Servo(19);
+  public static final Mass CLIMBER_MASS = Pounds.of(2);
+  private final Servo ratchetServo;
+
+  public ClimberSubsystem() {
+    this.ratchetServo = new Servo(9);
+    this.ratchetServo.set(1);
+  }
 
   public Command toggleRatchet() {
     return runOnce(
         () -> {
-          if (ratchetServo.get() < 0.5) {
-            ratchetServo.set(1.0);
+          if (isRatchetEngaged()) {
+            ratchetServo.set(0);
 
           } else {
-            ratchetServo.set(0.0);
+            ratchetServo.set(1);
           }
         });
   }
 
-  public double getRatchetPosition() {
-    return ratchetServo.get();
+  public boolean isRatchetEngaged() {
+    if (ratchetServo.get() < 0.5) {
+      return false;
+
+    } else {
+      return true;
+    }
   }
 }

@@ -49,10 +49,10 @@ public class IntakeSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40));
 
-  private SparkMax intake = new SparkMax(5, MotorType.kBrushless);
+  private SparkMax intakeMotor = new SparkMax(4, MotorType.kBrushless);
 
   private SmartMotorController intakeSmartMotorController =
-      new SparkWrapper(intake, DCMotor.getNEO(1), smcConfig);
+      new SparkWrapper(intakeMotor, DCMotor.getNEO(1), smcConfig);
 
   private final FlyWheelConfig flywheelConfig =
       new FlyWheelConfig(intakeSmartMotorController)

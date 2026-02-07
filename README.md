@@ -2,6 +2,30 @@
 
 
 ### CAN ID Configuration ###
+- CAN MOTORS
+- shooterMotor: CAN ID 1
+- feederMotor: CAN ID 2
+- hotdogMotor: CAN ID 3
+- intakeMotor: CAN ID 4
+- backleftdrive CAN ID 5
+- backleftangle CAN ID 6
+- backrightdrive CAN ID 7
+- backrightangle CAN ID 8
+- frontleftdrive CAN ID 9
+- frontleftdrive CAN ID 10
+- frontrightdrive CAN ID 11
+- frontrightdrive CAN ID 12
+
+- CAN DEVICES
+- frontleftEncoder CAN ID 30
+- frontrightEncoder CAN ID 31
+- backleftEncoder CAN ID 32
+- backrightEncoder CAN ID 33
+- candle: CAN ID 36
+
+
+
+- when added a new motor or Device, find an availiable CAN ID and add it to the list
 
 
 ### Analog Input ID Configuration ###

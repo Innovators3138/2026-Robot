@@ -22,7 +22,7 @@ public class LEDSubsystem extends SubsystemBase {
 
   public LEDSubsystem(ShooterSubsystem shooterSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
-    this.candle = new CANdle(36);
+    this.candle = new CANdle(21);
   }
 
   public Command setToGreen() {

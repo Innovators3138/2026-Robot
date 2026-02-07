@@ -1,6 +1,5 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,6 +26,7 @@ public class RobotContainer {
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem);
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
+  public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   SendableChooser<String> autoChooser = new SendableChooser<>();
 
@@ -37,11 +37,8 @@ public class RobotContainer {
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
 
-    climberSubsystem.setDefaultCommand(climberSubsystem.setHeight(Meters.of(0)));
     SmartDashboard.putData(autoChooser);
   }
-
-  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
   private void configureBindings() {
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
@@ -52,8 +49,6 @@ public class RobotContainer {
     ledSubsystem.setDefaultCommand(ledSubsystem.setToGreen());
 
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-    operatorXbox.b().toggleOnTrue(climberSubsystem.setHeight(Meters.of(1)));
-    operatorXbox.y().toggleOnTrue(climberSubsystem.toggleRatchet());
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
 

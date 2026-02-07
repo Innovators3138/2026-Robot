@@ -5,12 +5,14 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.simulation.ClimberSimulator;
 import frc.robot.simulation.ShotSimulator;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
   private ShotSimulator shotSimulator;
+  private ClimberSimulator climberSimulator;
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -67,10 +69,13 @@ public class Robot extends TimedRobot {
         new ShotSimulator(
             robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
     shotSimulator.generateBalls();
+    climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
   }
 
   @Override
   public void simulationPeriodic() {
-    shotSimulator.update(Seconds.of(getPeriod()));
+    var dt = Seconds.of(getPeriod());
+    shotSimulator.update(dt);
+    climberSimulator.update(dt);
   }
 }

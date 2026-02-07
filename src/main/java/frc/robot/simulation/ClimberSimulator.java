@@ -1,6 +1,7 @@
 package frc.robot.simulation;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
 import java.lang.reflect.Array;
@@ -56,12 +57,22 @@ public class ClimberSimulator {
   }
 
   public void update(Time dt) {
-    var speed = calculateVelocity(dt);
-    var distance = speed.times(dt);
-    var updatedExtenderLength = distance.plus(Inches.of(climberExtender.getLength()));
-    var clampedLength =
-        Math.min(updatedExtenderLength.in(Inches), ClimberSubsystem.MAX_EXTENSION.in(Inches));
-    climberExtender.setLength(clampedLength);
+
+    if (climberSubsystem.getRatchetPosition() > 0.5) {
+      var downAcceleration = MetersPerSecond.of(-0.5);
+      var speed = downAcceleration;
+      var distance = speed.times(dt);
+      var updatedExtenderLength = distance.plus(Inches.of(climberExtender.getLength()));
+      var minLength = Math.max(updatedExtenderLength.in(Inches), 0);
+      climberExtender.setLength(minLength);
+    } else {
+      var speed = calculateVelocity(dt);
+      var distance = speed.times(dt);
+      var updatedExtenderLength = distance.plus(Inches.of(climberExtender.getLength()));
+      var clampedLength =
+          Math.min(updatedExtenderLength.in(Inches), ClimberSubsystem.MAX_EXTENSION.in(Inches));
+      climberExtender.setLength(clampedLength);
+    }
   }
 
   private LinearVelocity calculateVelocity(Time dt) {

@@ -22,6 +22,16 @@ public class AutoCommands {
   public static Pose2d RED_TARGET = new Pose2d(14, 4.37278, Rotation2d.k180deg);
   public static Pose2d RED_COLLECTION_ZONE = new Pose2d(9.0, 4.3, Rotation2d.kCW_90deg);
   public static Pose2d BLUE_COLLECTION_ZONE = new Pose2d(6.71, 4.3, Rotation2d.kCCW_90deg);
+  public static Pose2d RED_CLIMB_POSE = new Pose2d(15.4, 5.25, Rotation2d.fromDegrees(180));
+  public static Pose2d BLUE_CLIMB_POSE = new Pose2d(0.9, 2.7, Rotation2d.fromDegrees(0));
+
+  public static Pose2d getClimbPose() {
+    var basePosition = RED_CLIMB_POSE;
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+      basePosition = BLUE_CLIMB_POSE;
+    }
+    return basePosition;
+  }
 
   public static Pose2d getLaunchPose() {
     var basePosition = RED_TARGET;
@@ -78,9 +88,7 @@ public class AutoCommands {
               getLaunchPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
       var driveToClimb =
           swerveSubsystem.drivetoPose(
-              new Pose2d(15.4, 5.25, Rotation2d.fromDegrees(180)),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              getClimbPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
       return AutoBuilder.pathfindThenFollowPath(pathplannerAuto, constraints)
           .andThen(driveToLaunchPosition)
           .alongWith(FireCommand.targetLock(shooterSubsystem, swerveSubsystem))

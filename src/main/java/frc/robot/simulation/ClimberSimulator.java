@@ -5,32 +5,42 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.NewtonMeters;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.subsystems.ClimberState;
 import frc.robot.subsystems.ClimberSubsystem;
+import java.util.ArrayList;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 public class ClimberSimulator {
-  private final MechanismLigament2d ratchet;
+  private final LoggedMechanismLigament2d ratchet;
   private final ClimberSubsystem climberSubsystem;
-  private final Mechanism2d mech2d;
-  private final MechanismLigament2d climberExtender;
+  private final LoggedMechanism2d mech2d;
+  private final LoggedMechanismLigament2d climberExtender;
+  private final StructArrayPublisher climberPosePublisher;
+  private final ArrayList<Pose3d> climberArrayPose;
   private final DIOSim extenderSensorSim = new DIOSim(ClimberSubsystem.EXTENDED_SENSOR_CHANNEL);
   private final DIOSim retractedSensorSim = new DIOSim(ClimberSubsystem.RETRACTED_SENSOR_CHANNEL);
 
   public ClimberSimulator(ClimberSubsystem climberSubsystem) {
     this.climberSubsystem = climberSubsystem;
-    this.mech2d = new Mechanism2d(40, 40);
+    this.mech2d = new LoggedMechanism2d(40, 40);
+    climberPosePublisher =
+        NetworkTableInstance.getDefault()
+            .getStructArrayTopic("Simulation/ClimberSimulator/ClimberPose", Pose3d.struct)
+            .publish();
     var climberRoot = mech2d.getRoot("Climber", 20, 0);
     var climberLigament =
-        new MechanismLigament2d(
+        new LoggedMechanismLigament2d(
             "Climber Ligament",
             ClimberSubsystem.BASE_LENGTH.in(Inches),
             90,
@@ -38,11 +48,15 @@ public class ClimberSimulator {
             new Color8Bit(Color.kAquamarine));
     climberRoot.append(climberLigament);
     this.climberExtender =
-        new MechanismLigament2d("Climber Extender", 0, 0, 4, new Color8Bit(Color.kMaroon));
+        new LoggedMechanismLigament2d("Climber Extender", 0, 0, 4, new Color8Bit(Color.kMaroon));
     climberLigament.append(climberExtender);
     var ratchetRoot = mech2d.getRoot("Ratchet", 18, 0);
-    this.ratchet = new MechanismLigament2d("Ratchet Lagamen", 4, 0, 6, new Color8Bit(Color.kGreen));
+    this.ratchet =
+        new LoggedMechanismLigament2d("Ratchet Lagamen", 4, 0, 6, new Color8Bit(Color.kGreen));
     ratchetRoot.append(ratchet);
+    climberArrayPose = mech2d.generate3dMechanism();
+    Pose3d[] poseArray = climberArrayPose.toArray(new Pose3d[0]);
+    climberPosePublisher.set(poseArray);
     SmartDashboard.putData("ClimberMechanism", mech2d);
   }
 

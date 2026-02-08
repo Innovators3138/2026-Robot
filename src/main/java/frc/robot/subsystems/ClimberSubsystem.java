@@ -23,8 +23,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /* Instantiates the subsystem */
 public class ClimberSubsystem extends SubsystemBase {
+  public static final Mass CLIMBING_MASS = Pounds.of(135);
   public static final Distance DRUM_RADIUS = Inches.of(0.5);
-  public static final int RETRACTED_SENSOR_CHANNEL = 4;
+  public static final int RETRACTED_SENSOR_CHANNEL = 0;
   public static final int EXTENDED_SENSOR_CHANNEL = 1;
   public static final DCMotor MOTOR = DCMotor.getNEO(1);
   public static final double GEAR_RATIO = 48;
@@ -69,6 +70,10 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
+  public ClimberState getState() {
+    return currentState;
+  }
+
   public double getMotorSetpoint() {
     return sparkMax.get();
   }
@@ -85,6 +90,16 @@ public class ClimberSubsystem extends SubsystemBase {
     return run(() -> updateState(ClimberState.Retracting))
         .until(retractedSensor::get)
         .andThen(() -> updateState(ClimberState.Retracted));
+  }
+
+  public Command climb() {
+    return run(() -> updateState(ClimberState.Climbing))
+        .withTimeout(0.25)
+        .andThen(() -> updateState(ClimberState.Hold));
+  }
+
+  public Command dismount() {
+    return run(() -> updateState(ClimberState.Dismount));
   }
 
   private void updateState(ClimberState updatedState) {

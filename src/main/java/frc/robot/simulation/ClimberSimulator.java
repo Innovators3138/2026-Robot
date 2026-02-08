@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.NewtonMeters;
 
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.subsystems.ClimberState;
 import frc.robot.subsystems.ClimberSubsystem;
 
 public class ClimberSimulator {
@@ -74,7 +76,8 @@ public class ClimberSimulator {
 
   private LinearVelocity calculateVelocity(Time dt) {
     var gravityAcceleration = MetersPerSecondPerSecond.of(-9.81);
-    var gravityForce = ClimberSubsystem.CLIMBER_MASS.times(gravityAcceleration);
+
+    var gravityForce = getMass().times(gravityAcceleration);
     var motorTorque =
         ClimberSubsystem.MOTOR.KtNMPerAmp
             * ClimberSubsystem.MOTOR.nominalVoltageVolts
@@ -85,5 +88,14 @@ public class ClimberSimulator {
     var netAcceleration = netForce.div(ClimberSubsystem.CLIMBER_MASS);
     return netAcceleration.times(dt);
   }
+
+  private Mass getMass() {
+    if (climberSubsystem.getState() == ClimberState.Climbing
+        || climberSubsystem.getState() == ClimberState.Hold
+        || climberSubsystem.getState() == ClimberState.Dismount) {
+      return ClimberSubsystem.CLIMBING_MASS;
+    } else {
+      return ClimberSubsystem.CLIMBER_MASS;
+    }
+  }
 }
-//

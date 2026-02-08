@@ -24,10 +24,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 public class ClimberSimulator {
   private final LoggedMechanismLigament2d ratchet;
   private final ClimberSubsystem climberSubsystem;
-  private final Mechanism2d mech2d;
-  private final MechanismLigament2d climberExtender;
-  private final DIOSim extenderSensorSim = new DIOSim(ClimberSubsystem.EXTENDED_SENSOR_CHANNEL);
-  private final DIOSim retractedSensorSim = new DIOSim(ClimberSubsystem.RETRACTED_SENSOR_CHANNEL);
+
   private final LoggedMechanism2d mech2d;
   private final LoggedMechanismLigament2d climberExtender;
   private final StructArrayPublisher climberPosePublisher;

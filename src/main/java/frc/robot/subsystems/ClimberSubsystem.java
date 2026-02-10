@@ -65,6 +65,9 @@ public class ClimberSubsystem extends SubsystemBase {
               disengageRatchet();
               desiredState = ClimberState.Extended;
               break;
+            case Retracted:
+              engageRatchet();
+              desiredState = ClimberState.Retracted;
             default:
               break;
           }

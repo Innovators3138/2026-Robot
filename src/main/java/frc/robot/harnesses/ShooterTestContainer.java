@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.harnesses;
 
 import static edu.wpi.first.units.Units.RPM;
 

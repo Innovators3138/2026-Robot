@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.PoundsForce;
 
@@ -29,8 +30,8 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final int EXTENDED_SENSOR_CHANNEL = 1;
   public static final DCMotor MOTOR = DCMotor.getNEO(1);
   public static final double GEAR_RATIO = 48;
-  public static final Distance BASE_LENGTH = Inches.of(12);
-  public static final Distance MAX_EXTENSION = Inches.of(9);
+  public static final Distance BASE_LENGTH = Meters.of(0.3);
+  public static final Distance MAX_EXTENSION = Meters.of(0.46);
   public static final Force SPRING_FORCE = PoundsForce.of(7);
   public static final Mass CLIMBER_MASS = Pounds.of(2);
   private final Servo ratchetServo;

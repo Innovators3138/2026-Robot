@@ -51,7 +51,11 @@ public class RobotContainer {
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-    operatorXbox.b().toggleOnTrue(climberSubsystem.toggleRatchet());
+    // below are temporary for climber testing
+    operatorXbox.povUp().onTrue(climberSubsystem.extend());
+    operatorXbox.povDown().onTrue(climberSubsystem.retract());
+    operatorXbox.x().onTrue(climberSubsystem.dismount());
+    operatorXbox.y().onTrue(climberSubsystem.climb());
 
     operatorXbox
         .leftTrigger(0.5)

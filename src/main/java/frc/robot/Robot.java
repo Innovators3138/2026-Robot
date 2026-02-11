@@ -44,6 +44,10 @@ public class Robot extends TimedRobot {
     private double lastP = INITIAL_kP;
     private double lastD = INITIAL_kD;
 
+    private final double MAX_DECEL = 1000.0; // RPM per second
+
+    private double m_currentSetpoint = 0.0;
+
     @Override
     public void robotInit() {
         // --- 1. Master Config ---
@@ -70,6 +74,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Tuning kP", INITIAL_kP);
         SmartDashboard.putNumber("Tuning kD", INITIAL_kD);
         SmartDashboard.putNumber("Target RPM", 0.0);
+        m_currentSetpoint = 0.0;
     }
 
     @Override
@@ -100,12 +105,26 @@ public class Robot extends TimedRobot {
             lastD = kD;
         }
 
+        // If we are dropping speed, ramp it. If we are climbing, snap to it.
+        if (targetRpm < m_currentSetpoint) {
+            // Calculate how much we can drop this loop (20ms)
+            double maxDrop = MAX_DECEL * 0.020;
+            if (m_currentSetpoint - targetRpm > maxDrop) {
+                m_currentSetpoint -= maxDrop;
+            } else {
+                m_currentSetpoint = targetRpm;
+            }
+        } else {
+            // Aggressive climb: no ramping
+            m_currentSetpoint = targetRpm;
+        }
+
         feedforward = new SimpleMotorFeedforward(kS, kV);
-        double ffVolts = feedforward.calculate(targetRpm);
+        double ffVolts = feedforward.calculate(m_currentSetpoint);
 
         // --- 4. Updated Command (setSetpoint) ---
         masterController.setSetpoint(
-            targetRpm,
+            m_currentSetpoint,
             ControlType.kVelocity,
             ClosedLoopSlot.kSlot0,
             ffVolts,

@@ -4,6 +4,7 @@
 ### CAN ID Configuration ###
 
 
+
 ### Analog Input ID Configuration ###
 
 
@@ -47,3 +48,4 @@
  - Feeder: 2 motors
  - Adjustable Hood: 1 motor, 1 encoder
  - Climber: 1 motor, 1 encoder
+ - LED: 1 CANdle

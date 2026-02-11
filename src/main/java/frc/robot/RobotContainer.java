@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.FireCommand;
-import frc.robot.subsystems.ClimberState;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
@@ -52,7 +51,8 @@ public class RobotContainer {
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-    operatorXbox.b().toggleOnTrue(climberSubsystem.setDesiredState(ClimberState.Extended));
+    operatorXbox.povUp().onTrue(climberSubsystem.extend());
+    operatorXbox.povDown().onTrue(climberSubsystem.retract());
 
     operatorXbox
         .leftTrigger(0.5)

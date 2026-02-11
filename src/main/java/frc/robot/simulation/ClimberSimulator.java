@@ -3,9 +3,11 @@ package frc.robot.simulation;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.NewtonMeters;
 
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,6 +20,8 @@ public class ClimberSimulator {
   private final ClimberSubsystem climberSubsystem;
   private final Mechanism2d mech2d;
   private final MechanismLigament2d climberExtender;
+  private final DIOSim extenderSensorSim = new DIOSim(ClimberSubsystem.EXTENDED_SENSOR_CHANNEL);
+  private final DIOSim retractedSensorSim = new DIOSim(ClimberSubsystem.RETRACTED_SENSOR_CHANNEL);
 
   public ClimberSimulator(ClimberSubsystem climberSubsystem) {
     this.climberSubsystem = climberSubsystem;
@@ -35,8 +39,7 @@ public class ClimberSimulator {
         new MechanismLigament2d("Climber Extender", 0, 0, 4, new Color8Bit(Color.kMaroon));
     climberLigament.append(climberExtender);
     var ratchetRoot = mech2d.getRoot("Ratchet", 18, 0);
-    this.ratchet =
-        new MechanismLigament2d("Ratchet Ligament", 4, 0, 6, new Color8Bit(Color.kGreen));
+    this.ratchet = new MechanismLigament2d("Ratchet Lagamen", 4, 0, 6, new Color8Bit(Color.kGreen));
     ratchetRoot.append(ratchet);
     SmartDashboard.putData("ClimberMechanism", mech2d);
   }
@@ -56,12 +59,31 @@ public class ClimberSimulator {
     var clampedLength =
         Math.min(updatedExtenderLength.in(Inches), ClimberSubsystem.MAX_EXTENSION.in(Inches));
     climberExtender.setLength(clampedLength);
+    if (climberExtender.getLength() <= 0) {
+      retractedSensorSim.setValue(true);
+      climberExtender.setLength(0);
+    } else {
+      retractedSensorSim.setValue(false);
+    }
+    if (climberExtender.getLength() >= ClimberSubsystem.MAX_EXTENSION.in(Inches)) {
+      extenderSensorSim.setValue(true);
+    } else {
+      extenderSensorSim.setValue(false);
+    }
   }
 
   private LinearVelocity calculateVelocity(Time dt) {
-    var springAcceleration = ClimberSubsystem.SPRING_FORCE.div(ClimberSubsystem.CLIMBER_MASS);
     var gravityAcceleration = MetersPerSecondPerSecond.of(-9.81);
-    var netAcceleration = springAcceleration.minus(gravityAcceleration);
+    var gravityForce = ClimberSubsystem.CLIMBER_MASS.times(gravityAcceleration);
+    var motorTorque =
+        ClimberSubsystem.MOTOR.KtNMPerAmp
+            * ClimberSubsystem.MOTOR.nominalVoltageVolts
+            * climberSubsystem.getMotorSetpoint()
+            * ClimberSubsystem.GEAR_RATIO;
+    var motorForce = NewtonMeters.of(motorTorque).div(ClimberSubsystem.DRUM_RADIUS);
+    var netForce = ClimberSubsystem.SPRING_FORCE.minus(gravityForce).minus(motorForce);
+    var netAcceleration = netForce.div(ClimberSubsystem.CLIMBER_MASS);
     return netAcceleration.times(dt);
   }
 }
+//

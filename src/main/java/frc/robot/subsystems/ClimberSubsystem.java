@@ -11,15 +11,21 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /* Instantiates the subsystem */
 public class ClimberSubsystem extends SubsystemBase {
+  public static final Distance DRUM_RADIUS = Inches.of(0.5);
+  public static final int RETRACTED_SENSOR_CHANNEL = 4;
+  public static final int EXTENDED_SENSOR_CHANNEL = 1;
   public static final DCMotor MOTOR = DCMotor.getNEO(1);
   public static final double GEAR_RATIO = 48;
   public static final Distance BASE_LENGTH = Inches.of(12);
@@ -27,11 +33,17 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final Force SPRING_FORCE = PoundsForce.of(7);
   public static final Mass CLIMBER_MASS = Pounds.of(2);
   private final Servo ratchetServo;
-  private ClimberState desiredState;
+  private ClimberState currentState;
   private final SparkMax sparkMax = new SparkMax(9, MotorType.kBrushless);
+  private final DigitalInput extendedSensor = new DigitalInput(EXTENDED_SENSOR_CHANNEL);
+  private final DigitalInput retractedSensor = new DigitalInput(RETRACTED_SENSOR_CHANNEL);
+  private final BooleanPublisher extendedPublisher =
+      NetworkTableInstance.getDefault().getBooleanTopic("Subsystem/Climber/Extended").publish();
+  private final BooleanPublisher retractedPublisher =
+      NetworkTableInstance.getDefault().getBooleanTopic("Subsystem/Climber/Retracted").publish();
 
   public ClimberSubsystem() {
-    desiredState = ClimberState.Retracted;
+    currentState = ClimberState.Retracted;
     var config = new SparkMaxConfig();
     config.idleMode(IdleMode.kCoast);
     config.smartCurrentLimit(40);
@@ -57,20 +69,38 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
-  public Command setDesiredState(ClimberState state) {
-    return runOnce(
-        () -> {
-          switch (state) {
-            case Extended:
-              disengageRatchet();
-              desiredState = ClimberState.Extended;
-              break;
-            case Retracted:
-              engageRatchet();
-              desiredState = ClimberState.Retracted;
-            default:
-              break;
-          }
-        });
+  public double getMotorSetpoint() {
+    return sparkMax.get();
+  }
+
+  public Command extend() {
+
+    return run(() -> updateState(ClimberState.Extending))
+        .until(extendedSensor::get)
+        .andThen(() -> updateState(ClimberState.Extended));
+  }
+
+  public Command retract() {
+
+    return run(() -> updateState(ClimberState.Retracting))
+        .until(retractedSensor::get)
+        .andThen(() -> updateState(ClimberState.Retracted));
+  }
+
+  private void updateState(ClimberState updatedState) {
+    sparkMax.set(updatedState.motorPower);
+    currentState = updatedState;
+    if (updatedState.isRatchetEngaged) {
+      engageRatchet();
+    } else {
+      disengageRatchet();
+    }
+  }
+
+  @Override
+  public void periodic() {
+    extendedPublisher.set(extendedSensor.get());
+    retractedPublisher.set(retractedSensor.get());
   }
 }
+// Enum to represent the different states of the climber

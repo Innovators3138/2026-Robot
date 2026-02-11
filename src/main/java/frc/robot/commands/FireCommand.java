@@ -43,4 +43,5 @@ public class FireCommand extends Command {
         .setFeederAngularVelocity(RPM.of(2400))
         .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180)));
   }
+  // uh, comment
 }

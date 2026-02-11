@@ -22,6 +22,7 @@
 - backleftEncoder CAN ID 32
 - backrightEncoder CAN ID 33
 - candle: CAN ID 36
+- NAVX: CAN ID 37
 
 
 
@@ -32,6 +33,8 @@
 
 
 ### Digital Input ###
+- Extended Sensor: 1
+- Retracted Sensor: 0
 
 
 ### Solenoids ###

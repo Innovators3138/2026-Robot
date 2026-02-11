@@ -33,6 +33,8 @@
 
 
 ### Digital Input ###
+- Extended Sensor: 1
+- Retracted Sensor: 0
 
 
 ### Solenoids ###

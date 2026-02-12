@@ -1,81 +1,79 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.simulation.ClimberSimulator;
-import frc.robot.simulation.ShotSimulator;
 
 public class Robot extends TimedRobot {
-  private Command autonomousCommand;
-  private RobotContainer robotContainer;
-  private ShotSimulator shotSimulator;
-  private ClimberSimulator climberSimulator;
+  // private Command autonomousCommand;
+  // private RobotContainer robotContainer;
+  private ShooterTestContainer robotContainer;
+
+  // private ShotSimulator shotSimulator;
+  // private ClimberSimulator climberSimulator;
 
   public Robot() {
-    robotContainer = new RobotContainer();
+    // robotContainer = new RobotContainer();
+    robotContainer = new ShooterTestContainer();
   }
 
-  @Override
-  public void robotInit() {}
+  // @Override
+  // public void robotInit() {}
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
   }
 
-  @Override
-  public void disabledInit() {}
+  // @Override
+  // public void disabledInit() {}
 
-  @Override
-  public void disabledPeriodic() {}
+  // @Override
+  // public void disabledPeriodic() {}
 
-  @Override
-  public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
-    robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
+  // @Override
+  // public void autonomousInit() {
+  //   autonomousCommand = robotContainer.getAutonomousCommand();
+  //   robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
 
-    if (autonomousCommand != null) {
-      autonomousCommand.schedule();
-    }
-  }
+  //   if (autonomousCommand != null) {
+  //     autonomousCommand.schedule();
+  //   }
+  // }
 
-  @Override
-  public void autonomousPeriodic() {}
+  // @Override
+  // public void autonomousPeriodic() {}
 
-  @Override
-  public void teleopInit() {
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
-    }
-  }
+  // @Override
+  // public void teleopInit() {
+  //   if (autonomousCommand != null) {
+  //     autonomousCommand.cancel();
+  //   }
+  // }
 
-  @Override
-  public void teleopPeriodic() {}
+  // @Override
+  // public void teleopPeriodic() {}
 
-  @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-  }
+  // @Override
+  // public void testInit() {
+  //   CommandScheduler.getInstance().cancelAll();
+  // }
 
-  @Override
-  public void testPeriodic() {}
+  // @Override
+  // public void testPeriodic() {}
 
-  @Override
-  public void simulationInit() {
-    shotSimulator =
-        new ShotSimulator(
-            robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
-    shotSimulator.generateBalls();
-    climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
-  }
+  // @Override
+  // public void simulationInit() {
+  //   shotSimulator =
+  //       new ShotSimulator(
+  //           robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
+  //   shotSimulator.generateBalls();
+  //   climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
+  // }
 
-  @Override
-  public void simulationPeriodic() {
-    var dt = Seconds.of(getPeriod());
-    shotSimulator.update(dt);
-    climberSimulator.update(dt);
-  }
+  // @Override
+  // public void simulationPeriodic() {
+  //   var dt = Seconds.of(getPeriod());
+  //   shotSimulator.update(dt);
+  //   climberSimulator.update(dt);
+  // }
 }

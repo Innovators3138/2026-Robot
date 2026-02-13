@@ -39,12 +39,12 @@ public class ClimberSimulator {
 
   public ClimberSimulator(ClimberSubsystem climberSubsystem) {
     this.climberSubsystem = climberSubsystem;
-    this.mech2d = new LoggedMechanism2d(1, 1);
+    this.mech2d = new LoggedMechanism2d(1, 5);
     climberPosePublisher =
         NetworkTableInstance.getDefault()
             .getStructArrayTopic("Simulation/ClimberSimulator/ClimberPose", Pose3d.struct)
             .publish();
-    var climberRoot = mech2d.getRoot("Climber", 0.5, 0.5);
+    var climberRoot = mech2d.getRoot("Climber", 0.14, 0.5);
 
     var climberLigament =
         new LoggedMechanismLigament2d(
@@ -55,11 +55,11 @@ public class ClimberSimulator {
             new Color8Bit(Color.kAquamarine));
     climberRoot.append(climberLigament);
     extenderY = 0.5;
-    this.extenderRoot = mech2d.getRoot("Extender", 0.5, extenderY);
+    this.extenderRoot = mech2d.getRoot("Extender", 0.14, extenderY);
     this.climberExtender =
-        new LoggedMechanismLigament2d("Climber Extender", 0.1, 90, 4, new Color8Bit(Color.kMaroon));
+        new LoggedMechanismLigament2d("Climber Extender", 0.1, 90, 8, new Color8Bit(Color.kMaroon));
     extenderRoot.append(climberExtender);
-    var ratchetRoot = mech2d.getRoot("Ratchet", 0.46, 0.5);
+    var ratchetRoot = mech2d.getRoot("Ratchet", 0.1, 0.5);
     this.ratchet =
         new LoggedMechanismLigament2d("Ratchet Lagamen", 0.1, 0, 6, new Color8Bit(Color.kGreen));
     ratchetRoot.append(ratchet);
@@ -83,11 +83,11 @@ public class ClimberSimulator {
     var updatedExtenderLength = distance.plus(Meters.of(extenderY));
     var clampedLength =
         Math.min(updatedExtenderLength.in(Meters), ClimberSubsystem.MAX_EXTENSION.in(Meter));
-    extenderRoot.setPosition(0.5,clampedLength);
+    extenderRoot.setPosition(0.14,clampedLength);
     extenderY = clampedLength;
     if (extenderY <= 0.5) {
       retractedSensorSim.setValue(true);
-      extenderRoot.setPosition(0.5,0.5);
+      extenderRoot.setPosition(0.14,0.5);
       extenderY = 0.5;
     } else {
       retractedSensorSim.setValue(false);

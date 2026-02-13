@@ -57,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           .withClosedLoopController(
-              0.0025, 0, 0.01, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
+              0.01, 0, 0.0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withSimClosedLoopController(
               0, 0, 0.01, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withFeedforward(new SimpleMotorFeedforward(0, 0.111, 0))
@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
-          .withStatorCurrentLimit(Amps.of(40));
+          .withStatorCurrentLimit(Amps.of(70));
 
   private SparkMax shooterMotor = new SparkMax(3, MotorType.kBrushless);
   private SparkMax shooterMotorFollower = new SparkMax(2, MotorType.kBrushless);

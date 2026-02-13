@@ -57,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           .withClosedLoopController(
-              0.00035, 0, 0.01, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
+              0.0025, 0, 0.01, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withSimClosedLoopController(
               0, 0, 0.01, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withFeedforward(new SimpleMotorFeedforward(0, 0.111, 0))

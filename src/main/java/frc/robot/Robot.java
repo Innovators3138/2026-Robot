@@ -11,6 +11,7 @@ import frc.robot.simulation.ShotSimulator;
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+
   private ShotSimulator shotSimulator;
   private ClimberSimulator climberSimulator;
 

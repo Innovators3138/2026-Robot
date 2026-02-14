@@ -7,6 +7,8 @@
 - shooterMotorFollower: CAN ID 3
 - feederMotor: CAN ID 38
 - hotdogMotor: CAN ID 3
+- shooterMotorLeader: CAN ID 2
+- shooterMotorFollower: CAN ID 3
 - intakeMotor: CAN ID 4
 - backleftdrive CAN ID 5
 - backleftangle CAN ID 6

@@ -77,11 +77,11 @@ public class RobotContainer {
     var selectedAuto = autoChooser.getSelected();
     if (selectedAuto == null) {
       return AutoCommands.basicAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
     }
     if (selectedAuto.equals("Basic Auto")) {
       return AutoCommands.basicAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
     }
     if (selectedAuto.equals("Pathfind to Path Auto")) {
       return AutoCommands.pathfindToPathAuto(

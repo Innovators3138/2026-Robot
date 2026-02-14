@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.PoundsForce;
 
@@ -12,6 +13,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
@@ -29,19 +31,26 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final int EXTENDED_SENSOR_CHANNEL = 1;
   public static final DCMotor MOTOR = DCMotor.getNEO(1);
   public static final double GEAR_RATIO = 48;
-  public static final Distance BASE_LENGTH = Inches.of(12);
-  public static final Distance MAX_EXTENSION = Inches.of(9);
+  public static final Distance BASE_LENGTH = Meters.of(0.3);
+  public static final Distance MAX_EXTENSION = Meters.of(0.46);
   public static final Force SPRING_FORCE = PoundsForce.of(7);
   public static final Mass CLIMBER_MASS = Pounds.of(2);
   private final Servo ratchetServo;
   private ClimberState currentState;
-  private final SparkMax sparkMax = new SparkMax(13, MotorType.kBrushless);
+  public final SparkMax sparkMax = new SparkMax(15, MotorType.kBrushless);
   private final DigitalInput extendedSensor = new DigitalInput(EXTENDED_SENSOR_CHANNEL);
   private final DigitalInput retractedSensor = new DigitalInput(RETRACTED_SENSOR_CHANNEL);
   private final BooleanPublisher extendedPublisher =
       NetworkTableInstance.getDefault().getBooleanTopic("Subsystem/Climber/Extended").publish();
   private final BooleanPublisher retractedPublisher =
       NetworkTableInstance.getDefault().getBooleanTopic("Subsystem/Climber/Retracted").publish();
+  private final DoublePublisher encoderPublisher =
+      NetworkTableInstance.getDefault().getDoubleTopic("Subsystem/Climber/Encoder").publish();
+  private final DoublePublisher appliedVoltagePublisher =
+      NetworkTableInstance.getDefault()
+          .getDoubleTopic("Subsystem/Climber/AppliedVoltage")
+          .publish();
+  private double climbStartingPosition = 0.0;
 
   public ClimberSubsystem() {
     currentState = ClimberState.Retracted;
@@ -93,8 +102,17 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public Command climb() {
-    return run(() -> updateState(ClimberState.Climbing))
-        .withTimeout(0.25)
+
+    return runOnce(
+            () -> {
+              climbStartingPosition = sparkMax.getEncoder().getPosition();
+            })
+        .andThen(run(() -> updateState(ClimberState.Climbing)))
+        .until(
+            () -> {
+              var changeInPositon = sparkMax.getEncoder().getPosition() - climbStartingPosition;
+              return changeInPositon >= 5.0;
+            })
         .andThen(() -> updateState(ClimberState.Hold));
   }
 
@@ -116,6 +134,11 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
     extendedPublisher.set(extendedSensor.get());
     retractedPublisher.set(retractedSensor.get());
+    encoderPublisher.set(sparkMax.getEncoder().getPosition());
+    appliedVoltagePublisher.set(sparkMax.getAppliedOutput());
   }
+
+  @Override
+  public void simulationPeriodic() {}
 }
 // Enum to represent the different states of the climber

@@ -50,7 +50,7 @@ public class FeederSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40));
 
-  private SparkMax feederMotor = new SparkMax(2, MotorType.kBrushless);
+  private SparkMax feederMotor = new SparkMax(13, MotorType.kBrushless);
 
   private SmartMotorController feederSmartMotorController =
       new SparkWrapper(feederMotor, DCMotor.getNEO(1), smcConfig);

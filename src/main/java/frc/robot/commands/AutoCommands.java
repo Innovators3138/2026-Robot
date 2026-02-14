@@ -53,7 +53,8 @@ public class AutoCommands {
       SwerveSubsystem swerveSubsystem,
       ShooterSubsystem shooterSubsystem,
       FeederSubsystem feederSubsystem,
-      HotdogSubsystem hotdogSubsystem) {
+      HotdogSubsystem hotdogSubsystem,
+      frc.robot.subsystems.ClimberSubsystem climberSubsystem) {
     var driveToClimb =
         swerveSubsystem.drivetoPose(
             new Pose2d(15.4, 5.25, Rotation2d.fromDegrees(180)),
@@ -70,7 +71,9 @@ public class AutoCommands {
         .alongWith(FireCommand.targetLock(shooterSubsystem, swerveSubsystem))
         .until(() -> driveToLaunchPosition.isFinished())
         .andThen(FireCommand.fire(feederSubsystem, hotdogSubsystem).withTimeout(8))
-        .andThen(driveToClimb);
+        .andThen(driveToClimb)
+        .andThen(climberSubsystem.extend())
+        .andThen(climberSubsystem.climb());
   }
 
   public static Command pathfindToPathAuto(

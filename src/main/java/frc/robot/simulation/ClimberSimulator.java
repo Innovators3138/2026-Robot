@@ -6,13 +6,16 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.NewtonMeters;
+import static edu.wpi.first.units.Units.Seconds;
 
+import com.revrobotics.sim.SparkMaxSim;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -36,15 +39,17 @@ public class ClimberSimulator {
   private final DIOSim retractedSensorSim = new DIOSim(ClimberSubsystem.RETRACTED_SENSOR_CHANNEL);
   private LoggedMechanismRoot2d extenderRoot;
   private double extenderY;
+  private final SparkMaxSim motorSim;
 
   public ClimberSimulator(ClimberSubsystem climberSubsystem) {
     this.climberSubsystem = climberSubsystem;
     this.mech2d = new LoggedMechanism2d(1, 1);
+    motorSim = new SparkMaxSim(climberSubsystem.sparkMax, ClimberSubsystem.MOTOR);
     climberPosePublisher =
         NetworkTableInstance.getDefault()
             .getStructArrayTopic("Simulation/ClimberSimulator/ClimberPose", Pose3d.struct)
             .publish();
-    var climberRoot = mech2d.getRoot("Climber", 0.14, 0.23);
+    var climberRoot = mech2d.getRoot("Climber", 0.9, 0.23);
 
     var climberLigament =
         new LoggedMechanismLigament2d(
@@ -55,11 +60,11 @@ public class ClimberSimulator {
             new Color8Bit(Color.kAquamarine));
     climberRoot.append(climberLigament);
     extenderY = 0.23;
-    this.extenderRoot = mech2d.getRoot("Extender", 0.14, extenderY);
+    this.extenderRoot = mech2d.getRoot("Extender", 0.9, extenderY);
     this.climberExtender =
         new LoggedMechanismLigament2d("Climber Extender", 0.3, 90, 4, new Color8Bit(Color.kMaroon));
     extenderRoot.append(climberExtender);
-    var ratchetRoot = mech2d.getRoot("Ratchet", 0.1, 0.23);
+    var ratchetRoot = mech2d.getRoot("Ratchet", 0.8, 0.23);
     this.ratchet =
         new LoggedMechanismLigament2d("Ratchet Lagamen", 0.1, 0, 6, new Color8Bit(Color.kGreen));
     ratchetRoot.append(ratchet);
@@ -70,6 +75,7 @@ public class ClimberSimulator {
   }
 
   public void update(Time dt) {
+
     var speed = calculateVelocity(dt);
     if (climberSubsystem.isRatchetEngaged()) {
       ratchet.setColor(new Color8Bit(Color.kGreen));
@@ -83,11 +89,11 @@ public class ClimberSimulator {
     var updatedExtenderLength = distance.plus(Meters.of(extenderY));
     var clampedLength =
         Math.min(updatedExtenderLength.in(Meters), ClimberSubsystem.MAX_EXTENSION.in(Meter));
-    extenderRoot.setPosition(0.14,clampedLength);
+    extenderRoot.setPosition(0.9, clampedLength);
     extenderY = clampedLength;
     if (extenderY <= 0.23) {
       retractedSensorSim.setValue(true);
-      extenderRoot.setPosition(0.14,0.23);
+      extenderRoot.setPosition(0.9, 0.23);
       extenderY = 0.23;
     } else {
       retractedSensorSim.setValue(false);
@@ -97,6 +103,8 @@ public class ClimberSimulator {
     } else {
       extenderSensorSim.setValue(false);
     }
+    var simRPM = climberSubsystem.sparkMax.getAppliedOutput() * 5676;
+    motorSim.iterate(simRPM, RobotController.getBatteryVoltage(), dt.in(Seconds));
   }
 
   private LinearVelocity calculateVelocity(Time dt) {

@@ -172,6 +172,27 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
+  public Command driveRobotOriented(
+      CommandXboxController driverController, CommandXboxController operatorController) {
+    SwerveInputStream inputStream =
+        SwerveInputStream.of(
+                swerveDrive,
+                () -> driverController.getLeftY() * -1,
+                () -> driverController.getLeftX() * -1)
+            .withControllerRotationAxis(() -> driverController.getRightX() * -1)
+            .deadband(0.1)
+            .allianceRelativeControl(true)
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
+
+    return run(
+        () -> {
+          var target = Constants.FieldConstants.getHub();
+
+          inputStream.aim(target);
+          swerveDrive.drive(inputStream.get());
+        });
+  }
+
   @Override
   public void periodic() {
     // Get the latest pose data frames from the Quest

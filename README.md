@@ -16,6 +16,7 @@
 - frontrightangle CAN ID 12
 - feederMotor: CAN ID 13
 - hotdogMotor: CAN ID 14
+- climberMotor: CAN ID 15
 
 - CAN DEVICES
 - frontleftEncoder CAN ID 30

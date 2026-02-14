@@ -37,7 +37,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final Mass CLIMBER_MASS = Pounds.of(2);
   private final Servo ratchetServo;
   private ClimberState currentState;
-  public final SparkMax sparkMax = new SparkMax(14, MotorType.kBrushless);
+  private final SparkMax sparkMax = new SparkMax(15, MotorType.kBrushless);
   private final DigitalInput extendedSensor = new DigitalInput(EXTENDED_SENSOR_CHANNEL);
   private final DigitalInput retractedSensor = new DigitalInput(RETRACTED_SENSOR_CHANNEL);
   private final BooleanPublisher extendedPublisher =

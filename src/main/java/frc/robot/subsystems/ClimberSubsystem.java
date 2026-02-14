@@ -31,7 +31,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public static final DCMotor MOTOR = DCMotor.getNEO(1);
   public static final double GEAR_RATIO = 48;
   public static final Distance BASE_LENGTH = Meters.of(0.3);
-  public static final Distance MAX_EXTENSION = Meters.of(0.73);
+  public static final Distance MAX_EXTENSION = Meters.of(0.46);
   public static final Force SPRING_FORCE = PoundsForce.of(7);
   public static final Mass CLIMBER_MASS = Pounds.of(2);
   private final Servo ratchetServo;

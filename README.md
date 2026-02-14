@@ -5,7 +5,6 @@
 - CAN MOTORS
 - shooterMotorLeader: CAN ID 2
 - shooterMotorFollower: CAN ID 3
-- feederMotor: CAN ID 38
 - intakeMotor: CAN ID 4
 - backleftdrive CAN ID 5
 - backleftangle CAN ID 6
@@ -15,8 +14,9 @@
 - frontleftangle CAN ID 10
 - frontrightdrive CAN ID 11
 - frontrightangle CAN ID 12
-- hotdogMotor: CAN ID 13
-- climberMOtor CAN ID 14
+- feederMotor: CAN ID 13
+- hotdogMotor: CAN ID 14
+- climberMotor: CAN ID 15
 
 - CAN DEVICES
 - frontleftEncoder CAN ID 30

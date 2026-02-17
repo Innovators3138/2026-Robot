@@ -4,9 +4,6 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -20,7 +17,6 @@ import edu.wpi.first.units.measure.Time;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,20 +88,20 @@ public class ShotSimulator {
     currentAmmoPublisher = nt.getIntegerTopic("Simulation/ShotSimulator/CurrentAmmo").publish();
   }
 
-  public void update(Time dt) {
+  /* public void update(Time dt) {
     checkAndFire(dt);
     updateBalls(dt);
     checkIntake();
     logOutputs();
-  }
+  } */
 
-  private void checkAndFire(Time dt) {
+  /* private void checkAndFire(Time dt) {
     var fireHeld = robotContainer.operatorXbox.rightTrigger(0.5).getAsBoolean();
 
     if (feederSubsystem.feeder.getSpeed().gte(RPM.of(1))) {
       timeSinceLastShot += dt.in(Seconds);
       var fireIntervalSeconds = FIRE_INTERVAL.in(Seconds);
-      var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity().orElse(RPM.of(0));
+      // var angularVelocity = robotContainer.shooterSubsystem.getAngularVelocity().orElse(RPM.of(0));
 
       if (timeSinceLastShot >= fireIntervalSeconds
           && angularVelocity.gte(RPM.of(100))
@@ -120,9 +116,9 @@ public class ShotSimulator {
     } else {
       timeSinceLastShot = FIRE_INTERVAL.in(Seconds);
     }
-  }
+  } */
 
-  private void shoot() {
+  /* private void shoot() {
     var robotPose =
         robotContainer
             .swerveSubsystem
@@ -157,7 +153,7 @@ public class ShotSimulator {
 
     activeBalls.add(new SimulatedBall(launchX, launchY, launchZ, vx, vy, vz));
     currentAmmo -= 1;
-  }
+  } */
 
   public void respawnBalls() {
     passiveBalls.clear();

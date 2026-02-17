@@ -1,6 +1,5 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,7 +34,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    // autonomousCommand = robotContainer.getAutonomousCommand();
     robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
 
     if (autonomousCommand != null) {
@@ -66,17 +65,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void simulationInit() {
-    shotSimulator =
-        new ShotSimulator(
-            robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
-    shotSimulator.generateBalls();
-    climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
+    // shotSimulator =
+    //    new ShotSimulator(
+    //        robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
+    // shotSimulator.generateBalls();
+    // climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
   }
 
   @Override
   public void simulationPeriodic() {
-    var dt = Seconds.of(getPeriod());
-    shotSimulator.update(dt);
-    climberSimulator.update(dt);
+    // var dt = Seconds.of(getPeriod());
+    // shotSimulator.update(dt);
+    // climberSimulator.update(dt);
   }
 }

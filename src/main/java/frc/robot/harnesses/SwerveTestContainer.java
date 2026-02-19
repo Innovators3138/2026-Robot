@@ -9,6 +9,7 @@ public class SwerveTestContainer {
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
   SwerveTestContainer() {
+    operatorXbox.start().onTrue(swerveSubsystem.resetOdometry());
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveRobotOriented(driverXbox, operatorXbox));
   }
 }

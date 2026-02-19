@@ -247,6 +247,11 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(robotPose);
   }
 
+  public Command resetOdometry() {
+    Pose2d startPose = new Pose2d();
+    return runOnce(() -> swerveDrive.resetOdometry(startPose));
+  }
+
   public ChassisSpeeds getRobotVelocity() {
     return swerveDrive.getRobotVelocity();
   }

@@ -181,7 +181,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 () -> driverController.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .allianceRelativeControl(true)
             .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
     return run(
@@ -248,8 +247,9 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command resetOdometry() {
-    Pose2d startPose = new Pose2d();
-    return runOnce(() -> swerveDrive.resetOdometry(startPose));
+
+    return runOnce(
+        () -> swerveDrive.resetOdometry(Constants.FieldConstants.BLUE_STARTING_POSITION));
   }
 
   public ChassisSpeeds getRobotVelocity() {

@@ -18,6 +18,7 @@ public class Constants {
     public static Pose2d RED_HUB = new Pose2d(11.796345, 4.37278, Rotation2d.kZero);
     public static Pose2d BLUE_STARTING_POSITION = new Pose2d(1, 1, Rotation2d.kZero);
     public static Pose2d RED_STARTING_POSITION = new Pose2d(16, 8, Rotation2d.k180deg);
+    public static Pose2d KZERO = new Pose2d(0.0, 0.0, Rotation2d.kZero);
 
     public static Pose2d getHub() {
       var basePosition = Constants.FieldConstants.BLUE_HUB;

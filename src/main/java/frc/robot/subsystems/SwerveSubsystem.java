@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -33,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import java.io.File;
@@ -160,7 +162,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 () -> driverController.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .allianceRelativeControl(true)
             .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
     return run(
@@ -248,12 +249,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Command resetOdometry() {
 
-    return runOnce(
-        () -> swerveDrive.resetOdometry(Constants.FieldConstants.BLUE_STARTING_POSITION));
+    return runOnce(() -> swerveDrive.resetOdometry(FieldConstants.KZERO));
   }
 
   public ChassisSpeeds getRobotVelocity() {
     return swerveDrive.getRobotVelocity();
+  }
+
+  public Command drive(Translation2d translation, double rotation, boolean fieldRelitive) {
+    return run(() -> swerveDrive.drive(translation, rotation, false, false));
   }
 
   public Command drivetoPose(

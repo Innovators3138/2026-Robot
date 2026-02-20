@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
-import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import java.io.File;
 import java.io.IOException;
@@ -197,7 +196,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     // Get the latest pose data frames from the Quest
 
-    PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+    /*  PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
     // Loop over the pose data frames and send them to the pose estimator
     for (PoseFrame questFrame : questFrames) {
@@ -214,12 +213,14 @@ public class SwerveSubsystem extends SubsystemBase {
         // You can put some sort of filtering here if you would like!
 
         // Add the measurement to our estimator
-        swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
-        swerveDrive.updateOdometry();
-      }
-    }
+        swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);*/
+    swerveDrive.updateOdometry();
     estimatedPosePublisher.set(swerveDrive.getPose());
   }
+
+  // }
+
+  // }
 
   @Override
   public void simulationPeriodic() {
@@ -268,7 +269,6 @@ public class SwerveSubsystem extends SubsystemBase {
             acceleration.in(MetersPerSecondPerSecond),
             swerveDrive.getMaximumChassisAngularVelocity(),
             Units.degreesToRadians(720));
-    return AutoBuilder.pathfindToPose(
-        pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
+    return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
   }
 }

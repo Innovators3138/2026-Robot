@@ -1,5 +1,10 @@
 package frc.robot.harnesses;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -10,9 +15,40 @@ public class SwerveTestContainer {
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
   SwerveTestContainer() {
-    var testTranslation = new Translation2d(0.25, 0.0);
+    var forwardTranslation = new Translation2d(0.25, 0.0);
+    var leftTranslation = new Translation2d(0, 0.25);
     driverXbox.start().onTrue(swerveSubsystem.resetOdometry());
-    driverXbox.a().onTrue(swerveSubsystem.drive(testTranslation, 0, false).withTimeout(1));
+    driverXbox
+        .a()
+        .onTrue(
+            swerveSubsystem
+                .resetOdometry()
+                .andThen(
+                    swerveSubsystem.drivetoPose(
+                        new Pose2d(2, 1, Rotation2d.kZero),
+                        MetersPerSecond.of(0.5),
+                        MetersPerSecondPerSecond.of(0.5)))
+                .andThen(
+                    swerveSubsystem.drivetoPose(
+                        new Pose2d(2, 2, Rotation2d.kZero),
+                        MetersPerSecond.of(0.5),
+                        MetersPerSecondPerSecond.of(0.5)))
+                .andThen(
+                    swerveSubsystem.drivetoPose(
+                        new Pose2d(1, 2, Rotation2d.kZero),
+                        MetersPerSecond.of(0.5),
+                        MetersPerSecondPerSecond.of(0.5)))
+                .andThen(
+                    swerveSubsystem.drivetoPose(
+                        new Pose2d(1, 1, Rotation2d.kZero),
+                        MetersPerSecond.of(0.5),
+                        MetersPerSecondPerSecond.of(0.5)))
+                .andThen(
+                    swerveSubsystem.drivetoPose(
+                        new Pose2d(1, 1, Rotation2d.kZero),
+                        MetersPerSecond.of(0.5),
+                        MetersPerSecondPerSecond.of(0.5))));
+
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveRobotOriented(driverXbox, operatorXbox));
   }
 }

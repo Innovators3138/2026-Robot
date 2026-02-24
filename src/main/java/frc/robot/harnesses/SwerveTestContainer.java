@@ -48,6 +48,16 @@ public class SwerveTestContainer {
                         new Pose2d(1, 1, Rotation2d.kZero),
                         MetersPerSecond.of(0.5),
                         MetersPerSecondPerSecond.of(0.5))));
+    driverXbox
+        .b()
+        .onTrue(
+            swerveSubsystem
+                .resetOdometry()
+                .andThen(
+                    swerveSubsystem.drivetoPose(
+                        new Pose2d(2, 2, Rotation2d.k180deg),
+                        MetersPerSecond.of(1),
+                        MetersPerSecondPerSecond.of(1))));
 
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveRobotOriented(driverXbox, operatorXbox));
   }

@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -33,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
-import gg.questnav.questnav.PoseFrame;
+import frc.robot.Constants.FieldConstants;
 import gg.questnav.questnav.QuestNav;
 import java.io.File;
 import java.io.IOException;
@@ -110,8 +111,8 @@ public class SwerveSubsystem extends SubsystemBase {
           // Also optionally outputs individual module feedforwards
           new PPHolonomicDriveController(
               // controller for holonomic drive trains
-              new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-              new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+              new PIDConstants(15, 0.0, 0.0), // Translation PID constants
+              new PIDConstants(7, 0.0, 0.0) // Rotation PID constants
               ),
           config, // The robot configuration
           () -> {
@@ -160,7 +161,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 () -> driverController.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .allianceRelativeControl(true)
             .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
     return run(
@@ -172,11 +172,31 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
+  public Command driveRobotOriented(
+      CommandXboxController driverController, CommandXboxController operatorController) {
+    SwerveInputStream inputStream =
+        SwerveInputStream.of(
+                swerveDrive,
+                () -> driverController.getLeftY() * -1,
+                () -> driverController.getLeftX() * -1)
+            .withControllerRotationAxis(() -> driverController.getRightX() * -1)
+            .deadband(0.1)
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
+
+    return run(
+        () -> {
+          var target = Constants.FieldConstants.getHub();
+
+          inputStream.aim(target);
+          swerveDrive.drive(inputStream.get());
+        });
+  }
+
   @Override
   public void periodic() {
     // Get the latest pose data frames from the Quest
 
-    PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+    /*  PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
     // Loop over the pose data frames and send them to the pose estimator
     for (PoseFrame questFrame : questFrames) {
@@ -193,12 +213,14 @@ public class SwerveSubsystem extends SubsystemBase {
         // You can put some sort of filtering here if you would like!
 
         // Add the measurement to our estimator
-        swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);
-        swerveDrive.updateOdometry();
-      }
-    }
+        swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QUESTNAV_STD_DEVS);*/
+    swerveDrive.updateOdometry();
     estimatedPosePublisher.set(swerveDrive.getPose());
   }
+
+  // }
+
+  // }
 
   @Override
   public void simulationPeriodic() {
@@ -226,8 +248,17 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(robotPose);
   }
 
+  public Command resetOdometry() {
+
+    return runOnce(() -> swerveDrive.resetOdometry(FieldConstants.KZERO));
+  }
+
   public ChassisSpeeds getRobotVelocity() {
     return swerveDrive.getRobotVelocity();
+  }
+
+  public Command drive(Translation2d translation, double rotation, boolean fieldRelitive) {
+    return run(() -> swerveDrive.drive(translation, rotation, false, false));
   }
 
   public Command drivetoPose(
@@ -238,7 +269,6 @@ public class SwerveSubsystem extends SubsystemBase {
             acceleration.in(MetersPerSecondPerSecond),
             swerveDrive.getMaximumChassisAngularVelocity(),
             Units.degreesToRadians(720));
-    return AutoBuilder.pathfindToPose(
-        pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
+    return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
   }
 }

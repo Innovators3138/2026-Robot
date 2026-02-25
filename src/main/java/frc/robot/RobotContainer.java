@@ -15,6 +15,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
 
@@ -27,6 +28,7 @@ public class RobotContainer {
   public final CommandXboxController driverXbox = new CommandXboxController(0);
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
   public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  public final VisionSubsystem visionSubsystem = new VisionSubsystem(swerveSubsystem);
 
   SendableChooser<String> autoChooser = new SendableChooser<>();
 

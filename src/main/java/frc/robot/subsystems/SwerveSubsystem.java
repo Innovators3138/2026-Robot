@@ -86,8 +86,8 @@ public class SwerveSubsystem extends SubsystemBase {
           // Also optionally outputs individual module feedforwards
           new PPHolonomicDriveController(
               // controller for holonomic drive trains
-              new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-              new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+              new PIDConstants(15, 0.0, 0.0), // Translation PID constants
+              new PIDConstants(7, 0.0, 0.0) // Rotation PID constants
               ),
           config, // The robot configuration
           () -> {
@@ -136,7 +136,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 () -> driverController.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .allianceRelativeControl(true)
             .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
     return run(
@@ -145,6 +144,26 @@ public class SwerveSubsystem extends SubsystemBase {
 
           inputStream.aim(target);
           swerveDrive.driveFieldOriented(inputStream.get());
+        });
+  }
+
+  public Command driveRobotOriented(
+      CommandXboxController driverController, CommandXboxController operatorController) {
+    SwerveInputStream inputStream =
+        SwerveInputStream.of(
+                swerveDrive,
+                () -> driverController.getLeftY() * -1,
+                () -> driverController.getLeftX() * -1)
+            .withControllerRotationAxis(() -> driverController.getRightX() * -1)
+            .deadband(0.1)
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
+
+    return run(
+        () -> {
+          var target = Constants.FieldConstants.getHub();
+
+          inputStream.aim(target);
+          swerveDrive.drive(inputStream.get());
         });
   }
 
@@ -183,8 +202,17 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(robotPose);
   }
 
+  public Command resetOdometry() {
+
+    return runOnce(() -> swerveDrive.resetOdometry(FieldConstants.KZERO));
+  }
+
   public ChassisSpeeds getRobotVelocity() {
     return swerveDrive.getRobotVelocity();
+  }
+
+  public Command drive(Translation2d translation, double rotation, boolean fieldRelitive) {
+    return run(() -> swerveDrive.drive(translation, rotation, false, false));
   }
 
   public Command drivetoPose(
@@ -195,7 +223,6 @@ public class SwerveSubsystem extends SubsystemBase {
             acceleration.in(MetersPerSecondPerSecond),
             swerveDrive.getMaximumChassisAngularVelocity(),
             Units.degreesToRadians(720));
-    return AutoBuilder.pathfindToPose(
-        pose, constraints, edu.wpi.first.units.Units.MetersPerSecond.of(0));
+    return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
   }
 }

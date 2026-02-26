@@ -32,8 +32,8 @@ public class VisionSubsystem extends SubsystemBase {
           );
   public final PhotonPoseEstimator swervePoseEstimator;
   public final PhotonPoseEstimator shooterPoseEstimator;
-  private final PhotonCamera swerveCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
-  private final PhotonCamera shooterCamera = new PhotonCamera("Arducam_OV9281_USB_Camera_2");
+  private final PhotonCamera swerveCamera = new PhotonCamera("Arducam-1");
+  private final PhotonCamera shooterCamera = new PhotonCamera("Arducam-2");
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
 

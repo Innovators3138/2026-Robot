@@ -22,8 +22,16 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 public class VisionSubsystem extends SubsystemBase {
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(0.307, -0.254000, 0.322762),
-          new Rotation3d(0.0, 0.0, 0.0)); // Adjust these values based on your mounting
+          new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
+          new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
+  private static final Transform3d ROBOT_TO_SWERVE_CAM =
+      new Transform3d(
+          new edu.wpi.first.math.geometry.Translation3d(-0.1798574, -0.3072384, 0.1987296),
+          new Rotation3d(0.0, 0.0, 0.78539816));
+  private static final Transform3d ROBOT_TO_SHOOTER_CAM =
+      new Transform3d(
+          new edu.wpi.first.math.geometry.Translation3d(-0.2257806, -0.2396236, 0.378714),
+          new Rotation3d(0.0, 0.0, 2.35619449));
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
           0.02, // Trust down to 2cm in X direction
@@ -60,13 +68,13 @@ public class VisionSubsystem extends SubsystemBase {
         new PhotonPoseEstimator(
             VisionSubsystem.fieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            Transform3d.kZero);
+            ROBOT_TO_SWERVE_CAM);
     swervePoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     shooterPoseEstimator =
         new PhotonPoseEstimator(
             VisionSubsystem.fieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            Transform3d.kZero);
+            ROBOT_TO_SHOOTER_CAM);
     shooterPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 

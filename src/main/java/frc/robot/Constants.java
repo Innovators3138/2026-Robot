@@ -19,6 +19,12 @@ public class Constants {
     public static Pose2d BLUE_STARTING_POSITION = new Pose2d(1, 1, Rotation2d.kZero);
     public static Pose2d RED_STARTING_POSITION = new Pose2d(16, 8, Rotation2d.k180deg);
     public static Pose2d KZERO = new Pose2d(1, 1.0, Rotation2d.kZero);
+    public static Pose2d RED_CLIMB_LEFT = new Pose2d(15.71, 5.261, Rotation2d.kZero);
+    public static Pose2d RED_CLIMB_RIGHT = new Pose2d(15.71, 3.396, Rotation2d.kZero);
+    public static Pose2d RED_CLIMB_MIDDLE = new Pose2d(15.1, 4.341, Rotation2d.kZero);
+    public static Pose2d BLUE_CLIMB_LEFT = new Pose2d(1.057, 5.05, Rotation2d.kZero);
+    public static Pose2d BLUE_CLIMB_MIDDLE = new Pose2d(1.439, 3.825, Rotation2d.kZero);
+    public static Pose2d BLUE_CLIMB_RIGHT = new Pose2d(1.217, 3.108, Rotation2d.kZero);
 
     public static Pose2d getHub() {
       var basePosition = Constants.FieldConstants.BLUE_HUB;
@@ -26,6 +32,30 @@ public class Constants {
         basePosition = Constants.FieldConstants.RED_HUB;
       }
       return basePosition;
+    }
+
+    public static Pose2d getLeftClimb() {
+      var leftClimb = Constants.FieldConstants.BLUE_CLIMB_LEFT;
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        leftClimb = Constants.FieldConstants.RED_CLIMB_LEFT;
+      }
+      return leftClimb;
+    }
+
+    public static Pose2d getRightClimb() {
+      var rightClimb = Constants.FieldConstants.BLUE_CLIMB_RIGHT;
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        rightClimb = Constants.FieldConstants.RED_CLIMB_RIGHT;
+      }
+      return rightClimb;
+    }
+
+    public static Pose2d getMiddleClimb() {
+      var middleClimb = Constants.FieldConstants.BLUE_CLIMB_MIDDLE;
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        middleClimb = Constants.FieldConstants.RED_CLIMB_MIDDLE;
+      }
+      return middleClimb;
     }
 
     public static Pose2d getInitialPose() {

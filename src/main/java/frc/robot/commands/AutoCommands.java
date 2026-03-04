@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -25,12 +26,9 @@ public class AutoCommands {
   public static Pose2d RED_CLIMB_POSE = new Pose2d(15.4, 5.25, Rotation2d.fromDegrees(180));
   public static Pose2d BLUE_CLIMB_POSE = new Pose2d(0.9, 2.7, Rotation2d.fromDegrees(0));
 
-  public static Pose2d getClimbPose() {
-    var basePosition = RED_CLIMB_POSE;
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-      basePosition = BLUE_CLIMB_POSE;
-    }
-    return basePosition;
+  public static Command Climb(ClimberSubsystem climberSubsystem) {
+
+    return climberSubsystem.extend().andThen(climberSubsystem.climb());
   }
 
   public static Pose2d getLaunchPose() {
@@ -80,7 +78,9 @@ public class AutoCommands {
       SwerveSubsystem swerveSubsystem,
       ShooterSubsystem shooterSubsystem,
       FeederSubsystem feederSubsystem,
-      HotdogSubsystem hotdogSubsystem) {
+      HotdogSubsystem hotdogSubsystem,
+      frc.robot.subsystems.ClimberSubsystem climberSubsystem,
+      AutoCommands autoCommands) {
     try {
       PathConstraints constraints =
           new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
@@ -89,15 +89,13 @@ public class AutoCommands {
       var driveToLaunchPosition =
           swerveSubsystem.drivetoPose(
               getLaunchPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
-      var driveToClimb =
-          swerveSubsystem.drivetoPose(
-              getClimbPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
+
       return AutoBuilder.pathfindThenFollowPath(pathplannerAuto, constraints)
           .andThen(driveToLaunchPosition)
           .alongWith(FireCommand.targetLock(shooterSubsystem, swerveSubsystem))
           .until(() -> driveToLaunchPosition.isFinished())
           .andThen(FireCommand.fire(feederSubsystem, hotdogSubsystem).withTimeout(8))
-          .andThen(driveToClimb);
+          .Climb();
     } catch (Exception e) {
       throw new RuntimeException("Failed to load path for auto", e);
     }

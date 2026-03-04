@@ -87,7 +87,7 @@ public class RobotContainer {
     }
     if (selectedAuto.equals("Pathfind to Path Auto")) {
       return AutoCommands.pathfindToPathAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
+          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
     }
     throw new RuntimeException("Unknown auto selected: " + selectedAuto);
   }

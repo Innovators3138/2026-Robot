@@ -39,7 +39,8 @@ public class Robot extends TimedRobot {
     robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
 
     if (autonomousCommand != null) {
-      autonomousCommand.schedule();
+      CommandScheduler.getInstance().schedule(autonomousCommand);
+      ;
     }
   }
 

@@ -19,7 +19,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
-public class VisionSubsystem extends SubsystemBase {
+public class TestVisionSubsystem extends SubsystemBase {
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(0.307, -0.254000, 0.322762),
@@ -34,8 +34,7 @@ public class VisionSubsystem extends SubsystemBase {
   public final PhotonPoseEstimator shooterPoseEstimator;
   private final PhotonCamera swerveCamera = new PhotonCamera("Arducam-1");
   private final PhotonCamera shooterCamera = new PhotonCamera("Arducam-2");
-  private final QuestNav questNav = new QuestNav();
-  private final SwerveSubsystem swerveSubsystem;
+
 
 
   public static final AprilTagFieldLayout fieldLayout =
@@ -50,13 +49,10 @@ public class VisionSubsystem extends SubsystemBase {
       NetworkTableInstance.getDefault()
           .getStructTopic("Subsystems/Vision/ShooterCamEstimatedPose", Pose2d.struct)
           .publish();
-  private final StructPublisher<Pose2d> questEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/QuestEstimatedPose", Pose2d.struct)
-          .publish();
 
-  public VisionSubsystem(SwerveSubsystem swerveSubsystem) {
-    this.swerveSubsystem = swerveSubsystem;
+
+  public TestVisionSubsystem() {
+
     swervePoseEstimator =
         new PhotonPoseEstimator(
             VisionSubsystem.fieldLayout,
@@ -74,7 +70,6 @@ public class VisionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    updateQuestNav();
     updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
     updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);
   }
@@ -82,55 +77,23 @@ public class VisionSubsystem extends SubsystemBase {
   private void updatePose(
       PhotonCamera camera, StructPublisher<Pose2d> publisher, PhotonPoseEstimator poseEstimator) {
     var resultsList = camera.getAllUnreadResults();
-
     for (var change : resultsList) {
       var visionEst = poseEstimator.update(change);
+      boolean hasTarget = change.hasTargets();
+      if (hasTarget) {
       var ambiguity = change.getBestTarget().getPoseAmbiguity();
+
       if (ambiguity < 0.2) {
         visionEst.ifPresent(
             pose -> {
-
-              questNav.setPose(pose.estimatedPose);
-              //im locked in
               var pose2d = pose.estimatedPose.toPose2d();
-              var matrix = pose.estimatedPose;
               publisher.set(pose2d);
-              swerveSubsystem.addVisionMeasurement(pose2d, pose.timestampSeconds);
+
             });
+          }
       }
     }
   }
 
-  private void updateQuestNav() {
-    // trust me
-    PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
-    // Loop over the pose data frames and send them to the pose estimator
-    //yep i wrote all these comments
-    for (PoseFrame questFrame : questFrames) {
-      // Make sure the Quest was tracking the pose for this frame
-      if (questFrame.isTracking()) {
-        // Get the pose of the Quest
-        Pose3d questPose = questFrame.questPose3d();
-
-        // Get timestamp for when the data was sent
-        double timestamp = questFrame.dataTimestamp();
-
-        // Transform by the mount pose to get your robot pose
-        Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
-
-        // You can put some sort of filtering here if you would like!
-        // Really its that easy!
-        // Probably should put some filtering here!
-        // Waiting for some filtering...
-        //Is there filtering yet?
-
-
-        // Add the measurement to our estimator
-        var quest2DPose = robotPose.toPose2d();
-        swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp);
-        questEstimatedPosePublisher.set(quest2DPose);
-      }
-    }
-  }
 }

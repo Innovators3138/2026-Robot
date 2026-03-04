@@ -17,7 +17,6 @@ import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 public class VisionSubsystem extends SubsystemBase {
   private static final Transform3d ROBOT_TO_QUEST =
@@ -37,6 +36,12 @@ public class VisionSubsystem extends SubsystemBase {
           0.02, // Trust down to 2cm in X direction
           0.02, // Trust down to 2cm in Y direction
           0.035 // Trust down to 2 degrees rotational
+          );
+  private static final Matrix<N3, N1> CAMERA_STD_DEVS =
+      VecBuilder.fill(
+          0.1, // Trust down to 2cm in X direction
+          0.1, // Trust down to 2cm in Y direction
+          0.1 // Trust down to 2 degrees rotational
           );
   public final PhotonPoseEstimator swervePoseEstimator;
   public final PhotonPoseEstimator shooterPoseEstimator;
@@ -67,15 +72,12 @@ public class VisionSubsystem extends SubsystemBase {
     swervePoseEstimator =
         new PhotonPoseEstimator(
             VisionSubsystem.fieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             ROBOT_TO_SWERVE_CAM);
-    swervePoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     shooterPoseEstimator =
         new PhotonPoseEstimator(
             VisionSubsystem.fieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             ROBOT_TO_SHOOTER_CAM);
-    shooterPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
   @Override
@@ -89,18 +91,20 @@ public class VisionSubsystem extends SubsystemBase {
       PhotonCamera camera, StructPublisher<Pose2d> publisher, PhotonPoseEstimator poseEstimator) {
     var resultsList = camera.getAllUnreadResults();
     for (var change : resultsList) {
-      var visionEst = poseEstimator.update(change);
-      var ambiguity = change.getBestTarget().getPoseAmbiguity();
-      if (ambiguity < 0.2) {
-        visionEst.ifPresent(
-            pose -> {
-              var pose2d = pose.estimatedPose.toPose2d();
-              publisher.set(pose2d);
-              swerveSubsystem.addVisionMeasurement(pose2d, pose.timestampSeconds);
-            });
-      }
+      var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
+      // var ambiguity = change.getBestTarget().getPoseAmbiguity();
+      // if (ambiguity < 0.2) {
+      visionEst.ifPresent(
+          pose -> {
+            var estimate = visionEst.get();
+            //              publisher.set(estimatePose);
+            swerveSubsystem.addVisionMeasurement(
+                estimate.estimatedPose.toPose2d(), estimate.timestampSeconds);
+          });
     }
   }
+
+  // }
 
   private void updateQuestNav() {
     // trust me

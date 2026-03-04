@@ -21,8 +21,16 @@ import org.photonvision.PhotonPoseEstimator;
 public class VisionSubsystem extends SubsystemBase {
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(0.307, -0.254000, 0.322762),
-          new Rotation3d(0.0, 0.0, 0.0)); // Adjust these values based on your mounting
+          new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
+          new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
+  private static final Transform3d ROBOT_TO_SWERVE_CAM =
+      new Transform3d(
+          new edu.wpi.first.math.geometry.Translation3d(-0.1798574, -0.3072384, 0.1987296),
+          new Rotation3d(0.0, 0.0, 0.78539816));
+  private static final Transform3d ROBOT_TO_SHOOTER_CAM =
+      new Transform3d(
+          new edu.wpi.first.math.geometry.Translation3d(-0.2257806, -0.2396236, 0.378714),
+          new Rotation3d(0.0, 0.0, 2.35619449));
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
           0.02, // Trust down to 2cm in X direction
@@ -61,9 +69,9 @@ public class VisionSubsystem extends SubsystemBase {
 
   public VisionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
-    swervePoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, Transform3d.kZero);
-
-    shooterPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, Transform3d.kZero);
+    swervePoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SWERVE_CAM);
+    shooterPoseEstimator =
+        new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SHOOTER_CAM);
   }
 
   @Override
@@ -98,7 +106,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Loop over the pose data frames and send them to the pose estimator
     for (PoseFrame questFrame : questFrames) {
-      // Make sure the Quest was tracking the pose for this frame
       if (questFrame.isTracking()) {
         // Get the pose of the Quest
         Pose3d questPose = questFrame.questPose3d();

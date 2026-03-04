@@ -136,11 +136,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 swerveDrive,
                 () -> driverController.getLeftY() * -1,
                 () -> driverController.getLeftX() * -1)
-            /* () -> driverController.getLeftY() * -0.5,
-            () -> driverController.getLeftX() * -0.5)
-             uncomment this for testing in the shop */
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
+            .cubeTranslationControllerAxis(true)
             .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
 
     return run(

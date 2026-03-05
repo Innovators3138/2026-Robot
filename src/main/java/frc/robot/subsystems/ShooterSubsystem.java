@@ -12,10 +12,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
-
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -85,9 +84,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     var followerConfig = new SparkMaxConfig();
-    followerConfig.follow(3,true);
+    followerConfig.follow(3, true);
     followerConfig.idleMode(IdleMode.kCoast);
-    shooterMotorFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    shooterMotorFollower.configure(
+        followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -104,7 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooter.getSpeed();
   }
 
-  public Optional<AngularVelocity> getAngularVelocity() {
+  public Optional<AngularVelocity> getAngularVelocitySetpoint() {
     return shooter.getMotorController().getMechanismSetpointVelocity();
   }
 

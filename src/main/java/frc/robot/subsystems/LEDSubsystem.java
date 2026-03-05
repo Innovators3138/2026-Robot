@@ -12,8 +12,7 @@ import frc.robot.Constants.LEDConstants;
 
 public class LEDSubsystem extends SubsystemBase {
   private final CANdle candle;
-  // private final SolidColor greenColor = new SolidColor(0, 50);
-  // private final SolidColor redColor = new SolidColor(0, 50);
+
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
   private final RGBWColor red = new RGBWColor(255, 0, 0, 0);
   private final ShooterSubsystem shooterSubsystem;

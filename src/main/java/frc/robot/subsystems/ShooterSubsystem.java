@@ -12,10 +12,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
-
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -59,9 +58,9 @@ public class ShooterSubsystem extends SubsystemBase {
           .withClosedLoopController(
               0.01, 0, 0.0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withSimClosedLoopController(
-              0, 0, 0.01, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
+              0, 0, 0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withFeedforward(new SimpleMotorFeedforward(0, 0.111, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0, 0.25, 0))
+          .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
           .withMotorInverted(false)
@@ -85,9 +84,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     var followerConfig = new SparkMaxConfig();
-    followerConfig.follow(3,true);
+    followerConfig.follow(3, true);
     followerConfig.idleMode(IdleMode.kCoast);
-    shooterMotorFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    shooterMotorFollower.configure(
+        followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override

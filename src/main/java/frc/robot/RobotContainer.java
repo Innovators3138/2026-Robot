@@ -2,7 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.RPM;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,16 +29,19 @@ public class RobotContainer {
   public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   public final VisionSubsystem visionSubsystem = new VisionSubsystem(swerveSubsystem);
 
-  SendableChooser<String> autoChooser = new SendableChooser<>();
-
   public RobotContainer() {
-    autoChooser.setDefaultOption("Basic Auto", "Basic Auto");
-    autoChooser.addOption("Pathfind to Path Auto", "Pathfind to Path Auto");
+
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
-
-    SmartDashboard.putData(autoChooser);
+    AutoCommands.climbChooser.setDefaultOption("Left Climb", "Left Climb");
+    AutoCommands.climbChooser.addOption("Middle Climb", "Middle Climb");
+    AutoCommands.climbChooser.addOption("Right Climb", "Right Climb");
+    AutoCommands.intakeChooser.addOption("Left Intake", "Left Intake");
+    AutoCommands.intakeChooser.addOption("Middle Intake", "Middle Intake");
+    AutoCommands.intakeChooser.addOption("Right Intake", "Right Intake");
+    SmartDashboard.putData(AutoCommands.climbChooser);
+    SmartDashboard.putData(AutoCommands.intakeChooser);
   }
 
   private void configureBindings() {
@@ -76,19 +78,8 @@ public class RobotContainer {
         swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
   } */
   public Command getAutonomousCommand() {
-    var selectedAuto = autoChooser.getSelected();
-    if (selectedAuto == null) {
-      return AutoCommands.basicAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
-    }
-    if (selectedAuto.equals("Basic Auto")) {
-      return AutoCommands.basicAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
-    }
-    if (selectedAuto.equals("Pathfind to Path Auto")) {
-      return AutoCommands.pathfindToPathAuto(
-          swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
-    }
-    throw new RuntimeException("Unknown auto selected: " + selectedAuto);
+
+   / return AutoCommands.pathfindToPathAuto(
+        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
   }
 }

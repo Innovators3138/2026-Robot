@@ -104,7 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooter.getSpeed();
   }
 
-  public Optional<AngularVelocity> getAngularVelocity() {
+  public Optional<AngularVelocity> getAngularVelocitySetpoint() {
     return shooter.getMotorController().getMechanismSetpointVelocity();
   }
 

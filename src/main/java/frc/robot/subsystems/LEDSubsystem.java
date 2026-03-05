@@ -30,7 +30,7 @@ public class LEDSubsystem extends SubsystemBase {
   private double getGetSetpointAccuracyPercentage() {
     var realSpeed = shooterSubsystem.getRealAngularVelocity().in(RPM);
     var setpoint = shooterSubsystem.getAngularVelocitySetpoint().map(s -> s.in(RPM)).orElse(0.0);
-    if (setpoint == 0) {
+    if (setpoint <= 0) {
       return 0;
     }
     var percentage = realSpeed / setpoint;

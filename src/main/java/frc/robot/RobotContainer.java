@@ -58,6 +58,7 @@ public class RobotContainer {
     operatorXbox.povDown().onTrue(climberSubsystem.retract());
     operatorXbox.x().onTrue(climberSubsystem.dismount());
     operatorXbox.y().onTrue(climberSubsystem.climb());
+    operatorXbox.povLeft().onTrue(swerveSubsystem.sysIdDriveMotorCommand());
 
     operatorXbox
         .leftTrigger(0.5)

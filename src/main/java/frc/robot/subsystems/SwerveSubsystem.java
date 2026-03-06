@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import gg.questnav.questnav.QuestNav;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.SwerveInputStream;
 import swervelib.parser.SwerveParser;
 
@@ -172,6 +174,15 @@ public class SwerveSubsystem extends SubsystemBase {
           swerveDrive.drive(inputStream.get());
         });
   }
+
+  public Command sysIdDriveMotorCommand()
+{
+  return SwerveDriveTest.generateSysIdCommand(
+      SwerveDriveTest.setDriveSysIdRoutine(
+          new Config(),
+          this, swerveDrive, 12, true),
+      3.0, 5.0, 3.0);
+}
 
   @Override
   public void periodic() {

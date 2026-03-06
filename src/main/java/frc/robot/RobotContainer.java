@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.RPM;
 
+import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -15,6 +16,8 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import java.io.IOException;
+import org.json.simple.parser.ParseException;
 
 public class RobotContainer {
 
@@ -77,9 +80,9 @@ public class RobotContainer {
     return AutoCommands.pathfindToPathAuto(
         swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
   } */
-  public Command getAutonomousCommand() {
+  public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
 
-   / return AutoCommands.pathfindToPathAuto(
-        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem, climberSubsystem);
+    return AutoCommands.createAuto(
+        swerveSubsystem, feederSubsystem, shooterSubsystem, hotdogSubsystem);
   }
 }

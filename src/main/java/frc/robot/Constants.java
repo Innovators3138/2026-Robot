@@ -19,12 +19,12 @@ public class Constants {
     public static Pose2d BLUE_STARTING_POSITION = new Pose2d(1, 1, Rotation2d.kZero);
     public static Pose2d RED_STARTING_POSITION = new Pose2d(16, 8, Rotation2d.k180deg);
     public static Pose2d KZERO = new Pose2d(1, 1.0, Rotation2d.kZero);
-    public static Pose2d RED_CLIMB_LEFT = new Pose2d(15.71, 5.261, Rotation2d.kZero);
-    public static Pose2d RED_CLIMB_RIGHT = new Pose2d(15.71, 3.396, Rotation2d.kZero);
+    public static Pose2d RED_CLIMB_RIGHT = new Pose2d(15.71, 5.261, Rotation2d.kZero);
+    public static Pose2d RED_CLIMB_LEFT = new Pose2d(15.71, 3.396, Rotation2d.kZero);
     public static Pose2d RED_CLIMB_MIDDLE = new Pose2d(15.1, 4.341, Rotation2d.kZero);
-    public static Pose2d BLUE_CLIMB_LEFT = new Pose2d(1.057, 5.05, Rotation2d.kZero);
+    public static Pose2d BLUE_CLIMB_RIGHT = new Pose2d(1.057, 5.05, Rotation2d.kZero);
     public static Pose2d BLUE_CLIMB_MIDDLE = new Pose2d(1.439, 3.825, Rotation2d.kZero);
-    public static Pose2d BLUE_CLIMB_RIGHT = new Pose2d(1.217, 3.108, Rotation2d.kZero);
+    public static Pose2d BLUE_CLIMB_LEFT = new Pose2d(1.217, 3.108, Rotation2d.kZero);
     public static Pose2d RED_DEPOT = new Pose2d(15.606, 1.977, Rotation2d.k180deg);
     public static Pose2d BLUE_DEPOT = new Pose2d(0.34, 5.833, Rotation2d.k180deg);
     public static Pose2d BLUE_SHOOT_LEFT = new Pose2d(2.004, 4.956, Rotation2d.fromDegrees(-28));
@@ -32,9 +32,36 @@ public class Constants {
     public static Pose2d BLUE_SHOOT_MIDDLE = new Pose2d(2.512, 4.095, Rotation2d.fromDegrees(0));
 
     public static Pose2d RED_SHOOT_LEFT =
-        new Pose2d(14.485, 5.417, Rotation2d.fromDegrees(-158.53));
+        new Pose2d(14.610701, 3.261313, Rotation2d.fromDegrees(-158.53));
     public static Pose2d RED_SHOOT_MIDDLE = new Pose2d(14.486, 4.454, Rotation2d.fromDegrees(0));
+    public static Pose2d RED_SHOOT_RIGHT =
+        new Pose2d(14.51, 5.347, Rotation2d.fromDegrees(-157.03));
 
+    public static Pose2d getLeftShoot() {
+      var leftShootPosition = Constants.FieldConstants.BLUE_SHOOT_LEFT;
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        leftShootPosition = Constants.FieldConstants.RED_SHOOT_LEFT;
+      }
+      return leftShootPosition;
+    }
+
+    public static Pose2d getMiddleShoot() {
+      var middleShootPosition = Constants.FieldConstants.BLUE_SHOOT_MIDDLE;
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        middleShootPosition = Constants.FieldConstants.RED_SHOOT_MIDDLE;
+      }
+      return middleShootPosition;
+    }
+
+    public static Pose2d getRightShoot() {
+      var rightShootPosition = Constants.FieldConstants.BLUE_SHOOT_RIGHT;
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+        rightShootPosition = Constants.FieldConstants.RED_SHOOT_RIGHT;
+      }
+      return rightShootPosition;
+    }
+
+    // get left shoot doesnt work for whatever reason
     public static Pose2d getHub() {
       var basePosition = Constants.FieldConstants.BLUE_HUB;
       if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
@@ -51,18 +78,18 @@ public class Constants {
       return depotPosition;
     }
 
-    public static Pose2d getLeftClimb() {
-      var leftClimb = Constants.FieldConstants.BLUE_CLIMB_LEFT;
+    public static Pose2d getRightClimb() {
+      var leftClimb = Constants.FieldConstants.BLUE_CLIMB_RIGHT;
       if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-        leftClimb = Constants.FieldConstants.RED_CLIMB_LEFT;
+        leftClimb = Constants.FieldConstants.RED_CLIMB_RIGHT;
       }
       return leftClimb;
     }
 
-    public static Pose2d getRightClimb() {
-      var rightClimb = Constants.FieldConstants.BLUE_CLIMB_RIGHT;
+    public static Pose2d getLeftClimb() {
+      var rightClimb = Constants.FieldConstants.BLUE_CLIMB_LEFT;
       if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-        rightClimb = Constants.FieldConstants.RED_CLIMB_RIGHT;
+        rightClimb = Constants.FieldConstants.RED_CLIMB_LEFT;
       }
       return rightClimb;
     }

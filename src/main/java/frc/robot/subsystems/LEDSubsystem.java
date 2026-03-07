@@ -43,18 +43,19 @@ public class LEDSubsystem extends SubsystemBase {
     var led = LEDConstants.LED_SPEED_NUMBER;
     var level = (int) (percentage * led);
     RGBWColor color;
+    var startOffset = LEDConstants.LED_ANGLE_NUMBER;
     if (percentage > 1) {
       color = red;
       level = 20;
     } else {
       color = green;
     }
-    candle.setControl(new SolidColor(8, level + 8).withColor(color));
+    candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 8).withColor(color));
     flywheelLEDPublisher.set(level);}
   private void shooterAimLEDs() {
     var hubAngle = (int)swerveSubsystem.calculateHubAngle();
     var deadZoneLimit = LEDConstants.LED_DEADZONE / 2;
-    var startOffset = LEDConstants.LED_SPEED_NUMBER + 8;
+    var startOffset =  7;
     int start;
     int end;
     int amount;
@@ -98,5 +99,6 @@ public class LEDSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
    postTheColors();
+   shooterAimLEDs();
   }
 }

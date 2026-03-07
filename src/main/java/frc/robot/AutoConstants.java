@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class Constants {
+public class AutoConstants {
 
   public static final class FieldConstants {
     public static Pose2d BLUE_HUB = new Pose2d(4.341067, 4, Rotation2d.kZero);
@@ -21,17 +21,17 @@ public class Constants {
     public static Pose2d KZERO = new Pose2d(1, 1.0, Rotation2d.kZero);
 
     public static Pose2d getHub() {
-      var basePosition = Constants.FieldConstants.BLUE_HUB;
+      var basePosition = AutoConstants.FieldConstants.BLUE_HUB;
       if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-        basePosition = Constants.FieldConstants.RED_HUB;
+        basePosition = AutoConstants.FieldConstants.RED_HUB;
       }
       return basePosition;
     }
 
     public static Pose2d getInitialPose() {
-      var basePosition = Constants.FieldConstants.BLUE_STARTING_POSITION;
+      var basePosition = AutoConstants.FieldConstants.BLUE_STARTING_POSITION;
       if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-        basePosition = Constants.FieldConstants.RED_STARTING_POSITION;
+        basePosition = AutoConstants.FieldConstants.RED_STARTING_POSITION;
       }
       return basePosition;
     }

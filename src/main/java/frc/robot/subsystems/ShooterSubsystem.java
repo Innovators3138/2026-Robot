@@ -12,10 +12,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
-
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -68,11 +67,13 @@ public class ShooterSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(70));
 
-  private SparkMax shooterMotor = new SparkMax(3, MotorType.kBrushless);
-  private SparkMax shooterMotorFollower = new SparkMax(2, MotorType.kBrushless);
+  private SparkMax shooterMotorLeft = new SparkMax(20, MotorType.kBrushless);
+  private SparkMax shooterMotorFollowerLeft = new SparkMax(21, MotorType.kBrushless);
+  private SparkMax shooterMotorFollowerRightA = new SparkMax(18, MotorType.kBrushless);
+  private SparkMax shooterMotorFollowerRightB = new SparkMax(19, MotorType.kBrushless);
 
   private SmartMotorController motorController =
-      new SparkWrapper(shooterMotor, DCMotor.getNEO(2), motorConfig);
+      new SparkWrapper(shooterMotorLeft, DCMotor.getNEO(2), motorConfig);
 
   private final FlyWheelConfig flywheelConfig =
       new FlyWheelConfig(motorController)
@@ -84,10 +85,19 @@ public class ShooterSubsystem extends SubsystemBase {
   private FlyWheel shooter = new FlyWheel(flywheelConfig);
 
   public ShooterSubsystem() {
-    var followerConfig = new SparkMaxConfig();
-    followerConfig.follow(3,true);
-    followerConfig.idleMode(IdleMode.kCoast);
-    shooterMotorFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+      var followerConfigLeft = new SparkMaxConfig();
+    followerConfigLeft.follow(20, false);
+    followerConfigLeft.idleMode(IdleMode.kCoast);
+    shooterMotorFollowerLeft.configure(
+        followerConfigLeft, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    var followerConfigRight = new SparkMaxConfig();
+    followerConfigRight.follow(3, true);
+    followerConfigRight.idleMode(IdleMode.kCoast);
+    shooterMotorFollowerRightA.configure(
+        followerConfigRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+     shooterMotorFollowerRightB.configure(
+        followerConfigRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
@@ -104,7 +114,7 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooter.getSpeed();
   }
 
-  public Optional<AngularVelocity> getAngularVelocity() {
+  public Optional<AngularVelocity> getAngularVelocitySetpoint() {
     return shooter.getMotorController().getMechanismSetpointVelocity();
   }
 

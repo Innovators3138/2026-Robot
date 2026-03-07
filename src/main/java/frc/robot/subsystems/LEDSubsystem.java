@@ -32,7 +32,7 @@ public class LEDSubsystem extends SubsystemBase {
           var shooterCheck =
               shooterSubsystem
                   .getRealAngularVelocity()
-                  .minus(shooterSubsystem.getAngularVelocity().orElse(RPM.of(0)))
+                  .minus(shooterSubsystem.getAngularVelocitySet().orElse(RPM.of(0)))
                   .abs(RPM);
           if (shooterCheck <= 20
               && shooterSubsystem.getAngularVelocity().orElse(RPM.of(0)).gt(RPM.of(0))) {

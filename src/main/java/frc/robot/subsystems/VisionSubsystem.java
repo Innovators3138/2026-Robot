@@ -93,7 +93,7 @@ public class VisionSubsystem extends SubsystemBase {
             var estimate = visionEst.get();
             //              publisher.set(estimatePose);
             swerveSubsystem.addVisionMeasurement(
-                estimate.estimatedPose.toPose2d(), estimate.timestampSeconds);
+                estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, CAMERA_STD_DEVS);
           });
     }
   }
@@ -119,7 +119,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Add the measurement to our estimator
         var quest2DPose = robotPose.toPose2d();
-        swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp);
+        swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
         questEstimatedPosePublisher.set(quest2DPose);
       }
     }

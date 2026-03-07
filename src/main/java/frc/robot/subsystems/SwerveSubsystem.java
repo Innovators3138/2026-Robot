@@ -11,6 +11,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -25,13 +26,15 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.AutoConstants;
-import frc.robot.AutoConstants.FieldConstants;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 import gg.questnav.questnav.QuestNav;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.SwerveInputStream;
 import swervelib.parser.SwerveParser;
 
@@ -136,6 +139,9 @@ public class SwerveSubsystem extends SubsystemBase {
                 swerveDrive,
                 () -> driverController.getLeftY() * -1,
                 () -> driverController.getLeftX() * -1)
+            /* () -> driverController.getLeftY() * -0.5,
+            () -> driverController.getLeftX() * -0.5)
+             uncomment this for testing in the shop */
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
             .cubeTranslationControllerAxis(true)
@@ -170,6 +176,14 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
+  public Command sysIdDriveMotorCommand() {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setDriveSysIdRoutine(new Config(), this, swerveDrive, 12, true),
+        3.0,
+        5.0,
+        3.0);
+  }
+
   @Override
   public void periodic() {
     // Get the latest pose data frames from the Quest
@@ -177,7 +191,7 @@ public class SwerveSubsystem extends SubsystemBase {
     estimatedPosePublisher.set(swerveDrive.getPose());
   }
 
-  public void addVisionMeasurement(Pose2d pose, double timestamp) {
+  public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix STD_devs) {
     swerveDrive.addVisionMeasurement(pose, timestamp);
   }
 

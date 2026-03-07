@@ -67,13 +67,13 @@ public class ShooterSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(70));
 
-  private SparkMax shooterMotorLeft = new SparkMax(20, MotorType.kBrushless);
+  private SparkMax shooterMotorLeaderLeft = new SparkMax(20, MotorType.kBrushless);
   private SparkMax shooterMotorFollowerLeft = new SparkMax(21, MotorType.kBrushless);
     private SparkMax shooterMotorFollowerRightA = new SparkMax(18, MotorType.kBrushless);
       private SparkMax shooterMotorFollowerRightB = new SparkMax(19, MotorType.kBrushless);
 
   private SmartMotorController motorController =
-      new SparkWrapper(shooterMotorLeft, DCMotor.getNEO(2), motorConfig);
+      new SparkWrapper(shooterMotorLeaderLeft, DCMotor.getNEO(2), motorConfig);
 
   private final FlyWheelConfig flywheelConfig =
       new FlyWheelConfig(motorController)

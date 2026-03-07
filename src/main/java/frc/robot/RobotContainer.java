@@ -57,11 +57,6 @@ public class RobotContainer {
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-    // below are temporary for climber testing
-    operatorXbox.povUp().onTrue(climberSubsystem.extend());
-    operatorXbox.povDown().onTrue(climberSubsystem.retract());
-    operatorXbox.x().onTrue(climberSubsystem.dismount());
-    operatorXbox.y().onTrue(climberSubsystem.climb());
     operatorXbox.povLeft().onTrue(swerveSubsystem.sysIdDriveMotorCommand());
 
     operatorXbox
@@ -72,17 +67,8 @@ public class RobotContainer {
     }
   }
 
-  /*  public Command getAutonomousCommand() {
-    return AutoCommands.firstAuto(
-        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
-  }*/
-  /* public Command getAutonomousCommand() {
-    return AutoCommands.pathfindToPathAuto(
-        swerveSubsystem, shooterSubsystem, feederSubsystem, hotdogSubsystem);
-  } */
   public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
 
-    return AutoCommands.createAuto(
-        swerveSubsystem, feederSubsystem, shooterSubsystem, hotdogSubsystem);
+    return AutoCommands.createAuto(this);
   }
 }

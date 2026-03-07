@@ -13,14 +13,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.HotdogSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
@@ -33,17 +30,6 @@ public class AutoCommands {
   public static Pose2d BLUE_CLIMB_POSE = new Pose2d(0.9, 2.7, Rotation2d.fromDegrees(0));
   public static SendableChooser<String> climbChooser = new SendableChooser<>();
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
-
-  static {
-    climbChooser.setDefaultOption("Left Climb", "Left Climb");
-    climbChooser.addOption("Middle Climb", "Middle Climb");
-    climbChooser.addOption("Right Climb", "Right Climb");
-    intakeChooser.addOption("Left Intake", "Left Intake");
-    intakeChooser.addOption("Depot Intake", "Depot Intake");
-    intakeChooser.addOption("Right Intake", "Right Intake");
-    SmartDashboard.putData(climbChooser);
-    SmartDashboard.putData(intakeChooser);
-  }
 
   public static Command climb(ClimberSubsystem climberSubsystem) {
 
@@ -84,11 +70,7 @@ public class AutoCommands {
     return climbPosition;
   }
 
-  public static Command createAuto(
-      SwerveSubsystem swerveSubsystem,
-      FeederSubsystem feederSubsystem,
-      ShooterSubsystem shooterSubsystem,
-      HotdogSubsystem hotdogSubsystem)
+  public static Command createAuto(RobotContainer robotContainer)
       throws FileVersionException, IOException, ParseException {
     var selectedClimb = climbChooser.getSelected();
     var selectedIntake = intakeChooser.getSelected();
@@ -99,7 +81,7 @@ public class AutoCommands {
         new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
     if (selectedIntake.equals("Depot Intake")) {
       driveToLoadingCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getDepot(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
@@ -114,98 +96,48 @@ public class AutoCommands {
     }
     if (selectedClimb.equals("Left Climb")) {
       driveToClimbCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getLeftClimb(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
       driveToShootingCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getLeftShoot(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
     } else if (selectedClimb.equals("Middle Climb")) {
       driveToClimbCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getMiddleClimb(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
       driveToShootingCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getMiddleShoot(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
 
     } else {
       driveToClimbCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getRightClimb(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
       driveToShootingCommand =
-          swerveSubsystem.drivetoPose(
+          robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getRightShoot(),
               MetersPerSecond.of(2),
               MetersPerSecondPerSecond.of(2));
     }
-    return driveToLoadingCommand
+    return Commands.runOnce(() -> robotContainer.intakeSubsystem.openHopper())
+        .andThen(driveToLoadingCommand)
         .andThen(driveToShootingCommand)
-        .andThen(FireCommand.targetLock(shooterSubsystem, swerveSubsystem).withTimeout(0.5))
-        .andThen(FireCommand.fire(feederSubsystem, hotdogSubsystem).withTimeout(5))
+        .andThen(
+            FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
+                .withTimeout(0.5))
+        .andThen(
+            FireCommand.fire(robotContainer.feederSubsystem, robotContainer.hotdogSubsystem)
+                .withTimeout(5))
         .andThen(driveToClimbCommand);
   }
-
-  /*  public static PathPlannerPath getIntakePath(SwerveSubsystem swerveSubsystem)
-        throws FileVersionException, IOException, ParseException {
-      var intakePath = PathPlannerPath.fromPathFile("Left Intake");
-      var selectedPath = intakeChooser.getSelected();
-      if (selectedPath == null) {
-        intakePath = PathPlannerPath.fromPathFile("Left Intake");
-      }
-      if (selectedPath.equals("Left Intake")) {
-        intakePath = PathPlannerPath.fromPathFile("Left Intake");
-      }
-      if (selectedPath.equals("Depot Intake")) {
-
-        intakePath =
-            swerveSubsystem.drivetoPose(
-                Constants.FieldConstants.getDepot(),
-                MetersPerSecond.of(2),
-                MetersPerSecondPerSecond.of(2));
-      }
-
-      if (selectedPath.equals("Right Intake")) {
-        return intakePath = PathPlannerPath.fromPathFile("Right Intake");
-      }
-      return intakePath;
-    }
-  */
-  /*public static Command pathfindToPathAuto(
-      SwerveSubsystem swerveSubsystem,
-      ShooterSubsystem shooterSubsystem,
-      FeederSubsystem feederSubsystem,
-      HotdogSubsystem hotdogSubsystem,
-      frc.robot.subsystems.ClimberSubsystem climberSubsystem) {
-    try {
-      PathConstraints constraints =
-          new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
-
-      var pathplannerAuto = getIntakePath(swerveSubsystem);
-      var driveToLaunchPosition =
-          swerveSubsystem.drivetoPose(
-              getLaunchPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
-      var driveToClimbPosition =
-          swerveSubsystem.drivetoPose(
-              getClimbPose(), MetersPerSecond.of(2), MetersPerSecondPerSecond.of(2));
-
-      return AutoBuilder.pathfindThenFollowPath(pathplannerAuto, constraints)
-          .andThen(driveToLaunchPosition)
-          .alongWith(FireCommand.targetLock(shooterSubsystem, swerveSubsystem))
-          .until(() -> driveToLaunchPosition.isFinished())
-          .andThen(FireCommand.fire(feederSubsystem, hotdogSubsystem).withTimeout(8))
-          .andThen(driveToClimbPosition)
-          .andThen(climb(climberSubsystem));
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load path for auto", e);
-    }
-  } */
 }

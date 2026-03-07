@@ -73,7 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
       private SparkMax shooterMotorFollowerRightB = new SparkMax(19, MotorType.kBrushless);
 
   private SmartMotorController motorController =
-      new SparkWrapper(shooterMotor, DCMotor.getNEO(2), motorConfig);
+      new SparkWrapper(shooterMotorLeft, DCMotor.getNEO(2), motorConfig);
 
   private final FlyWheelConfig flywheelConfig =
       new FlyWheelConfig(motorController)

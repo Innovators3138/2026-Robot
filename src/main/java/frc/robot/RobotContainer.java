@@ -40,8 +40,8 @@ public class RobotContainer {
     AutoCommands.climbChooser.setDefaultOption("Left Climb", "Left Climb");
     AutoCommands.climbChooser.addOption("Middle Climb", "Middle Climb");
     AutoCommands.climbChooser.addOption("Right Climb", "Right Climb");
-    AutoCommands.intakeChooser.addOption("Left Intake", "Left Intake");
-    AutoCommands.intakeChooser.addOption("Middle Intake", "Middle Intake");
+    AutoCommands.intakeChooser.setDefaultOption("Left Intake", "Left Intake");
+    AutoCommands.intakeChooser.addOption("Depot Intake", "Depot Intake");
     AutoCommands.intakeChooser.addOption("Right Intake", "Right Intake");
     SmartDashboard.putData(AutoCommands.climbChooser);
     SmartDashboard.putData(AutoCommands.intakeChooser);

@@ -45,6 +45,8 @@
 
 
 ### Solenoids ###
+- ratchetServo: PWM CHANNEL 9
+- intakeServo: PWM CHANNEL 2
 
 
 ### Drive Controls ###

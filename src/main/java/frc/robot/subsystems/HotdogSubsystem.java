@@ -51,7 +51,7 @@ public class HotdogSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40));
 
-  private SparkMax hotdogMotor = new SparkMax(14, MotorType.kBrushless);
+  private SparkMax hotdogMotor = new SparkMax(13, MotorType.kBrushless);
 
   private SmartMotorController hotdogSmartMotorController =
       new SparkWrapper(hotdogMotor, DCMotor.getNEO(1), HsmcConfig);

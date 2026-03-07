@@ -16,13 +16,15 @@ public class LEDSubsystem extends SubsystemBase {
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
   private final RGBWColor red = new RGBWColor(255, 0, 0, 0);
   private final ShooterSubsystem shooterSubsystem;
+  private final SwerveSubsystem swerveSubsystem;
   private final IntegerPublisher flywheelLEDPublisher =
       NetworkTableInstance.getDefault()
           .getIntegerTopic("Subsystems/Ledsubsystem/FlywheelLEDs")
           .publish();
 
-  public LEDSubsystem(ShooterSubsystem shooterSubsystem) {
+  public LEDSubsystem(ShooterSubsystem shooterSubsystem, SwerveSubsystem swerveSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
+    this.swerveSubsystem = swerveSubsystem;
     this.candle = new CANdle(21);
   }
 
@@ -36,9 +38,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     return percentage;
   }
-
-  @Override
-  public void periodic() {
+  private void postTheColors() {
     var percentage = getGetSetpointAccuracyPercentage();
     var led = LEDConstants.LED_NUMBER;
     var level = (int) (percentage * led);
@@ -50,6 +50,10 @@ public class LEDSubsystem extends SubsystemBase {
       color = green;
     }
     candle.setControl(new SolidColor(8, level + 8).withColor(color));
-    flywheelLEDPublisher.set(level);
+    flywheelLEDPublisher.set(level);}
+
+  @Override
+  public void periodic() {
+   postTheColors();
   }
 }

@@ -19,6 +19,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
 public class VisionSubsystem extends SubsystemBase {
+
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
@@ -49,6 +50,7 @@ public class VisionSubsystem extends SubsystemBase {
   private final PhotonCamera shooterCamera = new PhotonCamera("Arducam_OV9281_USB_Camera_2");
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
+  private final boolean startingPoseSet = false;
 
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -76,6 +78,10 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    var startingPose = new Pose3d(swerveSubsystem.getPose());
+    if (questNav.isConnected() && !startingPoseSet) {
+      questNav.setPose(startingPose);
+    }
     updateQuestNav();
     updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
     updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);

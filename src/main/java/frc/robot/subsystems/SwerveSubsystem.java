@@ -262,8 +262,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
     var relativeYaw = new Rotation2d(dx, dy);
-
-    return relativeYaw.getDegrees();
-
+    var angle = relativeYaw.getDegrees();
+    hubAngleDoublePublisher.set(angle);
+    return angle;
   }
 }

@@ -36,7 +36,7 @@ public class VisionSubsystem extends SubsystemBase {
       VecBuilder.fill(
           0.02, // Trust down to 2cm in X direction
           0.02, // Trust down to 2cm in Y direction
-          0.035 // Trust down to 2 degrees rotational
+          0.035 // Trust down to 3.5 degrees rotational
           );
   private static final Matrix<N3, N1> CAMERA_STD_DEVS =
       VecBuilder.fill(
@@ -50,7 +50,7 @@ public class VisionSubsystem extends SubsystemBase {
   private final PhotonCamera shooterCamera = new PhotonCamera("Arducam_OV9281_USB_Camera_2");
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
-  private final boolean startingPoseSet = false;
+  private boolean startingPoseSet = false;
 
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -78,10 +78,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var startingPose = new Pose3d(swerveSubsystem.getPose());
-    if (questNav.isConnected() && !startingPoseSet) {
-      questNav.setPose(startingPose);
-    }
+
     updateQuestNav();
     updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
     updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);
@@ -91,16 +88,32 @@ public class VisionSubsystem extends SubsystemBase {
       PhotonCamera camera, StructPublisher<Pose2d> publisher, PhotonPoseEstimator poseEstimator) {
     var resultsList = camera.getAllUnreadResults();
     for (var change : resultsList) {
-      var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
-      // var ambiguity = change.getBestTarget().getPoseAmbiguity();
-      // if (ambiguity < 0.2) {
-      visionEst.ifPresent(
-          pose -> {
-            var estimate = visionEst.get();
-            //              publisher.set(estimatePose);
-            swerveSubsystem.addVisionMeasurement(
-                estimate.estimatedPose.toPose2d(), estimate.timestampSeconds, CAMERA_STD_DEVS);
-          });
+      var bestTarget = change.getBestTarget();
+      var tagCount = change.getTargets().size();
+      var ambiguity = bestTarget.getPoseAmbiguity();
+      var distance = bestTarget.getBestCameraToTarget().getTranslation().getNorm();
+
+      if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
+        var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
+
+        visionEst.ifPresent(
+            estimate -> {
+              var estimatedPose = estimate.estimatedPose.toPose2d();
+
+              var changeInDistance =
+                  swerveSubsystem
+                      .getPose()
+                      .getTranslation()
+                      .getDistance(estimatedPose.getTranslation());
+              if ((startingPoseSet == true && changeInDistance < 1 || startingPoseSet == false)) {
+                swerveSubsystem.addVisionMeasurement(
+                    estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
+                if (startingPoseSet == false) {
+                  initializePose(estimate.estimatedPose);
+                }
+              }
+            });
+      }
     }
   }
 
@@ -128,6 +141,14 @@ public class VisionSubsystem extends SubsystemBase {
         swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
         questEstimatedPosePublisher.set(quest2DPose);
       }
+    }
+  }
+
+  public void initializePose(Pose3d initialPose) {
+
+    if (questNav.isConnected() && !startingPoseSet) {
+      questNav.setPose(initialPose);
+      startingPoseSet = true;
     }
   }
 }

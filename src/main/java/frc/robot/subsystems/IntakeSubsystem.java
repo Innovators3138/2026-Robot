@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -25,6 +26,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeSubsystem extends SubsystemBase {
+  private final Servo hopperServo = new Servo(2);
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
@@ -61,23 +63,27 @@ public class IntakeSubsystem extends SubsystemBase {
           .withUpperSoftLimit(RotationsPerSecond.of(25))
           .withTelemetry("IntakeMech", TelemetryVerbosity.HIGH);
 
-  private FlyWheel Intake = new FlyWheel(flywheelConfig);
+  private FlyWheel intake = new FlyWheel(flywheelConfig);
 
   @Override
   public void periodic() {
-    Intake.updateTelemetry();
+    intake.updateTelemetry();
   }
 
   @Override
   public void simulationPeriodic() {
-    Intake.simIterate();
+    intake.simIterate();
   }
 
   public AngularVelocity getAngularVelocity() {
-    return Intake.getSpeed();
+    return intake.getSpeed();
   }
 
   public Command setAngularVelocity(AngularVelocity angularVelocity) {
-    return Intake.setSpeed(angularVelocity);
+    return intake.setSpeed(angularVelocity);
+  }
+
+  public void openHopper() {
+    hopperServo.set(1.0);
   }
 }

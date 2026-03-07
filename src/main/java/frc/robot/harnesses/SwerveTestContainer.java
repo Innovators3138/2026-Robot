@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -15,8 +14,6 @@ public class SwerveTestContainer {
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
 
   SwerveTestContainer() {
-    var forwardTranslation = new Translation2d(0.25, 0.0);
-    var leftTranslation = new Translation2d(0, 0.25);
     driverXbox.start().onTrue(swerveSubsystem.resetOdometry());
     driverXbox
         .a()
@@ -58,6 +55,7 @@ public class SwerveTestContainer {
                         new Pose2d(2, 2, Rotation2d.k180deg),
                         MetersPerSecond.of(1),
                         MetersPerSecondPerSecond.of(1))));
+    driverXbox.povLeft().onTrue(swerveSubsystem.sysIdDriveMotorCommand());
 
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveRobotOriented(driverXbox, operatorXbox));
   }

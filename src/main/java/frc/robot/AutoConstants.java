@@ -80,4 +80,7 @@ public class AutoConstants {
     public static final double MINIMUM_SIMULATED_INTAKE_DISTANCE = 1.0;
     public static final int SIMULATED_CAPACITY = 30;
   }
+   public static final class LEDConstants {
+    public static final int LED_NUMBER = 20;
+   }
 }

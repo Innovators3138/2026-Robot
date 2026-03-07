@@ -3,8 +3,7 @@
 
 ### CAN ID Configuration ###
 - CAN MOTORS
-- shooterMotorLeader: CAN ID 2
-- shooterMotorFollower: CAN ID 3
+
 - intakeMotor: CAN ID 4
 - backleftdrive CAN ID 5
 - backleftangle CAN ID 6
@@ -14,9 +13,14 @@
 - frontleftangle CAN ID 10
 - frontrightdrive CAN ID 11
 - frontrightangle CAN ID 12
-- feederMotor: CAN ID 13
-- hotdogMotor: CAN ID 14
+- hotdogMotor: CAN ID 13
+- feederMotor: CAN ID 14
 - climberMotor: CAN ID 15
+- shooterMotorLeaderLeft: CAN ID 20
+- shooterMotorFollowerLeft: CAN ID 21
+- shooterMotorFollowerRightA: CAN ID 18
+- shooterMotorFollowerRightB: CAN ID 19
+
 
 - CAN DEVICES
 - frontleftEncoder CAN ID 30

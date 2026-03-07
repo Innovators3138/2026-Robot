@@ -11,6 +11,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -175,14 +176,13 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
-  public Command sysIdDriveMotorCommand()
-{
-  return SwerveDriveTest.generateSysIdCommand(
-      SwerveDriveTest.setDriveSysIdRoutine(
-          new Config(),
-          this, swerveDrive, 12, true),
-      3.0, 5.0, 3.0);
-}
+  public Command sysIdDriveMotorCommand() {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setDriveSysIdRoutine(new Config(), this, swerveDrive, 12, true),
+        3.0,
+        5.0,
+        3.0);
+  }
 
   @Override
   public void periodic() {
@@ -191,7 +191,7 @@ public class SwerveSubsystem extends SubsystemBase {
     estimatedPosePublisher.set(swerveDrive.getPose());
   }
 
-  public void addVisionMeasurement(Pose2d pose, double timestamp) {
+  public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix STD_devs) {
     swerveDrive.addVisionMeasurement(pose, timestamp);
   }
 

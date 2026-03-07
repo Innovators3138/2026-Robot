@@ -32,7 +32,7 @@ public class Constants {
     public static Pose2d BLUE_SHOOT_MIDDLE = new Pose2d(2.512, 4.095, Rotation2d.fromDegrees(0));
 
     public static Pose2d RED_SHOOT_LEFT =
-        new Pose2d(14.610701, 3.261313, Rotation2d.fromDegrees(-158.53));
+        new Pose2d(14.610701, 3.261313, Rotation2d.fromDegrees(158.53));
     public static Pose2d RED_SHOOT_MIDDLE = new Pose2d(14.486, 4.454, Rotation2d.fromDegrees(0));
     public static Pose2d RED_SHOOT_RIGHT =
         new Pose2d(14.51, 5.347, Rotation2d.fromDegrees(-157.03));
@@ -154,7 +154,8 @@ public class Constants {
     public static final double MINIMUM_SIMULATED_INTAKE_DISTANCE = 1.0;
     public static final int SIMULATED_CAPACITY = 30;
   }
-   public static final class LEDConstants {
+
+  public static final class LEDConstants {
     public static final int LED_NUMBER = 20;
-   }
+  }
 }

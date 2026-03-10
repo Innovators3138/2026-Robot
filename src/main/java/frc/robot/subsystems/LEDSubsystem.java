@@ -59,7 +59,6 @@ public class LEDSubsystem extends SubsystemBase {
     int start;
     int end;
     int amount;
-    int numberLEDs;
     int multiplier = LEDConstants.LED_MULTIPLIER;
     int increment = LEDConstants.LED_INCREMENT;
     //make sure LED_ANGLE_NUMBER is an odd number so there is a middle value

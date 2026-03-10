@@ -66,6 +66,10 @@ public class LEDSubsystem extends SubsystemBase {
     int middle = frontHalfEnd + startOffset + 1;
     int backHalfStart = middle + 1;
     int realAmount;
+    if (hubAngle < 45 && hubAngle > 45){
+
+
+
     if (hubAngle >= -deadZoneLimit && hubAngle <= deadZoneLimit) {
       start = middle;
       end = middle;
@@ -92,7 +96,15 @@ public class LEDSubsystem extends SubsystemBase {
       start = 0;
       end = 0;
     }
-    candle.setControl(new SolidColor(start,  end).withColor(green));
+    }else if(hubAngle > 45){
+    start = 8;
+    end = frontHalfEnd + 7;
+
+  }else{
+    start = backHalfStart;
+    end = middle + frontHalfEnd;
+  }
+candle.setControl(new SolidColor(start,  end).withColor(green));
   }
 
   @Override

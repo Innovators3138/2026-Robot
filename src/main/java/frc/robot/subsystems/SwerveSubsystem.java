@@ -27,7 +27,6 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -52,9 +51,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final StructPublisher<Pose2d> estimatedPosePublisher;
   private final StructPublisher<Pose2d> simulatedPosePublisher;
   private final DoublePublisher hubAngleDoublePublisher =
-      NetworkTableInstance.getDefault()
-          .getDoubleTopic("Subsystems/Swerve/Hub angle")
-          .publish();
+      NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Swerve/Hub angle").publish();
   private final QuestNav questNav = new QuestNav();
 
   public SwerveSubsystem() {
@@ -251,15 +248,14 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.getMaximumChassisAngularVelocity(),
             Units.degreesToRadians(720));
     return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
-
   }
-  public double calculateHubAngle() {
-  var hubPose =  Constants.FieldConstants.getHub();
-  var robotPose = getPose();
-  var hubRelativeRelativeRobot = hubPose.relativeTo(robotPose);
-  var dx = hubRelativeRelativeRobot.getX();
-  var dy = hubRelativeRelativeRobot.getY();
 
+  public double calculateHubAngle() {
+    var hubPose = Constants.FieldConstants.getHub();
+    var robotPose = getPose();
+    var hubRelativeRelativeRobot = hubPose.relativeTo(robotPose);
+    var dx = hubRelativeRelativeRobot.getX();
+    var dy = hubRelativeRelativeRobot.getY();
 
     var relativeYaw = new Rotation2d(dx, dy);
     var angle = relativeYaw.getDegrees();

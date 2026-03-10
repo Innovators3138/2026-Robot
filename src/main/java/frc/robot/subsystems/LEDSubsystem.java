@@ -38,6 +38,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     return percentage;
   }
+
   private void postTheColors() {
     var percentage = getGetSetpointAccuracyPercentage();
     var led = LEDConstants.LED_SPEED_NUMBER;
@@ -51,65 +52,63 @@ public class LEDSubsystem extends SubsystemBase {
       color = green;
     }
     candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 8).withColor(color));
-    flywheelLEDPublisher.set(level);}
+    flywheelLEDPublisher.set(level);
+  }
+
   private void shooterAimLEDs() {
-    var hubAngle = (int)swerveSubsystem.calculateHubAngle();
+    var hubAngle = (int) swerveSubsystem.calculateHubAngle();
     var deadZoneLimit = LEDConstants.LED_DEADZONE / 2;
-    var startOffset =  7;
+    var startOffset = 7;
     int start;
     int end;
     int amount;
     int multiplier = LEDConstants.LED_MULTIPLIER;
     int increment = LEDConstants.LED_INCREMENT;
-    //make sure LED_ANGLE_NUMBER is an odd number so there is a middle value
+    // make sure LED_ANGLE_NUMBER is an odd number so there is a middle value
     int frontHalfEnd = LEDConstants.LED_ANGLE_NUMBER / 2;
     int middle = frontHalfEnd + startOffset + 1;
     int backHalfStart = middle + 1;
     int realAmount;
-    if (hubAngle < 45 && hubAngle > 45){
+    if (hubAngle < 45 && hubAngle > 45) {
 
+      if (hubAngle >= -deadZoneLimit && hubAngle <= deadZoneLimit) {
+        start = middle;
+        end = middle;
 
+      } else if (hubAngle < -deadZoneLimit) {
 
-    if (hubAngle >= -deadZoneLimit && hubAngle <= deadZoneLimit) {
-      start = middle;
-      end = middle;
-
-    }else if(hubAngle < -deadZoneLimit){
-
-       amount = Math.abs(hubAngle) / increment;
-       realAmount = amount * multiplier;
-      if (amount > 5){
-        amount = 5;
-
+        amount = Math.abs(hubAngle) / increment;
+        realAmount = amount * multiplier;
+        if (amount > 5) {
+          amount = 5;
+        }
+        start = middle - realAmount;
+        end = frontHalfEnd;
+      } else if (hubAngle > deadZoneLimit) {
+        amount = Math.abs(hubAngle) / increment;
+        if (amount > 5) {
+          amount = 5;
+        }
+        start = backHalfStart;
+        end = amount * multiplier + middle;
+      } else {
+        start = 0;
+        end = 0;
       }
-      start = middle - realAmount;
-      end = frontHalfEnd;
-    }else if (hubAngle > deadZoneLimit) {
-       amount = Math.abs(hubAngle) / increment;
-      if (amount > 5){
-        amount = 5;
+    } else if (hubAngle > 45) {
+      start = 8;
+      end = frontHalfEnd + 7;
 
-      }
+    } else {
       start = backHalfStart;
-      end = amount * multiplier + middle;
-    }else {
-      start = 0;
-      end = 0;
+      end = middle + frontHalfEnd;
     }
-    }else if(hubAngle > 45){
-    start = 8;
-    end = frontHalfEnd + 7;
-
-  }else{
-    start = backHalfStart;
-    end = middle + frontHalfEnd;
-  }
-candle.setControl(new SolidColor(start,  end).withColor(green));
+    candle.setControl(new SolidColor(start, end).withColor(green));
   }
 
   @Override
   public void periodic() {
-   postTheColors();
-   shooterAimLEDs();
+    postTheColors();
+    shooterAimLEDs();
   }
 }

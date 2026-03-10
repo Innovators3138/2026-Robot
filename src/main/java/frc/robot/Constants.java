@@ -158,7 +158,7 @@ public class Constants {
   public static final class LEDConstants {
     public static final int LED_SPEED_NUMBER = 20;
     public static final int LED_ANGLE_NUMBER = 21;
-    //angle number must be an odd number of leds so there is a middle one
+    // angle number must be an odd number of leds so there is a middle one
     public static final double LED_DEADZONE = 8;
     public static final int LED_INCREMENT = 9;
     public static final int LED_MULTIPLIER = 2;

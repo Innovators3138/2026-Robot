@@ -43,5 +43,15 @@ public class FireCommand extends Command {
         .setFeederAngularVelocity(RPM.of(2400))
         .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180)));
   }
+
+  public static Command pass(
+      FeederSubsystem feedersubsystem,
+      HotdogSubsystem hotdogsubsystem,
+      ShooterSubsystem shooterSubsystem) {
+    return feedersubsystem
+        .setFeederAngularVelocity(RPM.of(2400))
+        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180)))
+        .alongWith(shooterSubsystem.setAngularVelocity(RPM.of(5000)));
+  }
   // uh, comment
 }

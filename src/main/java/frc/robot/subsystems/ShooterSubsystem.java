@@ -69,8 +69,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private SparkMax shooterMotorLeaderLeft = new SparkMax(20, MotorType.kBrushless);
   private SparkMax shooterMotorFollowerLeft = new SparkMax(21, MotorType.kBrushless);
-    private SparkMax shooterMotorFollowerRightA = new SparkMax(18, MotorType.kBrushless);
-      private SparkMax shooterMotorFollowerRightB = new SparkMax(19, MotorType.kBrushless);
+  private SparkMax shooterMotorFollowerRightA = new SparkMax(18, MotorType.kBrushless);
+  private SparkMax shooterMotorFollowerRightB = new SparkMax(19, MotorType.kBrushless);
 
   private SmartMotorController motorController =
       new SparkWrapper(shooterMotorLeaderLeft, DCMotor.getNEO(2), motorConfig);
@@ -85,21 +85,20 @@ public class ShooterSubsystem extends SubsystemBase {
   private FlyWheel shooter = new FlyWheel(flywheelConfig);
 
   public ShooterSubsystem() {
-  var followerConfigLeft = new SparkMaxConfig();
+    var followerConfigLeft = new SparkMaxConfig();
     followerConfigLeft.follow(20, false);
     followerConfigLeft.idleMode(IdleMode.kCoast);
     shooterMotorFollowerLeft.configure(
         followerConfigLeft, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     var followerConfigRight = new SparkMaxConfig();
-    followerConfigRight.follow(3, true);
+    followerConfigRight.follow(20, true);
     followerConfigRight.idleMode(IdleMode.kCoast);
     shooterMotorFollowerRightA.configure(
         followerConfigRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-     shooterMotorFollowerRightB.configure(
+    shooterMotorFollowerRightB.configure(
         followerConfigRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
-
 
   @Override
   public void periodic() {

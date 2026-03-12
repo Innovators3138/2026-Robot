@@ -151,7 +151,8 @@ public class SwerveSubsystem extends SubsystemBase {
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
             .cubeTranslationControllerAxis(true)
-            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5)
+            .allianceRelativeControl(true);
 
     return run(
         () -> {

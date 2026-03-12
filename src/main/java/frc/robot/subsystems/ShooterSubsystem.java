@@ -92,7 +92,7 @@ public class ShooterSubsystem extends SubsystemBase {
         followerConfigLeft, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     var followerConfigRight = new SparkMaxConfig();
-    followerConfigRight.follow(3, true);
+    followerConfigRight.follow(20, true);
     followerConfigRight.idleMode(IdleMode.kCoast);
     shooterMotorFollowerRightA.configure(
         followerConfigRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

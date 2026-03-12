@@ -58,13 +58,13 @@ public class AutoCommands {
     if (selectedClimb == null) {
       return climbPosition;
     }
-    if (selectedClimb.equals("Left Climb")) {
+    if (selectedClimb.equals("Right Climb")) {
       return climbPosition;
     }
     if (selectedClimb.equals("Middle Climb")) {
       return climbPosition = Constants.FieldConstants.getMiddleClimb();
     }
-    if (selectedClimb.equals("Right Climb")) {
+    if (selectedClimb.equals("Left Climb")) {
       return climbPosition = Constants.FieldConstants.getLeftClimb();
     }
     return climbPosition;
@@ -78,13 +78,13 @@ public class AutoCommands {
     Command driveToLoadingCommand;
     Command driveToClimbCommand;
     PathConstraints constraints =
-        new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+        new PathConstraints(5.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
     if (selectedIntake.equals("Depot Intake")) {
       driveToLoadingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getDepot(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
     } else if (selectedIntake.equals("Left Intake")) {
       driveToLoadingCommand =
           AutoBuilder.pathfindThenFollowPath(
@@ -94,40 +94,40 @@ public class AutoCommands {
           AutoBuilder.pathfindThenFollowPath(
               PathPlannerPath.fromPathFile("Right Intake"), constraints);
     }
-    if (selectedClimb.equals("Left Climb")) {
+    if (selectedClimb.equals("Right Climb")) {
       driveToClimbCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getLeftClimb(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
       driveToShootingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getLeftShoot(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
     } else if (selectedClimb.equals("Middle Climb")) {
       driveToClimbCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getMiddleClimb(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
       driveToShootingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getMiddleShoot(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
 
     } else {
       driveToClimbCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getRightClimb(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
       driveToShootingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getRightShoot(),
-              MetersPerSecond.of(2),
-              MetersPerSecondPerSecond.of(2));
+              MetersPerSecond.of(4),
+              MetersPerSecondPerSecond.of(4));
     }
     return Commands.runOnce(() -> robotContainer.intakeSubsystem.openHopper())
         .andThen(driveToLoadingCommand)

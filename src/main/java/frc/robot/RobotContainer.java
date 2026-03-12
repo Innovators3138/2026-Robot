@@ -65,6 +65,9 @@ public class RobotContainer {
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
+    operatorXbox
+        .y()
+        .whileTrue(FireCommand.pass(feederSubsystem, hotdogSubsystem, shooterSubsystem));
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
     }

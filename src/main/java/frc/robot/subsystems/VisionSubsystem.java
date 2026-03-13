@@ -13,6 +13,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
 import org.photonvision.PhotonCamera;
@@ -46,6 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
           );
   public final PhotonPoseEstimator swervePoseEstimator;
   public final PhotonPoseEstimator shooterPoseEstimator;
+  public RobotContainer robotContainer;
   private final PhotonCamera swerveCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
   private final PhotonCamera shooterCamera = new PhotonCamera("Arducam_OV9281_USB_Camera_2");
   private final QuestNav questNav = new QuestNav();
@@ -80,12 +82,15 @@ public class VisionSubsystem extends SubsystemBase {
   public void periodic() {
 
     updateQuestNav();
-    updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
-    updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);
+    updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator, robotContainer);
+    updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator, robotContainer);
   }
 
   private void updatePose(
-      PhotonCamera camera, StructPublisher<Pose2d> publisher, PhotonPoseEstimator poseEstimator) {
+      PhotonCamera camera,
+      StructPublisher<Pose2d> publisher,
+      PhotonPoseEstimator poseEstimator,
+      RobotContainer robotContainer) {
     var resultsList = camera.getAllUnreadResults();
     for (var change : resultsList) {
       var bestTarget = change.getBestTarget();
@@ -108,7 +113,8 @@ public class VisionSubsystem extends SubsystemBase {
               if ((startingPoseSet == true && changeInDistance < 1 || startingPoseSet == false)) {
                 swerveSubsystem.addVisionMeasurement(
                     estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
-                if (startingPoseSet == false) {
+                if (startingPoseSet == false
+                    || robotContainer.driverXbox.start().getAsBoolean() == true) {
                   initializePose(estimate.estimatedPose);
                 }
               }

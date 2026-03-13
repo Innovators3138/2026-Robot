@@ -6,13 +6,16 @@ import static edu.wpi.first.units.Units.RPM;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import java.util.function.DoubleSupplier;
 
 public class FireCommand extends Command {
   static InterpolatingDoubleTreeMap distanceToRPM = new InterpolatingDoubleTreeMap();
+  public RobotContainer robotContainer;
 
   static {
     distanceToRPM.put(2.5, 1350.0);
@@ -45,13 +48,16 @@ public class FireCommand extends Command {
   }
 
   public static Command pass(
-      FeederSubsystem feedersubsystem,
+      ShooterSubsystem shooterSubsystem,
+      FeederSubsystem feederSubsystem,
       HotdogSubsystem hotdogsubsystem,
-      ShooterSubsystem shooterSubsystem) {
-    return feedersubsystem
-        .setFeederAngularVelocity(RPM.of(2400))
-        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180)))
-        .alongWith(shooterSubsystem.setAngularVelocity(RPM.of(5000)));
+      DoubleSupplier speedMultiplier) {
+    return shooterSubsystem
+        .setAngularVelocity(() -> RPM.of(5000).times(speedMultiplier.getAsDouble()))
+        .alongWith(
+            feederSubsystem
+                .setFeederAngularVelocity(RPM.of(2400))
+                .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180))));
   }
   // uh, comment
 }

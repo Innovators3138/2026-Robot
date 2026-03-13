@@ -48,8 +48,18 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
-    shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
+    shooterSubsystem.setDefaultCommand(
+        shooterSubsystem.setAngularVelocity(
+            () -> {
+              var setpoint = operatorXbox.getRawAxis(1) * -5000;
+              if ((setpoint) < 0.15) {
+                return RPM.of(0);
+              } else {
+                return RPM.of(setpoint);
+              }
+            }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
@@ -65,9 +75,7 @@ public class RobotContainer {
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
-    operatorXbox
-        .y()
-        .whileTrue(FireCommand.pass(feederSubsystem, hotdogSubsystem, shooterSubsystem));
+
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
     }

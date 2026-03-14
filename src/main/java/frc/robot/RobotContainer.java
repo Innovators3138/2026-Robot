@@ -71,6 +71,10 @@ public class RobotContainer {
     operatorXbox.y().onTrue(climberSubsystem.climb());
     operatorXbox.povUp().onTrue(climberSubsystem.extend());
     operatorXbox.povDown().onTrue(climberSubsystem.retract());
+    operatorXbox
+        .rightTrigger()
+        .and(operatorXbox.y())
+        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem));
 
     operatorXbox
         .leftTrigger(0.5)

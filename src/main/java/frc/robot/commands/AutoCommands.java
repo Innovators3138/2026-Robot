@@ -30,6 +30,7 @@ public class AutoCommands {
   public static Pose2d BLUE_CLIMB_POSE = new Pose2d(0.9, 2.7, Rotation2d.fromDegrees(0));
   public static SendableChooser<String> climbChooser = new SendableChooser<>();
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
+  public double axisMultiplier;
 
   public static Command climb(ClimberSubsystem climberSubsystem) {
 

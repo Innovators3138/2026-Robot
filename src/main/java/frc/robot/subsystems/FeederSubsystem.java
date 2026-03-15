@@ -35,7 +35,7 @@ public class FeederSubsystem extends SubsystemBase {
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(40), RotationsPerSecondPerSecond.of(50))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.1, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.133, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.25, 0))
           // Telemetry name and verbosity level
           .withTelemetry("FeederMotor", TelemetryVerbosity.HIGH)
@@ -46,7 +46,7 @@ public class FeederSubsystem extends SubsystemBase {
           // You could also use .withGearing(12) which does the same thing.
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(2)))
           // Motor properties to prevent over currenting.
-          .withMotorInverted(false)
+          .withMotorInverted(true)
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40));
 

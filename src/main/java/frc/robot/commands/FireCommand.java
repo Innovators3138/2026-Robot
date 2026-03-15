@@ -18,14 +18,15 @@ public class FireCommand extends Command {
   public RobotContainer robotContainer;
 
   static {
-    distanceToRPM.put(2.5, 1350.0);
+    distanceToRPM.put(2.223, 3000.0);
+    /*distanceToRPM.put(2.5, 1350.0);
     distanceToRPM.put(2.97, 1600.0);
     distanceToRPM.put(3.48, 1750.0);
     distanceToRPM.put(4.0, 1900.0);
     distanceToRPM.put(4.57, 2050.0);
     distanceToRPM.put(4.95, 2150.0);
     distanceToRPM.put(5.54, 2300.0);
-    distanceToRPM.put(6.98, 2650.0);
+    distanceToRPM.put(6.98, 2650.0);*/
   }
 
   public static Command targetLock(
@@ -44,7 +45,7 @@ public class FireCommand extends Command {
   public static Command fire(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem) {
     return feedersubsystem
         .setFeederAngularVelocity(RPM.of(2400))
-        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180)));
+        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(300)));
   }
 
   public static Command pass(

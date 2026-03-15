@@ -2,28 +2,23 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.RPM;
 
-import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.FireCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import java.io.IOException;
-import org.json.simple.parser.ParseException;
 
 public class RobotContainer {
 
   public final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  // public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem feederSubsystem = new FeederSubsystem();
   public final HotdogSubsystem hotdogSubsystem = new HotdogSubsystem();
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem, swerveSubsystem);
@@ -50,6 +45,7 @@ public class RobotContainer {
   private void configureBindings() {
 
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
+    hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
     shooterSubsystem.setDefaultCommand(
         shooterSubsystem.setAngularVelocity(
             () -> {
@@ -60,12 +56,12 @@ public class RobotContainer {
                 return RPM.of(setpoint);
               }
             }));
-    intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
+    // intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
 
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
+    // operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     operatorXbox.povLeft().onTrue(swerveSubsystem.sysIdDriveMotorCommand());
     operatorXbox.y().onTrue(climberSubsystem.climb());
@@ -85,8 +81,9 @@ public class RobotContainer {
     }
   }
 
-  public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException {
+  //  public Command getAutonomousCommand() throws FileVersionException, IOException, ParseException
+  // {
 
-    return AutoCommands.createAuto(this);
-  }
+  // return AutoCommands.createAuto(this);
+  // }
 }

@@ -36,7 +36,7 @@ public class HotdogSubsystem extends SubsystemBase {
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(9), DegreesPerSecondPerSecond.of(6))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 1.25, 0))
+          .withFeedforward(new SimpleMotorFeedforward(6.3, 0.1, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 1.25, 0))
           // Telemetry name and verbosity level
           .withTelemetry("HotdogMotor", TelemetryVerbosity.HIGH)
@@ -47,7 +47,7 @@ public class HotdogSubsystem extends SubsystemBase {
           // You could also use .withGearing(12) which does the same thing.
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(10)))
           // Motor properties to prevent over currenting.
-          .withMotorInverted(false)
+          .withMotorInverted(true)
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40));
 

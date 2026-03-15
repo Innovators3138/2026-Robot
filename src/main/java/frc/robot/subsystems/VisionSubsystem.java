@@ -110,7 +110,11 @@ public class VisionSubsystem extends SubsystemBase {
         ambiguityPublisher.set(ambiguity);
         distancePublisher.set(distance);
         if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
-          var visionEst = poseEstimator.estimateLowestAmbiguityPose(change);
+          var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
+
+          if (visionEst.isEmpty()) {
+            visionEst = poseEstimator.estimateLowestAmbiguityPose(change);
+          }
 
           visionEst.ifPresent(
               estimate -> {

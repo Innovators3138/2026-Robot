@@ -45,7 +45,7 @@ import swervelib.parser.SwerveParser;
 public class SwerveSubsystem extends SubsystemBase {
 
   public static LinearVelocity MaxDriveSpeed = MetersPerSecond.of(5);
-  public static AngularVelocity MaxRotationSpeed = RotationsPerSecond.of(3);
+  public static AngularVelocity MaxRotationSpeed = RotationsPerSecond.of(1);
 
   private final SwerveDrive swerveDrive;
   private final StructPublisher<Pose2d> estimatedPosePublisher;

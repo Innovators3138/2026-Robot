@@ -31,7 +31,13 @@ public class ShooterTestContainer {
     shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
 
-    operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(shooterSpeed));
+    operatorXbox
+        .leftTrigger(0.5)
+        .whileTrue(
+            shooterSubsystem.setAngularVelocity(
+                () -> {
+                  return shooterSpeed;
+                }));
     operatorXbox
         .povUp()
         .onTrue(

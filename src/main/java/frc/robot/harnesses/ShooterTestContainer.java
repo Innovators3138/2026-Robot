@@ -28,19 +28,10 @@ public class ShooterTestContainer {
   ShooterTestContainer() {
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveRobotOriented(driverXbox, operatorXbox));
-    // shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
-    // feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(3000)));
-    shooterSubsystem.setDefaultCommand(
-        shooterSubsystem.setAngularVelocity(
-            () -> {
-              var setpoint = operatorXbox.getRawAxis(1) * -5000 * 0.5;
-              if ((setpoint) < 0.15) {
-                return RPM.of(0);
-              } else {
-                return RPM.of(setpoint);
-              }
-            }));
-    operatorXbox.leftTrigger(0.5).onTrue(shooterSubsystem.setAngularVelocity(shooterSpeed));
+    shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
+    feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
+
+    operatorXbox.leftTrigger(0.5).whileTrue(shooterSubsystem.setAngularVelocity(shooterSpeed));
     operatorXbox
         .povUp()
         .onTrue(

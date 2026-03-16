@@ -41,6 +41,8 @@ public class ShooterTestContainer {
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
     operatorXbox.povUp().toggleOnTrue(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
-    operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
+    operatorXbox
+        .rightTrigger(0.5)
+        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
   }
 }

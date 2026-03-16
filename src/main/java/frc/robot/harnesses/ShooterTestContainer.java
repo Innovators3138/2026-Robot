@@ -2,6 +2,8 @@ package frc.robot.harnesses;
 
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.FireCommand;
 import frc.robot.subsystems.FeederSubsystem;
@@ -21,6 +23,7 @@ public class ShooterTestContainer {
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem, swerveSubsystem);
   public final FeederSubsystem feederSubsystem = new FeederSubsystem();
   public final VisionSubsystem visionSubsystem = new VisionSubsystem(swerveSubsystem);
+  private AngularVelocity shooterSpeed = RPM.of(2500);
 
   ShooterTestContainer() {
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
@@ -37,10 +40,22 @@ public class ShooterTestContainer {
                 return RPM.of(setpoint);
               }
             }));
+    operatorXbox.leftTrigger(0.5).onTrue(shooterSubsystem.setAngularVelocity(shooterSpeed));
     operatorXbox
-        .leftTrigger(0.5)
-        .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
-    operatorXbox.povUp().toggleOnTrue(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  shooterSpeed = shooterSpeed.plus(RPM.of(50));
+                }));
+    operatorXbox
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  shooterSpeed = shooterSpeed.minus(RPM.of(50));
+                }));
+
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
   }
 }

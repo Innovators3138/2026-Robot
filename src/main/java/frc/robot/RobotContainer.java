@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.RPM;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
@@ -26,6 +27,7 @@ public class RobotContainer {
   public final CommandXboxController operatorXbox = new CommandXboxController(1);
   public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   public final VisionSubsystem visionSubsystem = new VisionSubsystem(swerveSubsystem);
+  private final AngularVelocity shooterSpeed = RPM.of(0);
 
   public RobotContainer() {
 
@@ -63,14 +65,17 @@ public class RobotContainer {
     operatorXbox.rightTrigger().whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
     // operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
     operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
-    operatorXbox.povLeft().onTrue(swerveSubsystem.sysIdDriveMotorCommand());
+    driverXbox.povLeft().onTrue(swerveSubsystem.sysIdDriveMotorCommand());
     operatorXbox.y().onTrue(climberSubsystem.climb());
-    operatorXbox.povUp().onTrue(climberSubsystem.extend());
-    operatorXbox.povDown().onTrue(climberSubsystem.retract());
+    // operatorXbox.povUp().onTrue(climberSubsystem.extend());
+    // operatorXbox.povDown().onTrue(climberSubsystem.retract());
     operatorXbox
         .rightTrigger()
         .and(operatorXbox.y())
         .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem));
+    operatorXbox
+        .leftTrigger(0.5)
+        .onTrue(shooterSubsystem.setAngularVelocity(shooterSpeed.plus(RPM.of(100))));
 
     operatorXbox
         .leftTrigger(0.5)

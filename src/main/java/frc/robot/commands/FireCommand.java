@@ -42,10 +42,31 @@ public class FireCommand extends Command {
         });
   }
 
-  public static Command fire(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem) {
+  public static Command fire(
+      FeederSubsystem feedersubsystem,
+      HotdogSubsystem hotdogsubsystem,
+      ShooterSubsystem shooterSubsystem) {
+
     return feedersubsystem
-        .setFeederAngularVelocity(RPM.of(2400))
-        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(300)));
+        .setFeederAngularVelocity(
+            () -> {
+              if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+
+                return RPM.of(2400);
+              } else {
+                return RPM.of(0);
+              }
+            })
+        .alongWith(
+            hotdogsubsystem.setHotdogAngularVelocity(
+                () -> {
+                  if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+
+                    return RPM.of(2400);
+                  } else {
+                    return RPM.of(0);
+                  }
+                }));
   }
 
   public static Command pass(
@@ -57,8 +78,25 @@ public class FireCommand extends Command {
         .setAngularVelocity(() -> RPM.of(5000).times(speedMultiplier.getAsDouble()))
         .alongWith(
             feederSubsystem
-                .setFeederAngularVelocity(RPM.of(2400))
-                .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(180))));
+                .setFeederAngularVelocity(
+                    () -> {
+                      if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+
+                        return RPM.of(2400);
+                      } else {
+                        return RPM.of(0);
+                      }
+                    })
+                .alongWith(
+                    hotdogsubsystem.setHotdogAngularVelocity(
+                        () -> {
+                          if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+
+                            return RPM.of(2400);
+                          } else {
+                            return RPM.of(0);
+                          }
+                        })));
   }
 
   public static Command unjam(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem) {

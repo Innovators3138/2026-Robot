@@ -47,6 +47,8 @@ public class ShooterTestContainer {
                   shooterSpeed = shooterSpeed.minus(RPM.of(50));
                 }));
 
-    operatorXbox.rightTrigger(0.5).whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem));
+    operatorXbox
+        .rightTrigger(0.5)
+        .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
   }
 }

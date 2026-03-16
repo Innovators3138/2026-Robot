@@ -106,6 +106,10 @@ public class LEDSubsystem extends SubsystemBase {
     candle.setControl(new SolidColor(start, end).withColor(green));
   }
 
+  public void testLEDs() {
+    candle.setControl(new SolidColor(0, 7).withColor(green));
+  }
+
   @Override
   public void periodic() {
     postTheColors();

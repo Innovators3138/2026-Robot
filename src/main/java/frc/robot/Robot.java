@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.simulation.ClimberSimulator;
 import frc.robot.simulation.ShotSimulator;
 
 public class Robot extends TimedRobot {
@@ -13,7 +12,6 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
 
   private ShotSimulator shotSimulator;
-  private ClimberSimulator climberSimulator;
 
   public Robot() {
     robotContainer = new RobotContainer();
@@ -32,21 +30,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {}
-
-  // @Override
-  // public void autonomousInit() {
-  /*  try {
-  //      autonomousCommand = robotContainer.getAutonomousCommand();
-     // } catch (FileVersionException | IOException | ParseException e) {
-      //  e.printStackTrace();
-      }
-      robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
-
-      if (autonomousCommand != null) {
-        CommandScheduler.getInstance().schedule(autonomousCommand);
-        ;
-      }
-    }*/
 
   @Override
   public void autonomousPeriodic() {}
@@ -75,13 +58,11 @@ public class Robot extends TimedRobot {
         new ShotSimulator(
             robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
     shotSimulator.generateBalls();
-    climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
   }
 
   @Override
   public void simulationPeriodic() {
     var dt = Seconds.of(getPeriod());
     shotSimulator.update(dt);
-    climberSimulator.update(dt);
   }
 }

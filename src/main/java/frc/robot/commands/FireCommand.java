@@ -1,9 +1,10 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Inch;
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -19,7 +20,10 @@ import java.util.function.DoubleSupplier;
 public class FireCommand extends Command {
   static InterpolatingDoubleTreeMap inchesToRPS = new InterpolatingDoubleTreeMap();
   public RobotContainer robotContainer;
-  public static final DoublePublisher distancePublisher = NetworkTableInstance.getDefault().getDoubleTopic("Command/FireCommand/DistanceInInches").publish();
+  public static final DoublePublisher distancePublisher =
+      NetworkTableInstance.getDefault()
+          .getDoubleTopic("Command/FireCommand/DistanceInInches")
+          .publish();
 
   static {
     inchesToRPS.put(96.0, 52.5);
@@ -36,7 +40,8 @@ public class FireCommand extends Command {
           var translation = swerveSubsystem.getPose().getTranslation();
           var target = Constants.FieldConstants.getHub();
           var distance = target.getTranslation().getDistance(translation);
-          var distanceInInches = Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X).in(Inch);
+          var distanceInInches =
+              Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X).in(Inch);
           var shooterSpeed = inchesToRPS.get(distanceInInches);
           distancePublisher.set(distanceInInches);
           return RotationsPerSecond.of(shooterSpeed);

@@ -25,7 +25,7 @@ public class LEDSubsystem extends SubsystemBase {
   public LEDSubsystem(ShooterSubsystem shooterSubsystem, SwerveSubsystem swerveSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
     this.swerveSubsystem = swerveSubsystem;
-    this.candle = new CANdle(21);
+    this.candle = new CANdle(36);
   }
 
   private double getGetSetpointAccuracyPercentage() {

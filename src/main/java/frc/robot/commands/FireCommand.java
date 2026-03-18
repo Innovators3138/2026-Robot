@@ -1,9 +1,12 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RPM;
-
+import static edu.wpi.first.units.Units.Inch;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
@@ -14,19 +17,16 @@ import frc.robot.subsystems.SwerveSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class FireCommand extends Command {
-  static InterpolatingDoubleTreeMap distanceToRPM = new InterpolatingDoubleTreeMap();
+  static InterpolatingDoubleTreeMap inchesToRPS = new InterpolatingDoubleTreeMap();
   public RobotContainer robotContainer;
+  public static final DoublePublisher distancePublisher = NetworkTableInstance.getDefault().getDoubleTopic("Command/FireCommand/DistanceInInches").publish();
 
   static {
-    distanceToRPM.put(2.223, 3000.0);
-    /*distanceToRPM.put(2.5, 1350.0);
-    distanceToRPM.put(2.97, 1600.0);
-    distanceToRPM.put(3.48, 1750.0);
-    distanceToRPM.put(4.0, 1900.0);
-    distanceToRPM.put(4.57, 2050.0);
-    distanceToRPM.put(4.95, 2150.0);
-    distanceToRPM.put(5.54, 2300.0);
-    distanceToRPM.put(6.98, 2650.0);*/
+    inchesToRPS.put(96.0, 52.5);
+    inchesToRPS.put(26.0, 40.83);
+    inchesToRPS.put(141.0, 60.833);
+    inchesToRPS.put(157.0, 62.5);
+    inchesToRPS.put(45.0, 42.5);
   }
 
   public static Command targetLock(
@@ -36,9 +36,10 @@ public class FireCommand extends Command {
           var translation = swerveSubsystem.getPose().getTranslation();
           var target = Constants.FieldConstants.getHub();
           var distance = target.getTranslation().getDistance(translation);
-          var distanceInMeters = Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X);
-          var shooterSpeed = distanceToRPM.get(distanceInMeters.in(Meter));
-          return RPM.of(shooterSpeed);
+          var distanceInInches = Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X).in(Inch);
+          var shooterSpeed = inchesToRPS.get(distanceInInches);
+          distancePublisher.set(distanceInInches);
+          return RotationsPerSecond.of(shooterSpeed);
         });
   }
 

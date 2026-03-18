@@ -12,7 +12,6 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-
 public class ShooterTestContainer {
   public final HotdogSubsystem hotdogSubsystem = new HotdogSubsystem();
   public final CommandXboxController driverXbox = new CommandXboxController(0);

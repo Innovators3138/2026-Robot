@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +17,7 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import java.io.IOException;
 
 public class RobotContainer {
 
@@ -42,6 +44,7 @@ public class RobotContainer {
     AutoCommands.intakeChooser.setDefaultOption("Left Intake", "Left Intake");
     AutoCommands.intakeChooser.addOption("Depot Intake", "Depot Intake");
     AutoCommands.intakeChooser.addOption("Right Intake", "Right Intake");
+    AutoCommands.intakeChooser.addOption("No Intake", "No Intake");
     SmartDashboard.putData(AutoCommands.climbChooser);
     SmartDashboard.putData(AutoCommands.intakeChooser);
   }
@@ -72,5 +75,11 @@ public class RobotContainer {
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
     }
+  }
+
+  public Command getAutonomousCommand()
+      throws FileVersionException, IOException, org.json.simple.parser.ParseException {
+
+    return AutoCommands.createAuto(this);
   }
 }

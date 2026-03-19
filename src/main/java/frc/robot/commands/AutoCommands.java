@@ -1,14 +1,25 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.ClimberSubsystem;
+import java.io.IOException;
+import org.json.simple.parser.ParseException;
 
 public class AutoCommands {
   public static Pose2d BLUE_TARGET = new Pose2d(2.5, 4.3, Rotation2d.kZero);
@@ -60,7 +71,7 @@ public class AutoCommands {
     return climbPosition;
   }
 
-  /*  public static Command createAuto(RobotContainer robotContainer)
+  public static Command createAuto(RobotContainer robotContainer)
       throws FileVersionException, IOException, ParseException {
     var selectedClimb = climbChooser.getSelected();
     var selectedIntake = intakeChooser.getSelected();
@@ -85,22 +96,14 @@ public class AutoCommands {
               PathPlannerPath.fromPathFile("Right Intake"), constraints);
     }
     if (selectedClimb.equals("Right Climb")) {
-      driveToClimbCommand =
-          robotContainer.swerveSubsystem.drivetoPose(
-              Constants.FieldConstants.getLeftClimb(),
-              MetersPerSecond.of(4),
-              MetersPerSecondPerSecond.of(4));
+
       driveToShootingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getLeftShoot(),
               MetersPerSecond.of(4),
               MetersPerSecondPerSecond.of(4));
     } else if (selectedClimb.equals("Middle Climb")) {
-      driveToClimbCommand =
-          robotContainer.swerveSubsystem.drivetoPose(
-              Constants.FieldConstants.getMiddleClimb(),
-              MetersPerSecond.of(4),
-              MetersPerSecondPerSecond.of(4));
+
       driveToShootingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getMiddleShoot(),
@@ -108,26 +111,39 @@ public class AutoCommands {
               MetersPerSecondPerSecond.of(4));
 
     } else {
-      driveToClimbCommand =
-          robotContainer.swerveSubsystem.drivetoPose(
-              Constants.FieldConstants.getRightClimb(),
-              MetersPerSecond.of(4),
-              MetersPerSecondPerSecond.of(4));
+
       driveToShootingCommand =
           robotContainer.swerveSubsystem.drivetoPose(
               Constants.FieldConstants.getRightShoot(),
               MetersPerSecond.of(4),
               MetersPerSecondPerSecond.of(4));
     }
-    return Commands.runOnce(() -> /*robotContainer.intakeSubsystem.openHopper())
-    .andThen(driveToLoadingCommand)
-    .andThen(driveToShootingCommand)
-    .andThen(
-        FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
-            .withTimeout(0.5))
-    .andThen(
-        FireCommand.fire(robotContainer.feederSubsystem, robotContainer.hotdogSubsystem)
-            .withTimeout(5))
-    .andThen(driveToClimbCommand);
-  } */
+    if (selectedIntake.equals("No Intake")) {
+      return Commands.runOnce(() -> robotContainer.intakeSubsystem.openHopper())
+          .andThen(driveToShootingCommand)
+          .andThen(
+              FireCommand.targetLock(
+                      robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
+                  .withTimeout(0.5))
+          .andThen(
+              FireCommand.fire(
+                      robotContainer.feederSubsystem,
+                      robotContainer.hotdogSubsystem,
+                      robotContainer.shooterSubsystem)
+                  .withTimeout(5));
+    }
+
+    return Commands.runOnce(() -> robotContainer.intakeSubsystem.openHopper())
+        .andThen(driveToLoadingCommand)
+        .andThen(driveToShootingCommand)
+        .andThen(
+            FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
+                .withTimeout(0.5))
+        .andThen(
+            FireCommand.fire(
+                    robotContainer.feederSubsystem,
+                    robotContainer.hotdogSubsystem,
+                    robotContainer.shooterSubsystem)
+                .withTimeout(5));
+  }
 }

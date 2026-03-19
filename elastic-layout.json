@@ -101,7 +101,7 @@
             "height": 512.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "/Mechanisms/ShooterMech/ShooterMotor/rotor/velocity",
+              "topic": "/Mechanisms/ShooterMech/ShooterMotor/mechanism/velocity",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -140.0,

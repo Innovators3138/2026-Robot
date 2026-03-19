@@ -13,6 +13,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.HotdogSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.util.function.DoubleSupplier;
@@ -105,10 +106,11 @@ public class FireCommand extends Command {
                         })));
   }
 
-  public static Command unjam(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem) {
+  public static Command unjam(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem, IntakeSubsystem intakeSubsystem) {
     return feedersubsystem
         .setFeederAngularVelocity(RPM.of(-2400))
-        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(-180)));
+        .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(-180)))
+        .alongWith(intakeSubsystem.setAngularVelocity(RPM.of(-900)));
   }
 
   // uh, comment

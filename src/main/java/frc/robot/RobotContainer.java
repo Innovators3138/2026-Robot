@@ -63,7 +63,7 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger()
         .and(operatorXbox.y())
-        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem));
+        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem, intakeSubsystem));
 
     operatorXbox
         .leftTrigger(0.5)

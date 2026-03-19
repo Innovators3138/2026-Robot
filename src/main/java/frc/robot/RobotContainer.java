@@ -7,6 +7,7 @@ import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.FireCommand;
@@ -23,7 +24,7 @@ public class RobotContainer {
 
   public final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem feederSubsystem = new FeederSubsystem();
   public final HotdogSubsystem hotdogSubsystem = new HotdogSubsystem();
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem, swerveSubsystem);
@@ -53,7 +54,15 @@ public class RobotContainer {
 
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
-    shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
+    shooterSubsystem.setAngularVelocity(
+        () -> {
+          var setpoint = operatorXbox.getRawAxis(1) * -5000;
+          if ((setpoint) < 0.15) {
+            return RPM.of(0);
+          } else {
+            return RPM.of(setpoint);
+          }
+        });
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
@@ -66,11 +75,15 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger()
         .and(operatorXbox.y())
-        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem));
+        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem, intakeSubsystem));
 
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
+
+    operatorXbox
+        .povDown()
+        .whileTrue(Commands.runOnce(() -> RobotContainer.intakeSubsystem.openHopper()));
 
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());

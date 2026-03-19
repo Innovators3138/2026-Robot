@@ -51,8 +51,15 @@ public class RobotContainer {
 
       swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
       hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
-      shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
-      intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
+     shooterSubsystem.setAngularVelocity(
+            () -> {
+              var setpoint = operatorXbox.getRawAxis(1) * -5000;
+              if ((setpoint) < 0.15) {
+                return RPM.of(0);
+              } else {
+                return RPM.of(setpoint);
+              }
+            });      intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
       feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
       hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
 

@@ -133,7 +133,7 @@ public class AutoCommands {
                   .withTimeout(5));
     }
 
-    return Commands.runOnce(() -> robotContainer.intakeSubsystem.openHopper())
+    return Commands.runOnce(() -> RobotContainer.intakeSubsystem.openHopper())
         .andThen(driveToLoadingCommand)
         .andThen(driveToShootingCommand)
         .andThen(
@@ -144,6 +144,17 @@ public class AutoCommands {
                     robotContainer.feederSubsystem,
                     robotContainer.hotdogSubsystem,
                     robotContainer.shooterSubsystem)
-                .withTimeout(5));
+                .withTimeout(2))
+        .andThen(
+            FireCommand.unjam(
+                robotContainer.feederSubsystem,
+                robotContainer.hotdogSubsystem,
+                robotContainer.intakeSubsystem))
+        .withTimeout(1)
+        .andThen(
+            FireCommand.fire(
+                robotContainer.feederSubsystem,
+                robotContainer.hotdogSubsystem,
+                robotContainer.shooterSubsystem));
   }
 }

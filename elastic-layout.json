@@ -8,7 +8,7 @@
         "layouts": [
           {
             "title": "BatterySim",
-            "x": 1152.0,
+            "x": 512.0,
             "y": 0.0,
             "width": 256.0,
             "height": 256.0,
@@ -58,10 +58,46 @@
         ],
         "containers": [
           {
-            "title": "Field",
-            "x": 1408.0,
+            "title": "swerve",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "YAGSL Swerve Drive",
+            "properties": {
+              "topic": "/SmartDashboard/swerve",
+              "period": 0.06,
+              "show_robot_rotation": true,
+              "show_desired_states": true,
+              "angle_offset": 0.0
+            }
+          },
+          {
+            "title": "Shooter",
+            "x": 0.0,
             "y": 0.0,
-            "width": 1152.0,
+            "width": 512.0,
+            "height": 512.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/Mechanisms/ShooterMech/ShooterMotor/mechanism/velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 100.0,
+              "number_of_labels": 12,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "Field",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 768.0,
             "height": 512.0,
             "type": "Field",
             "properties": {
@@ -79,39 +115,80 @@
             }
           },
           {
-            "title": "swerve",
-            "x": 1152.0,
-            "y": 256.0,
+            "title": "Intake",
+            "x": 0.0,
+            "y": 512.0,
             "width": 256.0,
             "height": 256.0,
-            "type": "YAGSL Swerve Drive",
+            "type": "Radial Gauge",
             "properties": {
-              "topic": "/SmartDashboard/swerve",
-              "period": 0.06,
-              "show_robot_rotation": true,
-              "show_desired_states": true,
-              "angle_offset": 0.0
+              "topic": "/Mechanisms/IntakeMech/IntakeMotor/mechanism/velocity",
+              "period": 0.033,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 20.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
             }
           },
           {
-            "title": "velocity",
-            "x": 640.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 512.0,
+            "title": "Hotdog",
+            "x": 256.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "/Mechanisms/ShooterMech/ShooterMotor/mechanism/velocity",
+              "topic": "/Mechanisms/HotdogMech/HotdogMotor/mechanism/velocity",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -140.0,
               "end_angle": 140.0,
               "min_value": 0.0,
-              "max_value": 100.0,
-              "number_of_labels": 12,
+              "max_value": 10.0,
+              "number_of_labels": 8,
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": true
+            }
+          },
+          {
+            "title": "Feeder",
+            "x": 512.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/Mechanisms/FeederMech/FeederMotor/mechanism/velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 50.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "Distance In Inches",
+            "x": 768.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Command/FireCommand/DistanceInInches",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]

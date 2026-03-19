@@ -69,7 +69,7 @@ public class FireCommand extends Command {
                 () -> {
                   if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
 
-                    return RPM.of(2400);
+                    return RPM.of(500);
                   } else {
                     return RPM.of(0);
                   }
@@ -106,7 +106,10 @@ public class FireCommand extends Command {
                         })));
   }
 
-  public static Command unjam(FeederSubsystem feedersubsystem, HotdogSubsystem hotdogsubsystem, IntakeSubsystem intakeSubsystem) {
+  public static Command unjam(
+      FeederSubsystem feedersubsystem,
+      HotdogSubsystem hotdogsubsystem,
+      IntakeSubsystem intakeSubsystem) {
     return feedersubsystem
         .setFeederAngularVelocity(RPM.of(-2400))
         .alongWith(hotdogsubsystem.setHotdogAngularVelocity(RPM.of(-180)))

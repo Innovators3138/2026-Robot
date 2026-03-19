@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -29,6 +30,10 @@ public class VisionSubsystem extends SubsystemBase {
       NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Vision/Ambiguity").publish();
   private final DoublePublisher distancePublisher =
       NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Vision/Distance").publish();
+  private final BooleanPublisher poseIsSetPublisher =
+      NetworkTableInstance.getDefault()
+          .getBooleanTopic("Subsystems/Vision/Quest Pose Set")
+          .publish();
 
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
@@ -61,6 +66,10 @@ public class VisionSubsystem extends SubsystemBase {
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
   private boolean startingPoseSet = false;
+  public BooleanPublisher connectionPublisher =
+      NetworkTableInstance.getDefault()
+          .getBooleanTopic("Subsystem/Vision/QuestIsConnected")
+          .publish();
 
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -88,7 +97,8 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
+    poseIsSetPublisher.set(startingPoseSet);
+    connectionPublisher.set(questNav.isConnected());
     updateQuestNav();
     updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
     updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);
@@ -166,7 +176,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   public void initializePose(Pose3d initialPose) {
 
-    if (questNav.isConnected() && !startingPoseSet) {
+    if (questNav.isConnected()) {
       questNav.setPose(initialPose);
       startingPoseSet = true;
     }

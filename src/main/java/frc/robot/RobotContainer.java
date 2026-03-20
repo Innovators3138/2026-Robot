@@ -39,14 +39,14 @@ public class RobotContainer {
     // Another option that allows you to specify the default auto by its name
     autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
-    AutoCommands.climbChooser.setDefaultOption("Left Climb", "Left Climb");
-    AutoCommands.climbChooser.addOption("Middle Climb", "Middle Climb");
-    AutoCommands.climbChooser.addOption("Right Climb", "Right Climb");
+    AutoCommands.startingChooser.setDefaultOption("Left Start", "Left Start");
+    AutoCommands.startingChooser.addOption("Middle Start", "Middle Start");
+    AutoCommands.startingChooser.addOption("Right Start", "Right Start");
     AutoCommands.intakeChooser.setDefaultOption("Left Intake", "Left Intake");
     AutoCommands.intakeChooser.addOption("Depot Intake", "Depot Intake");
     AutoCommands.intakeChooser.addOption("Right Intake", "Right Intake");
     AutoCommands.intakeChooser.addOption("No Intake", "No Intake");
-    SmartDashboard.putData(AutoCommands.climbChooser);
+    SmartDashboard.putData(AutoCommands.startingChooser);
     SmartDashboard.putData(AutoCommands.intakeChooser);
   }
 

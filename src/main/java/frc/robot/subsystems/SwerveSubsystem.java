@@ -14,6 +14,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
@@ -26,6 +27,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
-import gg.questnav.questnav.QuestNav;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -44,15 +45,16 @@ import swervelib.parser.SwerveParser;
 
 public class SwerveSubsystem extends SubsystemBase {
 
-  public static LinearVelocity MaxDriveSpeed = MetersPerSecond.of(5);
-  public static AngularVelocity MaxRotationSpeed = RotationsPerSecond.of(1);
+  public static LinearVelocity MAX_DRIVE_SPEED = MetersPerSecond.of(3);
+  public static LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(3);
+  public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.5);
   public boolean autoAim = false;
   private final SwerveDrive swerveDrive;
   private final StructPublisher<Pose2d> estimatedPosePublisher;
   private final StructPublisher<Pose2d> simulatedPosePublisher;
   private final DoublePublisher hubAngleDoublePublisher =
       NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Swerve/Hub angle").publish();
-  private final QuestNav questNav = new QuestNav();
+  public Double targetOffset = 0.0;
 
   public SwerveSubsystem() {
 
@@ -70,10 +72,10 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive =
           new SwerveParser(swerveJsonDirectory)
               .createSwerveDrive(
-                  MaxDriveSpeed.in(MetersPerSecond), Constants.FieldConstants.getInitialPose());
+                  MAX_DRIVE_SPEED.in(MetersPerSecond), Constants.FieldConstants.getInitialPose());
 
       swerveDrive.setMaximumAllowableSpeeds(
-          MaxDriveSpeed.in(MetersPerSecond), MaxRotationSpeed.in(RadiansPerSecond));
+          MAX_DRIVE_SPEED.in(MetersPerSecond), MAX_ROTATION_SPEED.in(RadiansPerSecond));
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
@@ -149,14 +151,20 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> driverController.getLeftX() * -0.5)
              uncomment this for testing in the shop */
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
-            .deadband(0.1)
+            .deadband(0.05)
             .cubeTranslationControllerAxis(true)
+            .cubeRotationControllerAxis(true)
             .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5 || autoAim)
             .allianceRelativeControl(true);
 
     return run(
         () -> {
           var target = Constants.FieldConstants.getHub();
+          if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            target = target.transformBy(new Transform2d(0, targetOffset, Rotation2d.kZero));
+          } else {
+            target = target.transformBy(new Transform2d(0, -targetOffset, Rotation2d.kZero));
+          }
 
           inputStream.aim(target);
           swerveDrive.driveFieldOriented(inputStream.get());
@@ -179,6 +187,7 @@ public class SwerveSubsystem extends SubsystemBase {
           var target = Constants.FieldConstants.getHub();
 
           inputStream.aim(target);
+
           swerveDrive.drive(inputStream.get());
         });
   }
@@ -240,12 +249,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> swerveDrive.drive(translation, rotation, false, false));
   }
 
-  public Command drivetoPose(
-      Pose2d pose, LinearVelocity velocity, LinearAcceleration acceleration) {
+  public Command drivetoPose(Pose2d pose) {
     PathConstraints constraints =
         new PathConstraints(
-            velocity.in(MetersPerSecond),
-            acceleration.in(MetersPerSecondPerSecond),
+            MAX_DRIVE_SPEED.in(MetersPerSecond),
+            MAX_ACCELERATION.in(MetersPerSecondPerSecond),
             swerveDrive.getMaximumChassisAngularVelocity(),
             Units.degreesToRadians(720));
     return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));

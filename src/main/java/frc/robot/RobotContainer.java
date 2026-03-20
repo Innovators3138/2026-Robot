@@ -57,15 +57,45 @@ public class RobotContainer {
         shooterSubsystem.setAngularVelocity(
             () -> {
               var setpoint = operatorXbox.getRawAxis(1);
-              if ((setpoint) < 0.15) {
+              if ((setpoint) > -0.15) {
                 return RPM.of(0);
               } else {
-                return RPM.of(setpoint * -5000);
+                return RPM.of(setpoint * -4000);
               }
             }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
+    operatorXbox
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  FireCommand.flywheelOffset += 2;
+                }));
+    operatorXbox
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  FireCommand.flywheelOffset -= 2;
+                }));
+
+    operatorXbox
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  swerveSubsystem.targetOffset -= 0.5;
+                }));
+
+    operatorXbox
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  swerveSubsystem.targetOffset += 0.5;
+                }));
 
     operatorXbox
         .rightTrigger(0.5)

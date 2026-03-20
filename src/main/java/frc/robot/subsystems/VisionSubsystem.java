@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -37,16 +38,17 @@ public class VisionSubsystem extends SubsystemBase {
 
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
-          new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
+          new edu.wpi.first.math.geometry.Translation3d(-0.137, -0.19, 0.348361),
+          new Rotation3d(
+              0.0, 0.0, Units.degreesToRadians(-90))); // Adjust these values based on your mounting
   private static final Transform3d ROBOT_TO_SWERVE_CAM =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.18, 0.307, 0.199),
-          new Rotation3d(0.0, 0.0, 0.78539816));
+          new Rotation3d(0.0, 0.0, Units.degreesToRadians(45)));
   private static final Transform3d ROBOT_TO_SHOOTER_CAM =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.229, 0.243, 0.379),
-          new Rotation3d(0.0, 0.0, 2.35619449));
+          new Rotation3d(0.0, 0.0, Units.degreesToRadians(135)));
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
           0.02, // Trust down to 2cm in X direction

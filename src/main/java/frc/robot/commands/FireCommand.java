@@ -33,6 +33,8 @@ public class FireCommand extends Command {
     inchesToRPS.put(45.0, 42.5);
   }
 
+  public static double flywheelOffset;
+
   public static Command targetLock(
       ShooterSubsystem shooterSubsystem, SwerveSubsystem swerveSubsystem) {
     return shooterSubsystem.setAngularVelocity(
@@ -44,7 +46,7 @@ public class FireCommand extends Command {
               Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X).in(Inch);
           var shooterSpeed = inchesToRPS.get(distanceInInches);
           distancePublisher.set(distanceInInches);
-          return RotationsPerSecond.of(shooterSpeed);
+          return RotationsPerSecond.of(shooterSpeed).plus(RotationsPerSecond.of(flywheelOffset));
         });
   }
 
@@ -86,7 +88,7 @@ public class FireCommand extends Command {
             feederSubsystem
                 .setFeederAngularVelocity(
                     () -> {
-                      if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+                      if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(1500))) {
 
                         return RPM.of(2400);
                       } else {
@@ -96,7 +98,7 @@ public class FireCommand extends Command {
                 .alongWith(
                     hotdogsubsystem.setHotdogAngularVelocity(
                         () -> {
-                          if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+                          if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(1500))) {
 
                             return RPM.of(500);
                           } else {

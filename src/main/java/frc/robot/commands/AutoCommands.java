@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -102,23 +101,14 @@ public class AutoCommands {
     var selectedStart = startingChooser.getSelected();
     if (selectedStart.equals("Right Start")) {
 
-      return robotContainer.swerveSubsystem.drivetoPose(
-          Constants.FieldConstants.getRightShoot(),
-          MetersPerSecond.of(4),
-          MetersPerSecondPerSecond.of(4));
+      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getRightShoot());
     } else if (selectedStart.equals("Middle Start")) {
 
-      return robotContainer.swerveSubsystem.drivetoPose(
-          Constants.FieldConstants.getMiddleShoot(),
-          MetersPerSecond.of(4),
-          MetersPerSecondPerSecond.of(4));
+      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getMiddleShoot());
 
     } else {
 
-      return robotContainer.swerveSubsystem.drivetoPose(
-          Constants.FieldConstants.getLeftShoot(),
-          MetersPerSecond.of(4),
-          MetersPerSecondPerSecond.of(4));
+      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getLeftShoot());
     }
   }
 
@@ -128,10 +118,7 @@ public class AutoCommands {
     PathConstraints constraints =
         new PathConstraints(5.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
     if (selectedIntake.equals("Depot Intake")) {
-      return robotContainer.swerveSubsystem.drivetoPose(
-          Constants.FieldConstants.getDepot(),
-          MetersPerSecond.of(4),
-          MetersPerSecondPerSecond.of(4));
+      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getDepot());
     } else if (selectedIntake.equals("Left Intake")) {
       return AutoBuilder.pathfindThenFollowPath(
           PathPlannerPath.fromPathFile("Left Intake"), constraints);
@@ -156,10 +143,10 @@ public class AutoCommands {
             Commands.runOnce(
                 () -> {
                   robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
-                  robotContainer.swerveSubsystem.resetOdometry(getMiddleStartingPose());
+                  robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
                 }))
-        .andThen(driveToLoadingCommand)
-        .andThen(driveToShootingCommand)
+        .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(900)))
+        .raceWith(driveToLoadingCommand.andThen(driveToShootingCommand))
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
                 .withTimeout(0.5))
@@ -168,6 +155,11 @@ public class AutoCommands {
                 robotContainer.feederSubsystem,
                 robotContainer.hotdogSubsystem,
                 robotContainer.shooterSubsystem))
+        .andThen(
+            Commands.runOnce(
+                () -> {
+                  robotContainer.intakeSubsystem.resetServo();
+                }))
         .andThen(
             Commands.runOnce(
                 () -> {

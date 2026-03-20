@@ -69,7 +69,7 @@ public class LEDSubsystem extends SubsystemBase {
     int middle = frontHalfEnd + startOffset + 1;
     int backHalfStart = middle + 1;
     int realAmount;
-    if (hubAngle < 45 && hubAngle > 45) {
+    if (hubAngle < 45 && hubAngle > -45) {
 
       if (hubAngle >= -deadZoneLimit && hubAngle <= deadZoneLimit) {
         start = middle;

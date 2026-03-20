@@ -53,37 +53,36 @@ public class RobotContainer {
   private void configureBindings() {
 
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
-    hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
-    shooterSubsystem.setAngularVelocity(
-        () -> {
-          var setpoint = operatorXbox.getRawAxis(1) * -5000;
-          if ((setpoint) < 0.15) {
-            return RPM.of(0);
-          } else {
-            return RPM.of(setpoint);
-          }
-        });
+    shooterSubsystem.setDefaultCommand(
+        shooterSubsystem.setAngularVelocity(
+            () -> {
+              var setpoint = operatorXbox.getRawAxis(1);
+              if ((setpoint) < 0.15) {
+                return RPM.of(0);
+              } else {
+                return RPM.of(setpoint * -5000);
+              }
+            }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
 
     operatorXbox
-        .rightTrigger()
+        .rightTrigger(0.5)
         .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(900)));
 
     operatorXbox
         .rightTrigger()
         .and(operatorXbox.y())
-        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem, intakeSubsystem));
+        .whileTrue(FireCommand.unjam(feederSubsystem, hotdogSubsystem));
 
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
 
-    operatorXbox
-        .povDown()
-        .whileTrue(Commands.runOnce(() -> RobotContainer.intakeSubsystem.openHopper()));
+    operatorXbox.povDown().whileTrue(Commands.runOnce(() -> intakeSubsystem.openHopper()));
+    operatorXbox.b().whileTrue(intakeSubsystem.setAngularVelocity(RPM.of(-900)));
 
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());

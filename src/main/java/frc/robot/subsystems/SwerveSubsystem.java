@@ -46,7 +46,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public static LinearVelocity MaxDriveSpeed = MetersPerSecond.of(5);
   public static AngularVelocity MaxRotationSpeed = RotationsPerSecond.of(1);
-
+  public boolean autoAim = false;
   private final SwerveDrive swerveDrive;
   private final StructPublisher<Pose2d> estimatedPosePublisher;
   private final StructPublisher<Pose2d> simulatedPosePublisher;
@@ -151,7 +151,7 @@ public class SwerveSubsystem extends SubsystemBase {
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
             .cubeTranslationControllerAxis(true)
-            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5)
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5 || autoAim)
             .allianceRelativeControl(true);
 
     return run(
@@ -172,7 +172,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 () -> driverController.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverController.getRightX() * -1)
             .deadband(0.1)
-            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5);
+            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5 || autoAim);
 
     return run(
         () -> {

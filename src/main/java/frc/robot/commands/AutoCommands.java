@@ -32,6 +32,8 @@ public class AutoCommands {
   public static SendableChooser<String> climbChooser = new SendableChooser<>();
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
   public double axisMultiplier;
+  public static Pose2d BLUE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.k180deg);
+  public static Pose2d RED_STARTING_POSE = new Pose2d(12.706, 4.1, Rotation2d.kZero);
 
   public static Command climb(ClimberSubsystem climberSubsystem) {
 
@@ -42,6 +44,14 @@ public class AutoCommands {
     var basePosition = RED_TARGET;
     if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
       basePosition = BLUE_TARGET;
+    }
+    return basePosition;
+  }
+
+  public static Pose2d getStartingPose() {
+    var basePosition = RED_STARTING_POSE;
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+      basePosition = BLUE_STARTING_POSE;
     }
     return basePosition;
   }
@@ -119,19 +129,25 @@ public class AutoCommands {
               MetersPerSecond.of(4),
               MetersPerSecondPerSecond.of(4));
     }
+
     if (selectedIntake.equals("No Intake")) {
       return Commands.runOnce(() -> RobotContainer.intakeSubsystem.openHopper())
           .andThen(
               Commands.runOnce(
                   () -> {
-                    robotContainer.visionSubsystem.initializePose(
-                        new Pose3d(robotContainer.swerveSubsystem.getPose()));
+                    robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPose()));
+                    robotContainer.swerveSubsystem.resetOdometry(getStartingPose());
                   }))
           .andThen(driveToShootingCommand)
           .andThen(
               FireCommand.targetLock(
                       robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
                   .withTimeout(0.5))
+          .alongWith(
+              Commands.runOnce(
+                  () -> {
+                    robotContainer.swerveSubsystem.autoAim = true;
+                  }))
           .andThen(
               FireCommand.fire(
                       robotContainer.feederSubsystem,
@@ -139,25 +155,33 @@ public class AutoCommands {
                       robotContainer.shooterSubsystem)
                   .withTimeout(2))
           .andThen(
-              FireCommand.unjam(
-                  robotContainer.feederSubsystem,
-                  robotContainer.hotdogSubsystem,
-                  robotContainer.intakeSubsystem))
+              FireCommand.unjam(robotContainer.feederSubsystem, robotContainer.hotdogSubsystem))
           .withTimeout(1)
           .andThen(
               FireCommand.fire(
                   robotContainer.feederSubsystem,
                   robotContainer.hotdogSubsystem,
                   robotContainer.shooterSubsystem))
-          .withTimeout(2);
+          .withTimeout(2)
+          .andThen(
+              Commands.runOnce(
+                  () -> {
+                    robotContainer.swerveSubsystem.autoAim = false;
+                  }))
+          .andThen(
+              Commands.runOnce(
+                  () -> {
+                    robotContainer.visionSubsystem.initializePose(
+                        new Pose3d(robotContainer.swerveSubsystem.getPose()));
+                  }));
     }
 
     return Commands.runOnce(() -> RobotContainer.intakeSubsystem.openHopper())
         .andThen(
             Commands.runOnce(
                 () -> {
-                  robotContainer.visionSubsystem.initializePose(
-                      new Pose3d(robotContainer.swerveSubsystem.getPose()));
+                  robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPose()));
+                  robotContainer.swerveSubsystem.resetOdometry(getStartingPose());
                 }))
         .andThen(driveToLoadingCommand)
         .andThen(driveToShootingCommand)
@@ -170,17 +194,19 @@ public class AutoCommands {
                     robotContainer.hotdogSubsystem,
                     robotContainer.shooterSubsystem)
                 .withTimeout(2))
-        .andThen(
-            FireCommand.unjam(
-                robotContainer.feederSubsystem,
-                robotContainer.hotdogSubsystem,
-                robotContainer.intakeSubsystem))
+        .andThen(FireCommand.unjam(robotContainer.feederSubsystem, robotContainer.hotdogSubsystem))
         .withTimeout(1)
         .andThen(
             FireCommand.fire(
                 robotContainer.feederSubsystem,
                 robotContainer.hotdogSubsystem,
                 robotContainer.shooterSubsystem))
-        .withTimeout(2);
+        .withTimeout(2)
+        .alongWith(
+            Commands.runOnce(
+                () -> {
+                  robotContainer.visionSubsystem.initializePose(
+                      new Pose3d(robotContainer.swerveSubsystem.getPose()));
+                }));
   }
 }

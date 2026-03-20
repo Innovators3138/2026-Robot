@@ -41,11 +41,11 @@ public class VisionSubsystem extends SubsystemBase {
           new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
   private static final Transform3d ROBOT_TO_SWERVE_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.1798574, -0.3072384, 0.1987296),
+          new edu.wpi.first.math.geometry.Translation3d(-0.18, 0.307, 0.199),
           new Rotation3d(0.0, 0.0, 0.78539816));
   private static final Transform3d ROBOT_TO_SHOOTER_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.2257806, -0.2396236, 0.378714),
+          new edu.wpi.first.math.geometry.Translation3d(-0.229, 0.243, 0.379),
           new Rotation3d(0.0, 0.0, 2.35619449));
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(

@@ -57,10 +57,10 @@ public class RobotContainer {
         shooterSubsystem.setAngularVelocity(
             () -> {
               var setpoint = operatorXbox.getRawAxis(1);
-              if ((setpoint) > -0.15) {
+              if ((setpoint) > -0.05) {
                 return RPM.of(0);
               } else {
-                return RPM.of(setpoint * -4000);
+                return RPM.of(setpoint * -3000);
               }
             }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
@@ -100,7 +100,7 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger(0.5)
         .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(900)));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1500)));
 
     operatorXbox
         .rightTrigger()

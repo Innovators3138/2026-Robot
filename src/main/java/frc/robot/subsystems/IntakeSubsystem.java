@@ -49,7 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
-          .withStatorCurrentLimit(Amps.of(80));
+          .withStatorCurrentLimit(Amps.of(100));
 
   private SparkMax intakeMotor = new SparkMax(16, MotorType.kBrushless);
 

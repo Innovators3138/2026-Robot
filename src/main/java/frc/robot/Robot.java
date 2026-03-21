@@ -3,12 +3,15 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.pathplanner.lib.util.FileVersionException;
-import edu.wpi.first.wpilibj.LoggedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.simulation.ShotSimulator;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
@@ -20,13 +23,13 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
   }
 
- @Override
+  @Override
   public void robotInit() {
     Logger.recordMetadata("Project", "2026-Robot");
 
     if (isReal()) {
       Logger.addDataReceiver(new WPILOGWriter("/U/logs")); // USB stick
-      Logger.addDataReceiver(new NT4Publisher());          // live view
+      Logger.addDataReceiver(new NT4Publisher()); // live view
     } else {
       Logger.addDataReceiver(new NT4Publisher());
     }

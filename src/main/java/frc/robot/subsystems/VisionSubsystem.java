@@ -4,37 +4,20 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
 public class VisionSubsystem extends SubsystemBase {
-  private final IntegerPublisher bestTargetPublisher =
-      NetworkTableInstance.getDefault().getIntegerTopic("Subsystems/Vision/BestTarget").publish();
-  private final IntegerPublisher tagCountPublisher =
-      NetworkTableInstance.getDefault().getIntegerTopic("Subsystems/Vision/TagCount").publish();
-  private final DoublePublisher ambiguityPublisher =
-      NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Vision/Ambiguity").publish();
-  private final DoublePublisher distancePublisher =
-      NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Vision/Distance").publish();
-  private final BooleanPublisher poseIsSetPublisher =
-      NetworkTableInstance.getDefault()
-          .getBooleanTopic("Subsystems/Vision/Quest Pose Set")
-          .publish();
 
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
@@ -68,27 +51,9 @@ public class VisionSubsystem extends SubsystemBase {
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
   private boolean startingPoseSet = false;
-  public BooleanPublisher connectionPublisher =
-      NetworkTableInstance.getDefault()
-          .getBooleanTopic("Subsystem/Vision/QuestIsConnected")
-          .publish();
 
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
-  private final StructPublisher<Pose2d> swerveEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/SwerveCamEstimatedPose", Pose2d.struct)
-          .publish();
-
-  private final StructPublisher<Pose2d> shooterEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/ShooterCamEstimatedPose", Pose2d.struct)
-          .publish();
-  private final StructPublisher<Pose2d> questEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/QuestEstimatedPose", Pose2d.struct)
-          .publish();
 
   public VisionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
@@ -99,28 +64,28 @@ public class VisionSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    poseIsSetPublisher.set(startingPoseSet);
-    connectionPublisher.set(questNav.isConnected());
+    Logger.recordOutput("Subsystems/Vision/Quest Pose Set", startingPoseSet);
+    Logger.recordOutput("Subsystem/Vision/QuestIsConnected", questNav.isConnected());
     updateQuestNav();
-    updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
-    updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);
+    updatePose(swerveCamera, "Subsystems/Vision/SwerveCamEstimatedPose", swervePoseEstimator);
+    updatePose(
+        shooterCamera, "Subsystems / Vision / ShooterCamEstimatedPose", shooterPoseEstimator);
   }
 
-  private void updatePose(
-      PhotonCamera camera, StructPublisher<Pose2d> publisher, PhotonPoseEstimator poseEstimator) {
+  private void updatePose(PhotonCamera camera, String key, PhotonPoseEstimator poseEstimator) {
     var resultsList = camera.getAllUnreadResults();
     for (var change : resultsList) {
       if (change.hasTargets()) {
         var bestTarget = change.getBestTarget();
 
-        bestTargetPublisher.set(bestTarget.getFiducialId());
+        Logger.recordOutput("Subsystems/Vision/BestTarget", bestTarget.getFiducialId());
 
         var tagCount = change.getTargets().size();
         var ambiguity = bestTarget.getPoseAmbiguity();
         var distance = bestTarget.getBestCameraToTarget().getTranslation().getNorm();
-        tagCountPublisher.set(tagCount);
-        ambiguityPublisher.set(ambiguity);
-        distancePublisher.set(distance);
+        Logger.recordOutput("Subsystems/Vision/TagCount", tagCount);
+        Logger.recordOutput("Subsystems/Vision/Ambiguity", ambiguity);
+        Logger.recordOutput("Subsystems/Vision/Distance", distance);
         if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
           var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
 
@@ -137,7 +102,7 @@ public class VisionSubsystem extends SubsystemBase {
                         .getPose()
                         .getTranslation()
                         .getDistance(estimatedPose.getTranslation());
-                publisher.set(estimatedPose);
+                Logger.recordOutput(key, estimatedPose);
 
                 if ((startingPoseSet == true && changeInDistance < 1 || startingPoseSet == false)) {
                   swerveSubsystem.addVisionMeasurement(
@@ -170,7 +135,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Add the measurement to our estimator
         var quest2DPose = robotPose.toPose2d();
-        questEstimatedPosePublisher.set(quest2DPose);
+        Logger.recordOutput("Subsystems/Vision/QuestEstimatedPose", quest2DPose);
         if (startingPoseSet == true) {
           swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
         }

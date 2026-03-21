@@ -12,9 +12,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.Mass;
@@ -22,6 +19,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 /* Instantiates the subsystem */
 public class ClimberSubsystem extends SubsystemBase {
@@ -40,16 +38,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public final SparkMax sparkMax = new SparkMax(15, MotorType.kBrushless);
   private final DigitalInput extendedSensor = new DigitalInput(EXTENDED_SENSOR_CHANNEL);
   private final DigitalInput retractedSensor = new DigitalInput(RETRACTED_SENSOR_CHANNEL);
-  private final BooleanPublisher extendedPublisher =
-      NetworkTableInstance.getDefault().getBooleanTopic("Subsystem/Climber/Extended").publish();
-  private final BooleanPublisher retractedPublisher =
-      NetworkTableInstance.getDefault().getBooleanTopic("Subsystem/Climber/Retracted").publish();
-  private final DoublePublisher encoderPublisher =
-      NetworkTableInstance.getDefault().getDoubleTopic("Subsystem/Climber/Encoder").publish();
-  private final DoublePublisher appliedVoltagePublisher =
-      NetworkTableInstance.getDefault()
-          .getDoubleTopic("Subsystem/Climber/AppliedVoltage")
-          .publish();
+
   private double climbStartingPosition = 0.0;
 
   public ClimberSubsystem() {
@@ -132,10 +121,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    extendedPublisher.set(extendedSensor.get());
-    retractedPublisher.set(retractedSensor.get());
-    encoderPublisher.set(sparkMax.getEncoder().getPosition());
-    appliedVoltagePublisher.set(sparkMax.getAppliedOutput());
+    Logger.recordOutput("Subsystem/Climber/Extended", extendedSensor.get());
+    Logger.recordOutput("Subsystem/Climber/Retracted", retractedSensor.get());
+    Logger.recordOutput("Subsystem/Climber/Encoder", sparkMax.getEncoder().getPosition());
+    Logger.recordOutput("Subsystem/Climber/AppliedVoltage", sparkMax.getAppliedOutput());
   }
 
   @Override

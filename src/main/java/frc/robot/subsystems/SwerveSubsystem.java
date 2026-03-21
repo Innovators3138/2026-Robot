@@ -20,9 +20,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -38,6 +35,7 @@ import frc.robot.Constants.FieldConstants;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveInputStream;
@@ -50,22 +48,11 @@ public class SwerveSubsystem extends SubsystemBase {
   public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.5);
   public boolean autoAim = false;
   private final SwerveDrive swerveDrive;
-  private final StructPublisher<Pose2d> estimatedPosePublisher;
-  private final StructPublisher<Pose2d> simulatedPosePublisher;
-  private final DoublePublisher hubAngleDoublePublisher =
-      NetworkTableInstance.getDefault().getDoubleTopic("Subsystems/Swerve/Hub angle").publish();
+
   public Double targetOffset = 0.0;
 
   public SwerveSubsystem() {
 
-    estimatedPosePublisher =
-        NetworkTableInstance.getDefault()
-            .getStructTopic("Subsystems/Swerve/EstimatedPose", Pose2d.struct)
-            .publish();
-    simulatedPosePublisher =
-        NetworkTableInstance.getDefault()
-            .getStructTopic("Subsystems/Swerve/SimulatedPose", Pose2d.struct)
-            .publish();
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/neo");
 
     try {
@@ -204,7 +191,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void periodic() {
     // Get the latest pose data frames from the Quest
 
-    estimatedPosePublisher.set(swerveDrive.getPose());
+    Logger.recordOutput("Subsystems/Swerve/EstimatedPose", swerveDrive.getPose());
   }
 
   public void addVisionMeasurement(
@@ -218,7 +205,7 @@ public class SwerveSubsystem extends SubsystemBase {
         .getSimulationDriveTrainPose()
         .ifPresent(
             pose -> {
-              simulatedPosePublisher.set(pose);
+              Logger.recordOutput("Subsystems/Swerve/SimulatedPose", pose);
             });
 
     ;
@@ -268,7 +255,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     var relativeYaw = new Rotation2d(dx, dy);
     var angle = relativeYaw.getDegrees();
-    hubAngleDoublePublisher.set(angle);
+    Logger.recordOutput("Subsystems/Swerve/Hub angle", angle);
     return angle;
   }
 }

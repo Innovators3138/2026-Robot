@@ -16,6 +16,7 @@ import frc.robot.subsystems.HotdogSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class FireCommand extends Command {
   static InterpolatingDoubleTreeMap inchesToRPS = new InterpolatingDoubleTreeMap();
@@ -45,7 +46,7 @@ public class FireCommand extends Command {
           var distanceInInches =
               Meter.of(distance).plus(ShooterSubsystem.SHOOTER_OFFSET_X).in(Inch);
           var shooterSpeed = inchesToRPS.get(distanceInInches);
-          distancePublisher.set(distanceInInches);
+          Logger.recordOutput("Command/FireCommand/DistanceInInches", distanceInInches);
           return RotationsPerSecond.of(shooterSpeed).plus(RotationsPerSecond.of(flywheelOffset));
         });
   }

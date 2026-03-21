@@ -137,7 +137,7 @@ public class VisionSubsystem extends SubsystemBase {
         var quest2DPose = robotPose.toPose2d();
         Logger.recordOutput("Subsystems/Vision/QuestEstimatedPose", quest2DPose);
         if (startingPoseSet == true) {
-          swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
+          // swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
         }
       }
     }

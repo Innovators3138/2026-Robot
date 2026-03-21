@@ -3,14 +3,14 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.pathplanner.lib.util.FileVersionException;
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.LoggedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.simulation.ShotSimulator;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
 
@@ -20,8 +20,19 @@ public class Robot extends TimedRobot {
     robotContainer = new RobotContainer();
   }
 
-  @Override
-  public void robotInit() {}
+ @Override
+  public void robotInit() {
+    Logger.recordMetadata("Project", "2026-Robot");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter("/U/logs")); // USB stick
+      Logger.addDataReceiver(new NT4Publisher());          // live view
+    } else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+  }
 
   @Override
   public void robotPeriodic() {

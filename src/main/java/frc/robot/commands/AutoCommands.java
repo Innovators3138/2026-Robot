@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ClimberSubsystem;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
@@ -26,18 +25,11 @@ public class AutoCommands {
   public static Pose2d RED_TARGET = new Pose2d(14, 4.37278, Rotation2d.k180deg);
   public static Pose2d RED_COLLECTION_ZONE = new Pose2d(9.0, 4.3, Rotation2d.kCW_90deg);
   public static Pose2d BLUE_COLLECTION_ZONE = new Pose2d(6.71, 4.3, Rotation2d.kCCW_90deg);
-  public static Pose2d RED_CLIMB_POSE = new Pose2d(15.4, 5.25, Rotation2d.fromDegrees(180));
-  public static Pose2d BLUE_CLIMB_POSE = new Pose2d(0.9, 2.7, Rotation2d.fromDegrees(0));
   public static SendableChooser<String> startingChooser = new SendableChooser<>();
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
   public double axisMultiplier;
   public static Pose2d BLUE_MIDDLE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.k180deg);
   public static Pose2d RED_MIDDLE_STARTING_POSE = new Pose2d(12.706, 4.1, Rotation2d.kZero);
-
-  public static Command climb(ClimberSubsystem climberSubsystem) {
-
-    return climberSubsystem.extend().andThen(climberSubsystem.climb());
-  }
 
   public static Pose2d getLaunchPose() {
     var basePosition = RED_TARGET;
@@ -61,26 +53,6 @@ public class AutoCommands {
       collectionZone = BLUE_COLLECTION_ZONE;
     }
     return collectionZone;
-  }
-
-  public static Pose2d getClimbPose() {
-
-    var climbPosition = Constants.FieldConstants.getRightClimb();
-    var selectedStart = startingChooser.getSelected();
-    if (selectedStart == null) {
-      return climbPosition;
-    }
-    if (selectedStart.equals("Right Start")) {
-      return climbPosition;
-    }
-    if (selectedStart.equals("Middle Start")) {
-      return climbPosition = Constants.FieldConstants.getMiddleClimb();
-    }
-    if (selectedStart.equals("Left Start")) {
-
-      return climbPosition = Constants.FieldConstants.getLeftClimb();
-    }
-    return climbPosition;
   }
 
   private static Pose2d getStartingPosition() {
@@ -133,7 +105,6 @@ public class AutoCommands {
 
   public static Command createAuto(RobotContainer robotContainer)
       throws FileVersionException, IOException, ParseException {
-    var selectedClimb = startingChooser.getSelected();
     var selectedIntake = intakeChooser.getSelected();
     Command driveToShootingCommand = getShootingCommand(robotContainer);
     Command driveToLoadingCommand = getLoadingCommand(robotContainer);

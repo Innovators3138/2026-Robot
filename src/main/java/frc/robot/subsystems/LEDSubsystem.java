@@ -40,14 +40,18 @@ public class LEDSubsystem extends SubsystemBase {
     var led = LEDConstants.LED_SPEED_NUMBER;
     var level = (int) (percentage * led);
     RGBWColor color;
-    var startOffset = LEDConstants.LED_ANGLE_NUMBER;
+    var startOffset = LEDConstants.LED_ANGLE_NUMBER + 7;
     if (percentage > 1) {
       color = red;
       level = 20;
+    } else if (level > 20) {
+      level = 20;
+      color = green;
+
     } else {
       color = green;
     }
-    candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 8).withColor(color));
+    candle.setControl(new SolidColor(startOffset + 1, startOffset + level).withColor(color));
     Logger.recordOutput("Subsystems/Ledsubsystem/FlywheelLEDs", level);
   }
 
@@ -74,10 +78,11 @@ public class LEDSubsystem extends SubsystemBase {
       } else if (hubAngle < -deadZoneLimit) {
 
         amount = Math.abs(hubAngle) / increment;
-        realAmount = amount * multiplier;
+
         if (amount > 5) {
           amount = 5;
         }
+        realAmount = amount * multiplier;
         start = middle - realAmount;
         end = frontHalfEnd;
       } else if (hubAngle > deadZoneLimit) {
@@ -93,11 +98,11 @@ public class LEDSubsystem extends SubsystemBase {
       }
     } else if (hubAngle > 45) {
       start = 8;
-      end = frontHalfEnd + 7;
+      end = frontHalfEnd;
 
     } else {
       start = backHalfStart;
-      end = middle + frontHalfEnd;
+      end = backHalfStart + 4;
     }
     candle.setControl(new SolidColor(start, end).withColor(green));
   }

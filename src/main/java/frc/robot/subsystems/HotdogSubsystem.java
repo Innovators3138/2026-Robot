@@ -1,11 +1,11 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -33,12 +33,12 @@ public class HotdogSubsystem extends SubsystemBase {
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              0, 0, 0, RotationsPerSecond.of(3), DegreesPerSecondPerSecond.of(3))
+              0, 0, 0, RotationsPerSecond.of(8), RotationsPerSecondPerSecond.of(30))
           .withSimClosedLoopController(
-              0, 0, 0, RotationsPerSecond.of(9), DegreesPerSecondPerSecond.of(6))
+              0, 0, 0, RotationsPerSecond.of(8), RotationsPerSecondPerSecond.of(30))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(6.3, 0.1, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0, 1.25, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 1.25, 0))
+          .withSimFeedforward(new SimpleMotorFeedforward(0, 0.25, 0))
           // Telemetry name and verbosity level
           .withTelemetry("HotdogMotor", TelemetryVerbosity.HIGH)
           // Gearing from the motor rotor to final shaft.
@@ -46,7 +46,7 @@ public class HotdogSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(10)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(2, 1)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(true)
           .withIdleMode(MotorMode.COAST)
@@ -60,8 +60,8 @@ public class HotdogSubsystem extends SubsystemBase {
   private final FlyWheelConfig hflywheelConfig =
       new FlyWheelConfig(hotdogSmartMotorController)
           .withDiameter(Inches.of(1.5))
-          .withMass(Pounds.of(3))
-          .withUpperSoftLimit(RPM.of(360))
+          .withMass(Pounds.of(0.5))
+          .withUpperSoftLimit(RPM.of(500))
           .withTelemetry("HotdogMech", TelemetryVerbosity.HIGH);
 
   private FlyWheel Hotdog = new FlyWheel(hflywheelConfig);

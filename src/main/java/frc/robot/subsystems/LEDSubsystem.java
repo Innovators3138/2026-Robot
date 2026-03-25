@@ -5,22 +5,18 @@ import static edu.wpi.first.units.Units.RPM;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.RGBWColor;
-import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class LEDSubsystem extends SubsystemBase {
   private final CANdle candle;
 
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
   private final RGBWColor red = new RGBWColor(255, 0, 0, 0);
+  private final RGBWColor black = new RGBWColor(0, 0, 0, 0);
   private final ShooterSubsystem shooterSubsystem;
   private final SwerveSubsystem swerveSubsystem;
-  private final IntegerPublisher flywheelLEDPublisher =
-      NetworkTableInstance.getDefault()
-          .getIntegerTopic("Subsystems/Ledsubsystem/FlywheelLEDs")
-          .publish();
 
   public LEDSubsystem(ShooterSubsystem shooterSubsystem, SwerveSubsystem swerveSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
@@ -44,15 +40,19 @@ public class LEDSubsystem extends SubsystemBase {
     var led = LEDConstants.LED_SPEED_NUMBER;
     var level = (int) (percentage * led);
     RGBWColor color;
-    var startOffset = LEDConstants.LED_ANGLE_NUMBER;
+    var startOffset = LEDConstants.LED_ANGLE_NUMBER + 7;
     if (percentage > 1) {
       color = red;
       level = 20;
+    } else if (level > 20) {
+      level = 20;
+      color = green;
+
     } else {
       color = green;
     }
-    candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 8).withColor(color));
-    flywheelLEDPublisher.set(level);
+    candle.setControl(new SolidColor(startOffset + 1, startOffset + level).withColor(color));
+    Logger.recordOutput("Subsystems/Ledsubsystem/FlywheelLEDs", level);
   }
 
   private void shooterAimLEDs() {
@@ -69,7 +69,7 @@ public class LEDSubsystem extends SubsystemBase {
     int middle = frontHalfEnd + startOffset + 1;
     int backHalfStart = middle + 1;
     int realAmount;
-    if (hubAngle < 45 && hubAngle > 45) {
+    if (hubAngle < 45 && hubAngle > -45) {
 
       if (hubAngle >= -deadZoneLimit && hubAngle <= deadZoneLimit) {
         start = middle;
@@ -78,10 +78,11 @@ public class LEDSubsystem extends SubsystemBase {
       } else if (hubAngle < -deadZoneLimit) {
 
         amount = Math.abs(hubAngle) / increment;
-        realAmount = amount * multiplier;
+
         if (amount > 5) {
           amount = 5;
         }
+        realAmount = amount * multiplier;
         start = middle - realAmount;
         end = frontHalfEnd;
       } else if (hubAngle > deadZoneLimit) {
@@ -97,11 +98,11 @@ public class LEDSubsystem extends SubsystemBase {
       }
     } else if (hubAngle > 45) {
       start = 8;
-      end = frontHalfEnd + 7;
+      end = frontHalfEnd;
 
     } else {
       start = backHalfStart;
-      end = middle + frontHalfEnd;
+      end = backHalfStart + 4;
     }
     candle.setControl(new SolidColor(start, end).withColor(green));
   }
@@ -112,6 +113,7 @@ public class LEDSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    candle.setControl(new SolidColor(8, LEDConstants.TOTAL_LEDS).withColor(black));
     postTheColors();
     shooterAimLEDs();
   }

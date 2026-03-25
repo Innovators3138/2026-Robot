@@ -2,12 +2,18 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.simulation.ShotSimulator;
+import java.io.IOException;
+import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
 
@@ -18,7 +24,18 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    Logger.recordMetadata("Project", "2026-Robot");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter("/U/logs")); // USB stick
+      Logger.addDataReceiver(new NT4Publisher()); // live view
+    } else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+  }
 
   @Override
   public void robotPeriodic() {
@@ -33,6 +50,21 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {}
+
+  @Override
+  public void autonomousInit() {
+    try {
+      autonomousCommand = robotContainer.getAutonomousCommand();
+    } catch (FileVersionException | IOException | ParseException e) {
+      e.printStackTrace();
+    }
+    robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
+
+    if (autonomousCommand != null) {
+      CommandScheduler.getInstance().schedule(autonomousCommand);
+      ;
+    }
+  }
 
   @Override
   public void teleopInit() {

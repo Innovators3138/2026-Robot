@@ -32,11 +32,11 @@ public class IntakeSubsystem extends SubsystemBase {
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
+              0.05, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.265, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
           // Telemetry name and verbosity level
           .withTelemetry("IntakeMotor", TelemetryVerbosity.HIGH)
@@ -45,13 +45,13 @@ public class IntakeSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(4)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(2)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
-          .withStatorCurrentLimit(Amps.of(40));
+          .withStatorCurrentLimit(Amps.of(100));
 
-  private SparkMax intakeMotor = new SparkMax(4, MotorType.kBrushless);
+  private SparkMax intakeMotor = new SparkMax(16, MotorType.kBrushless);
 
   private SmartMotorController intakeSmartMotorController =
       new SparkWrapper(intakeMotor, DCMotor.getNEO(1), smcConfig);
@@ -85,5 +85,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void openHopper() {
     hopperServo.set(1.0);
+  }
+
+  public void resetServo() {
+    hopperServo.set(0);
   }
 }

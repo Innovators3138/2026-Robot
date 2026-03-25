@@ -3,9 +3,11 @@ package frc.robot;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.FireCommand;
@@ -16,12 +18,13 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import java.io.IOException;
 
 public class RobotContainer {
 
   public final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
   public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final FeederSubsystem feederSubsystem = new FeederSubsystem();
   public final HotdogSubsystem hotdogSubsystem = new HotdogSubsystem();
   public final LEDSubsystem ledSubsystem = new LEDSubsystem(shooterSubsystem, swerveSubsystem);
@@ -36,29 +39,71 @@ public class RobotContainer {
     // Another option that allows you to specify the default auto by its name
     autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
     configureBindings();
-    AutoCommands.climbChooser.setDefaultOption("Left Climb", "Left Climb");
-    AutoCommands.climbChooser.addOption("Middle Climb", "Middle Climb");
-    AutoCommands.climbChooser.addOption("Right Climb", "Right Climb");
+    AutoCommands.startingChooser.setDefaultOption("Left Start", "Left Start");
+    AutoCommands.startingChooser.addOption("Middle Start", "Middle Start");
+    AutoCommands.startingChooser.addOption("Right Start", "Right Start");
     AutoCommands.intakeChooser.setDefaultOption("Left Intake", "Left Intake");
     AutoCommands.intakeChooser.addOption("Depot Intake", "Depot Intake");
     AutoCommands.intakeChooser.addOption("Right Intake", "Right Intake");
-    SmartDashboard.putData(AutoCommands.climbChooser);
+    AutoCommands.intakeChooser.addOption("No Intake", "No Intake");
+    SmartDashboard.putData(AutoCommands.startingChooser);
     SmartDashboard.putData(AutoCommands.intakeChooser);
   }
 
   private void configureBindings() {
 
-    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
-    hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
-    shooterSubsystem.setDefaultCommand(shooterSubsystem.setAngularVelocity(RPM.of(0)));
+    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox));
+    shooterSubsystem.setDefaultCommand(
+        shooterSubsystem.setAngularVelocity(
+            () -> {
+              var setpoint = operatorXbox.getRawAxis(1);
+              if ((setpoint) > -0.05) {
+                return RPM.of(0);
+              } else {
+                return RPM.of(setpoint * -3000);
+              }
+            }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
     feederSubsystem.setDefaultCommand(feederSubsystem.setFeederAngularVelocity(RPM.of(0)));
     hotdogSubsystem.setDefaultCommand(hotdogSubsystem.setHotdogAngularVelocity(RPM.of(0)));
+    operatorXbox
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  FireCommand.flywheelOffset += 2;
+                }));
+    operatorXbox
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  FireCommand.flywheelOffset -= 2;
+                }));
 
     operatorXbox
-        .rightTrigger()
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  swerveSubsystem.targetOffset -= 0.5;
+                }));
+
+    operatorXbox
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  swerveSubsystem.targetOffset += 0.5;
+                }));
+
+    operatorXbox
+        .rightTrigger(0.5)
         .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(500)));
+    operatorXbox
+        .rightTrigger()
+        .onFalse(FireCommand.unjam(feederSubsystem, hotdogSubsystem).withTimeout(0.5));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1500)));
 
     operatorXbox
         .rightTrigger()
@@ -69,8 +114,23 @@ public class RobotContainer {
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
 
+    operatorXbox
+        .leftTrigger(0.5)
+        .whileTrue(
+            FireCommand.targetLock(shooterSubsystem, swerveSubsystem)
+                .alongWith(swerveSubsystem.autoAimCommand()));
+
+    operatorXbox.povDown().whileTrue(Commands.runOnce(() -> intakeSubsystem.openHopper()));
+    operatorXbox.b().whileTrue(intakeSubsystem.setAngularVelocity(RPM.of(-900)));
+
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
     }
+  }
+
+  public Command getAutonomousCommand()
+      throws FileVersionException, IOException, org.json.simple.parser.ParseException {
+
+    return AutoCommands.createAuto(this);
   }
 }

@@ -4,7 +4,7 @@
 ### CAN ID Configuration ###
 - CAN MOTORS
 
-- intakeMotor: CAN ID 4
+- intakeMotor: CAN ID 16
 - backleftdrive CAN ID 5
 - backleftangle CAN ID 6
 - backrightdrive CAN ID 7

@@ -44,10 +44,14 @@ public class LEDSubsystem extends SubsystemBase {
     if (percentage > 1) {
       color = red;
       level = 20;
+    } else if (level > 20) {
+      level = 20;
+      color = green;
+
     } else {
       color = green;
     }
-    candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 8).withColor(color));
+    candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 7).withColor(color));
     Logger.recordOutput("Subsystems/Ledsubsystem/FlywheelLEDs", level);
   }
 

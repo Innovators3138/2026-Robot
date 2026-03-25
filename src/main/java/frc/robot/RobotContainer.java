@@ -52,7 +52,7 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox, operatorXbox));
+    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveFieldOriented(driverXbox));
     shooterSubsystem.setDefaultCommand(
         shooterSubsystem.setAngularVelocity(
             () -> {
@@ -100,7 +100,9 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger(0.5)
         .whileTrue(FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
-    operatorXbox.rightTrigger().onFalse(FireCommand.unjam(feederSubsystem, hotdogSubsystem));
+    operatorXbox
+        .rightTrigger()
+        .onFalse(FireCommand.unjam(feederSubsystem, hotdogSubsystem).withTimeout(0.5));
     operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1500)));
 
     operatorXbox
@@ -111,6 +113,12 @@ public class RobotContainer {
     operatorXbox
         .leftTrigger(0.5)
         .whileTrue(FireCommand.targetLock(shooterSubsystem, swerveSubsystem));
+
+    operatorXbox
+        .leftTrigger(0.5)
+        .whileTrue(
+            FireCommand.targetLock(shooterSubsystem, swerveSubsystem)
+                .alongWith(swerveSubsystem.autoAimCommand()));
 
     operatorXbox.povDown().whileTrue(Commands.runOnce(() -> intakeSubsystem.openHopper()));
     operatorXbox.b().whileTrue(intakeSubsystem.setAngularVelocity(RPM.of(-900)));

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -46,7 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public static LinearVelocity MAX_DRIVE_SPEED = MetersPerSecond.of(3);
   public static LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(3);
   public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.5);
-  public boolean autoAim = false;
+  private boolean autoAim = false;
   private final SwerveDrive swerveDrive;
 
   public Double targetOffset = 0.0;
@@ -127,8 +128,7 @@ public class SwerveSubsystem extends SubsystemBase {
         });
   }
 
-  public Command driveFieldOriented(
-      CommandXboxController driverController, CommandXboxController operatorController) {
+  public Command driveFieldOriented(CommandXboxController driverController) {
     SwerveInputStream inputStream =
         SwerveInputStream.of(
                 swerveDrive,
@@ -141,7 +141,7 @@ public class SwerveSubsystem extends SubsystemBase {
             .deadband(0.05)
             .cubeTranslationControllerAxis(true)
             .cubeRotationControllerAxis(true)
-            .aimWhile(() -> operatorController.getLeftTriggerAxis() > 0.5 || autoAim)
+            .aimWhile(() -> autoAim)
             .allianceRelativeControl(true);
 
     return run(
@@ -185,6 +185,11 @@ public class SwerveSubsystem extends SubsystemBase {
         3.0,
         5.0,
         3.0);
+  }
+
+  public Command autoAimCommand() {
+    return Commands.startEnd(() -> autoAim = true, () -> autoAim = false)
+        .finallyDo(() -> autoAim = false);
   }
 
   @Override

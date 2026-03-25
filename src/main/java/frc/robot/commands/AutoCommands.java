@@ -136,6 +136,12 @@ public class AutoCommands {
                 () -> {
                   robotContainer.visionSubsystem.initializePose(
                       new Pose3d(robotContainer.swerveSubsystem.getPose()));
-                }));
+                }))
+        .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(900)))
+        .raceWith(driveToLoadingCommand.andThen(driveToShootingCommand))
+        .andThen(
+            FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
+                .alongWith(robotContainer.swerveSubsystem.autoAimCommand())
+                .withTimeout(0.75));
   }
 }

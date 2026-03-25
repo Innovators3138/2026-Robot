@@ -40,7 +40,7 @@ public class LEDSubsystem extends SubsystemBase {
     var led = LEDConstants.LED_SPEED_NUMBER;
     var level = (int) (percentage * led);
     RGBWColor color;
-    var startOffset = LEDConstants.LED_ANGLE_NUMBER;
+    var startOffset = LEDConstants.LED_ANGLE_NUMBER + 7;
     if (percentage > 1) {
       color = red;
       level = 20;

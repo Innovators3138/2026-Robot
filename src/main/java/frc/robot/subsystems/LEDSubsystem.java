@@ -14,6 +14,7 @@ public class LEDSubsystem extends SubsystemBase {
 
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
   private final RGBWColor red = new RGBWColor(255, 0, 0, 0);
+  private final RGBWColor black = new RGBWColor(0, 0, 0, 0);
   private final ShooterSubsystem shooterSubsystem;
   private final SwerveSubsystem swerveSubsystem;
 
@@ -107,6 +108,7 @@ public class LEDSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    candle.setControl(new SolidColor(8, LEDConstants.TOTAL_LEDS).withColor(black));
     postTheColors();
     shooterAimLEDs();
   }

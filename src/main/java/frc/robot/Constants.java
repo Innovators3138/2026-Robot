@@ -119,5 +119,6 @@ public class Constants {
     public static final double LED_DEADZONE = 8;
     public static final int LED_INCREMENT = 9;
     public static final int LED_MULTIPLIER = 2;
+    public static final int TOTAL_LEDS = 48;
   }
 }

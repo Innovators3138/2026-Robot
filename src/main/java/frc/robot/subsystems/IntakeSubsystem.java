@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
@@ -15,7 +14,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -90,10 +88,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Command setAngularVelocity(AngularVelocity angularVelocity) {
-    return Commands.sequence(
-            intake.setSpeed(angularVelocity).until(this::isJammed),
-            intake.setSpeed(RPM.of(-900)).withTimeout(1.0))
-        .repeatedly();
+    return intake.setSpeed(angularVelocity);
   }
 
   public void openHopper() {

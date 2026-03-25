@@ -3,16 +3,19 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -26,6 +29,8 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeSubsystem extends SubsystemBase {
+  private boolean isJammed = false;
+  private final Debouncer jamDebouncer = new Debouncer(0.3);
   private final Servo hopperServo = new Servo(2);
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
@@ -51,6 +56,10 @@ public class IntakeSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(100));
 
+  public boolean isJammed() {
+    return isJammed;
+  }
+
   private SparkMax intakeMotor = new SparkMax(16, MotorType.kBrushless);
 
   private SmartMotorController intakeSmartMotorController =
@@ -68,6 +77,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     intake.updateTelemetry();
+    isJammed = jamDebouncer.calculate(true);
   }
 
   @Override
@@ -80,7 +90,10 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Command setAngularVelocity(AngularVelocity angularVelocity) {
-    return intake.setSpeed(angularVelocity);
+    return Commands.sequence(
+            intake.setSpeed(angularVelocity).until(this::isJammed),
+            intake.setSpeed(RPM.of(-900)).withTimeout(1.0))
+        .repeatedly();
   }
 
   public void openHopper() {

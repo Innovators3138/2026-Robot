@@ -119,17 +119,18 @@ public class VisionSubsystem extends SubsystemBase {
   private void updateQuestNav() {
     // trust me
     PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+    var robotPose = new Pose3d(swerveSubsystem.getPose());
 
     // Loop over the pose data frames and send them to the pose estimator
     for (PoseFrame questFrame : questFrames) {
       if (questFrame.isTracking()) {
         // Get the pose of the Quest
-        Pose3d questPose = questFrame.questPose3d();
+        Pose3d questPose3d = questFrame.questPose3d();
         // Get timestamp for when the data was sent
         double timestamp = questFrame.dataTimestamp();
 
         // Transform by the mount pose to get your robot pose
-        Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+        Pose3d questPose = robotPose.transformBy(ROBOT_TO_QUEST.inverse());
 
         // You can put some sort of filtering here if you would like!
 

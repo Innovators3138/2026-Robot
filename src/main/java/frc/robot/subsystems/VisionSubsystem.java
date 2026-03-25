@@ -34,10 +34,10 @@ public class VisionSubsystem extends SubsystemBase {
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
           new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
-  private static final Transform3d ROBOT_TO_SWERVE_CAM =
+  private static final Transform3d ROBOT_TO_FRONT_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.1798574, -0.3072384, 0.1987296),
-          new Rotation3d(0.0, 0.0, 0.78539816));
+          new edu.wpi.first.math.geometry.Translation3d(-.20320, -0.2413, 0.51435),
+          new Rotation3d(0.0, -0.174533, 0));
   private static final Transform3d ROBOT_TO_SHOOTER_CAM =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.2257806, -0.2396236, 0.378714),
@@ -54,9 +54,9 @@ public class VisionSubsystem extends SubsystemBase {
           0.1, // Trust down to 2cm in Y direction
           0.1 // Trust down to 2 degrees rotational
           );
-  public final PhotonPoseEstimator swervePoseEstimator;
+  public final PhotonPoseEstimator frontPoseEstimator;
   public final PhotonPoseEstimator shooterPoseEstimator;
-  private final PhotonCamera swerveCamera = new PhotonCamera("Arducam-2");
+  private final PhotonCamera frontCamera = new PhotonCamera("Arducam-2");
   private final PhotonCamera shooterCamera = new PhotonCamera("Arducam-1");
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
@@ -81,7 +81,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   public VisionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
-    swervePoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SWERVE_CAM);
+    frontPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_FRONT_CAM);
     shooterPoseEstimator =
         new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SHOOTER_CAM);
   }
@@ -90,7 +90,7 @@ public class VisionSubsystem extends SubsystemBase {
   public void periodic() {
 
     updateQuestNav();
-    updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator);
+    updatePose(frontCamera, swerveEstimatedPosePublisher, frontPoseEstimator);
     updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator);
   }
 

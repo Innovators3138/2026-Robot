@@ -107,7 +107,7 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger()
         .onFalse(FireCommand.unjam(feederSubsystem, hotdogSubsystem).withTimeout(0.5));
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(1500)));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(2000)));
 
     operatorXbox
         .rightTrigger()

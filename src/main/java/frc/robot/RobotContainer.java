@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,6 +49,9 @@ public class RobotContainer {
     AutoCommands.intakeChooser.addOption("No Intake", "No Intake");
     SmartDashboard.putData(AutoCommands.startingChooser);
     SmartDashboard.putData(AutoCommands.intakeChooser);
+
+    NamedCommands.registerCommand(
+        "fireCommand", FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
   }
 
   private void configureBindings() {

@@ -121,4 +121,9 @@ public class Constants {
     public static final int LED_MULTIPLIER = 2;
     public static final int TOTAL_LEDS = 48;
   }
+
+  public static final class DriveConstants {
+    public static final double TRANSLATION_SLEW_RATE = 35.0;
+    public static final double ROTATION_SLEW_RATE = 35.0;
+  }
 }

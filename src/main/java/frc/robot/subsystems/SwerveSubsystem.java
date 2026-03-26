@@ -11,7 +11,9 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -36,6 +38,7 @@ import frc.robot.Constants.FieldConstants;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -49,6 +52,19 @@ public class SwerveSubsystem extends SubsystemBase {
   public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.5);
   private boolean autoAim = false;
   private final SwerveDrive swerveDrive;
+
+  private final SlewRateLimiter xLimiter =
+      new SlewRateLimiter(Constants.DriveConstants.TRANSLATION_SLEW_RATE);
+  private final SlewRateLimiter yLimiter =
+      new SlewRateLimiter(Constants.DriveConstants.TRANSLATION_SLEW_RATE);
+  private final SlewRateLimiter rotationLimiter =
+      new SlewRateLimiter(Constants.DriveConstants.ROTATION_SLEW_RATE);
+
+  private double smoothDriveInput(DoubleSupplier input, double deadband, SlewRateLimiter limiter) {
+    var inputValue = MathUtil.applyDeadband(-input.getAsDouble(), deadband);
+
+    return limiter.calculate(inputValue);
+  }
 
   public Double targetOffset = 0.0;
 
@@ -132,12 +148,15 @@ public class SwerveSubsystem extends SubsystemBase {
     SwerveInputStream inputStream =
         SwerveInputStream.of(
                 swerveDrive,
-                () -> driverController.getLeftY() * -1,
-                () -> driverController.getLeftX() * -1)
+                () -> yLimiter.calculate(driverController.getLeftY() * -1),
+                () -> xLimiter.calculate(driverController.getLeftX() * -1))
             /* () -> driverController.getLeftY() * -0.5,
             () -> driverController.getLeftX() * -0.5)
              uncomment this for testing in the shop */
-            .withControllerRotationAxis(() -> driverController.getRightX() * -1)
+            .withControllerRotationAxis(
+                () -> {
+                  return rotationLimiter.calculate(driverController.getRightX() * -1);
+                })
             .deadband(0.05)
             .cubeTranslationControllerAxis(true)
             .cubeRotationControllerAxis(true)

@@ -105,43 +105,26 @@ public class AutoCommands {
 
   public static Command createAuto(RobotContainer robotContainer)
       throws FileVersionException, IOException, ParseException {
-    var selectedIntake = intakeChooser.getSelected();
     Command driveToShootingCommand = getShootingCommand(robotContainer);
     Command driveToLoadingCommand = getLoadingCommand(robotContainer);
 
-    return Commands.runOnce(() -> RobotContainer.intakeSubsystem.openHopper())
-        .andThen(
-            Commands.runOnce(
-                () -> {
-                  robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
-                  robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
-                }))
+    return Commands.runOnce(
+            () -> {
+              robotContainer.intakeSubsystem.openHopper();
+              robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
+              robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
+            })
         .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(900)))
-        .raceWith(driveToLoadingCommand.andThen(driveToShootingCommand))
+        .andThen(driveToLoadingCommand)
+        .andThen(driveToShootingCommand)
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
-                .withTimeout(0.5))
+                .alongWith(robotContainer.swerveSubsystem.autoAimCommand())
+                .withTimeout(0.75))
         .andThen(
             FireCommand.fire(
                 robotContainer.feederSubsystem,
                 robotContainer.hotdogSubsystem,
-                robotContainer.shooterSubsystem))
-        .andThen(
-            Commands.runOnce(
-                () -> {
-                  robotContainer.intakeSubsystem.resetServo();
-                }))
-        .andThen(
-            Commands.runOnce(
-                () -> {
-                  robotContainer.visionSubsystem.initializePose(
-                      new Pose3d(robotContainer.swerveSubsystem.getPose()));
-                }))
-        .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(900)))
-        .raceWith(driveToLoadingCommand.andThen(driveToShootingCommand))
-        .andThen(
-            FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
-                .alongWith(robotContainer.swerveSubsystem.autoAimCommand())
-                .withTimeout(0.75));
+                robotContainer.shooterSubsystem));
   }
 }

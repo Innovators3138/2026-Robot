@@ -123,7 +123,7 @@ public class Constants {
   }
 
   public static final class DriveConstants {
-    public static final double TRANSLATION_SLEW_RATE = 35.0;
-    public static final double ROTATION_SLEW_RATE = 35.0;
+    public static final double TRANSLATION_SLEW_RATE = 5.0;
+    public static final double ROTATION_SLEW_RATE = 5.0;
   }
 }

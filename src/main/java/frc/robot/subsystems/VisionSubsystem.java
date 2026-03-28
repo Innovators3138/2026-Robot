@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -25,12 +26,12 @@ public class VisionSubsystem extends SubsystemBase {
           new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
   private static final Transform3d ROBOT_TO_FRONT_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-.20320, -0.2413, 0.51435),
-          new Rotation3d(0.0, -0.174533, 0));
-  private static final Transform3d ROBOT_TO_SHOOTER_CAM =
+          new edu.wpi.first.math.geometry.Translation3d(-.218156, -0.2482, 0.498943),
+          new Rotation3d(0.0, Units.degreesToRadians(15), 0));
+  private static final Transform3d ROBOT_TO_REAR_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.229, 0.243, 0.379),
-          new Rotation3d(0.0, 0.0, Units.degreesToRadians(135)));
+          new edu.wpi.first.math.geometry.Translation3d(-0.300192, -.2482, 0.496084),
+          new Rotation3d(0.0, 0.0, Units.degreesToRadians(180)));
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
           0.02, // Trust down to 2cm in X direction
@@ -45,8 +46,8 @@ public class VisionSubsystem extends SubsystemBase {
           );
   public final PhotonPoseEstimator frontPoseEstimator;
   public final PhotonPoseEstimator shooterPoseEstimator;
-  private final PhotonCamera frontCamera = new PhotonCamera("Arducam-2");
-  private final PhotonCamera shooterCamera = new PhotonCamera("Arducam-1");
+  private final PhotonCamera frontCamera = new PhotonCamera("Arducam-1");
+  private final PhotonCamera rearCamera = new PhotonCamera("Arducam-2");
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
   private boolean startingPoseSet = false;
@@ -57,8 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
   public VisionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
     frontPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_FRONT_CAM);
-    shooterPoseEstimator =
-        new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SHOOTER_CAM);
+    shooterPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_REAR_CAM);
   }
 
   @Override
@@ -67,8 +67,7 @@ public class VisionSubsystem extends SubsystemBase {
     Logger.recordOutput("Subsystem/Vision/QuestIsConnected", questNav.isConnected());
     updateQuestNav();
     updatePose(frontCamera, "Subsystems/Vision/SwerveCamEstimatedPose", frontPoseEstimator);
-    updatePose(
-        shooterCamera, "Subsystems / Vision / ShooterCamEstimatedPose", shooterPoseEstimator);
+    updatePose(rearCamera, "Subsystems / Vision / ShooterCamEstimatedPose", shooterPoseEstimator);
   }
 
   private void updatePose(PhotonCamera camera, String key, PhotonPoseEstimator poseEstimator) {

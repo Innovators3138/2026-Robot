@@ -1,14 +1,31 @@
 package frc.robot.harnesses;
 
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class SwerveTestRobot extends TimedRobot {
+public class SwerveTestRobot extends LoggedRobot {
 
   private SwerveTestContainer robotContainer;
 
   public SwerveTestRobot() {
     robotContainer = new SwerveTestContainer();
+  }
+
+  @Override
+  public void robotInit() {
+    Logger.recordMetadata("Project", "2026-Robot");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter("/U/logs")); // USB stick
+      Logger.addDataReceiver(new NT4Publisher()); // live view
+    } else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
   }
 
   @Override

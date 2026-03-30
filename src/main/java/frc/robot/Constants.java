@@ -68,7 +68,7 @@ public class Constants {
       return basePosition;
     }
 
-    private static Pose2d forCurrentAllience(Pose2d bluepose) {
+    public static Pose2d forCurrentAllience(Pose2d bluepose) {
       if (!isRedAlliance()) {
         return bluepose;
       }

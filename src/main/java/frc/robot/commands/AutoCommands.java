@@ -10,8 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,36 +20,26 @@ import org.json.simple.parser.ParseException;
 
 public class AutoCommands {
   public static Pose2d BLUE_TARGET = new Pose2d(2.5, 4.3, Rotation2d.kZero);
-  public static Pose2d RED_TARGET = new Pose2d(14, 4.37278, Rotation2d.k180deg);
-  public static Pose2d RED_COLLECTION_ZONE = new Pose2d(9.0, 4.3, Rotation2d.kCW_90deg);
+
   public static Pose2d BLUE_COLLECTION_ZONE = new Pose2d(6.71, 4.3, Rotation2d.kCCW_90deg);
   public static SendableChooser<String> startingChooser = new SendableChooser<>();
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
   public double axisMultiplier;
   public static Pose2d BLUE_MIDDLE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.kZero);
-  public static Pose2d RED_MIDDLE_STARTING_POSE = new Pose2d(12.706, 4.1, Rotation2d.k180deg);
 
   public static Pose2d getLaunchPose() {
-    var basePosition = RED_TARGET;
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-      basePosition = BLUE_TARGET;
-    }
+    var basePosition = Constants.FieldConstants.forCurrentAllience(BLUE_TARGET);
+
     return basePosition;
   }
 
   public static Pose2d getMiddleStartingPose() {
-    var basePosition = RED_MIDDLE_STARTING_POSE;
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-      basePosition = BLUE_MIDDLE_STARTING_POSE;
-    }
+    var basePosition = Constants.FieldConstants.forCurrentAllience(BLUE_MIDDLE_STARTING_POSE);
     return basePosition;
   }
 
   public static Pose2d getCollectionPose() {
-    var collectionZone = RED_COLLECTION_ZONE;
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-      collectionZone = BLUE_COLLECTION_ZONE;
-    }
+    var collectionZone = Constants.FieldConstants.forCurrentAllience(BLUE_COLLECTION_ZONE);
     return collectionZone;
   }
 
@@ -90,7 +78,8 @@ public class AutoCommands {
     PathConstraints constraints =
         new PathConstraints(0.50, 0.50, Units.degreesToRadians(360), Units.degreesToRadians(360));
     if (selectedIntake.equals("Depot Intake")) {
-      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getDepot(), constraints);
+      return robotContainer.swerveSubsystem.drivetoPose(
+          Constants.FieldConstants.getDepot(), constraints);
     } else if (selectedIntake.equals("Left Intake")) {
       return AutoBuilder.pathfindThenFollowPath(
           PathPlannerPath.fromPathFile("Left Intake"), constraints);
@@ -115,7 +104,8 @@ public class AutoCommands {
               robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
             })
         .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
-        .raceWith(driveToLoadingCommand).andThen(Commands.waitSeconds(3))
+        .raceWith(driveToLoadingCommand)
+        .andThen(Commands.waitSeconds(3))
         .andThen(driveToShootingCommand)
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
@@ -123,8 +113,9 @@ public class AutoCommands {
                 .withTimeout(0.75))
         .andThen(
             FireCommand.fire(
-                robotContainer.feederSubsystem,
-                robotContainer.hotdogSubsystem,
-                robotContainer.shooterSubsystem).withTimeout(5));
+                    robotContainer.feederSubsystem,
+                    robotContainer.hotdogSubsystem,
+                    robotContainer.shooterSubsystem)
+                .withTimeout(5));
   }
 }

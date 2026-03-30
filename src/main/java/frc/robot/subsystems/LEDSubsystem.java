@@ -8,10 +8,13 @@ import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LEDConstants;
 
 public class LEDSubsystem extends SubsystemBase {
   private final CANdle candle;
+
+  private final LEDRangeController leftAimController;
+  private final LEDRangeController rightAimController;
+  private final LEDRangeController speedController;
 
   private final RGBWColor green = new RGBWColor(0, 255, 0, 0);
   private final RGBWColor red = new RGBWColor(255, 0, 0, 0);
@@ -26,6 +29,12 @@ public class LEDSubsystem extends SubsystemBase {
     this.shooterSubsystem = shooterSubsystem;
     this.swerveSubsystem = swerveSubsystem;
     this.candle = new CANdle(21);
+    leftAimController =
+        new LEDRangeController(19, 28, 45.0, false, "Subsystems/LED/LeftAim/LitLEDCount");
+    rightAimController =
+        new LEDRangeController(17, 8, 45.0, false, "Subsystems/LED/RightAim/LitLEDCount");
+    speedController =
+        new LEDRangeController(29, 48, 3000.0, true, "Subsystems/LED/Speed/LitLEDCount");
   }
 
   private double getGetSetpointAccuracyPercentage() {
@@ -39,76 +48,22 @@ public class LEDSubsystem extends SubsystemBase {
     return percentage;
   }
 
-  private void postTheColors() {
-    var percentage = getGetSetpointAccuracyPercentage();
-    var led = LEDConstants.LED_SPEED_NUMBER;
-    var level = (int) (percentage * led);
-    RGBWColor color;
-    var startOffset = LEDConstants.LED_ANGLE_NUMBER;
-    if (percentage > 1) {
-      color = red;
-      level = 20;
-    } else {
-      color = green;
-    }
-    candle.setControl(new SolidColor(startOffset + 1, startOffset + level + 8).withColor(color));
-    flywheelLEDPublisher.set(level);
-  }
-
-  private void shooterAimLEDs() {
-    var hubAngle = (int) swerveSubsystem.calculateHubAngle();
-    var deadZoneLimit = LEDConstants.LED_DEADZONE / 2;
-    var startOffset = 7;
-    int start;
-    int end;
-    int amount;
-    int multiplier = LEDConstants.LED_MULTIPLIER;
-    int increment = LEDConstants.LED_INCREMENT;
-    // make sure LED_ANGLE_NUMBER is an odd number so there is a middle value
-    int frontHalfEnd = LEDConstants.LED_ANGLE_NUMBER / 2;
-    int middle = frontHalfEnd + startOffset + 1;
-    int backHalfStart = middle + 1;
-    int realAmount;
-    if (hubAngle < 45 && hubAngle > 45) {
-
-      if (hubAngle >= -deadZoneLimit && hubAngle <= deadZoneLimit) {
-        start = middle;
-        end = middle;
-
-      } else if (hubAngle < -deadZoneLimit) {
-
-        amount = Math.abs(hubAngle) / increment;
-        realAmount = amount * multiplier;
-        if (amount > 5) {
-          amount = 5;
-        }
-        start = middle - realAmount;
-        end = frontHalfEnd;
-      } else if (hubAngle > deadZoneLimit) {
-        amount = Math.abs(hubAngle) / increment;
-        if (amount > 5) {
-          amount = 5;
-        }
-        start = backHalfStart;
-        end = amount * multiplier + middle;
-      } else {
-        start = 0;
-        end = 0;
-      }
-    } else if (hubAngle > 45) {
-      start = 8;
-      end = frontHalfEnd + 7;
-
-    } else {
-      start = backHalfStart;
-      end = middle + frontHalfEnd;
-    }
-    candle.setControl(new SolidColor(start, end).withColor(green));
-  }
-
   @Override
   public void periodic() {
-    postTheColors();
-    shooterAimLEDs();
+    candle.setControl(new SolidColor(18, 18).withColor(green));
+
+    double hubAngle = swerveSubsystem.calculateHubAngle();
+    leftAimController.update(candle, hubAngle);
+    rightAimController.update(candle, -hubAngle);
+
+    double speedSetpoint =
+        shooterSubsystem.getAngularVelocitySetpoint().map(s -> s.in(RPM)).orElse(0.0);
+
+    if (speedSetpoint == 0) {
+      speedController.disable(candle);
+    } else {
+      double speedError = speedSetpoint - shooterSubsystem.getRealAngularVelocity().in(RPM);
+      speedController.update(candle, speedError);
+    }
   }
 }

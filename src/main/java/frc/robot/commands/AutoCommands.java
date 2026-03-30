@@ -29,7 +29,7 @@ public class AutoCommands {
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
   public double axisMultiplier;
   public static Pose2d BLUE_MIDDLE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.kZero);
-  public static Pose2d RED_MIDDLE_STARTING_POSE = new Pose2d(12.706, 4.1, Rotation2d.k180deg);
+  public static Pose2d RED_MIDDLE_STARTING_POSE = new Pose2d(12.706, 4, Rotation2d.k180deg);
 
   public static Pose2d getLaunchPose() {
     var basePosition = RED_TARGET;

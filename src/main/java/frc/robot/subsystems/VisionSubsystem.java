@@ -1,21 +1,20 @@
 package frc.robot.subsystems;
 
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
@@ -25,14 +24,14 @@ public class VisionSubsystem extends SubsystemBase {
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
           new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
-  private static final Transform3d ROBOT_TO_SWERVE_CAM =
+  private static final Transform3d ROBOT_TO_FRONT_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.1798574, -0.3072384, 0.1987296),
-          new Rotation3d(0.0, 0.0, 0.78539816));
-  private static final Transform3d ROBOT_TO_SHOOTER_CAM =
+          new edu.wpi.first.math.geometry.Translation3d(-.218156, -0.2482, 0.498943),
+          new Rotation3d(0.0, Units.degreesToRadians(-15), 0));
+  private static final Transform3d ROBOT_TO_REAR_CAM =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.2257806, -0.2396236, 0.378714),
-          new Rotation3d(0.0, 0.0, 2.35619449));
+          new edu.wpi.first.math.geometry.Translation3d(-0.300192, -.2482, 0.496084),
+          new Rotation3d(0.0, 0.0, Units.degreesToRadians(180)));
   private static final Matrix<N3, N1> QUESTNAV_STD_DEVS =
       VecBuilder.fill(
           0.02, // Trust down to 2cm in X direction
@@ -45,11 +44,10 @@ public class VisionSubsystem extends SubsystemBase {
           0.1, // Trust down to 2cm in Y direction
           0.1 // Trust down to 2 degrees rotational
           );
-  public final PhotonPoseEstimator swervePoseEstimator;
+  public final PhotonPoseEstimator frontPoseEstimator;
   public final PhotonPoseEstimator shooterPoseEstimator;
-  public RobotContainer robotContainer;
-  private final PhotonCamera swerveCamera = new PhotonCamera("Arducam_OV9281_USB_Camera");
-  private final PhotonCamera shooterCamera = new PhotonCamera("Arducam_OV9281_USB_Camera_2");
+  private final PhotonCamera frontCamera = new PhotonCamera("Arducam-1");
+  private final PhotonCamera rearCamera = new PhotonCamera("Arducam-2");
   private final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
   private boolean startingPoseSet = false;
@@ -57,68 +55,59 @@ public class VisionSubsystem extends SubsystemBase {
   public static final AprilTagFieldLayout fieldLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-  private final StructPublisher<Pose2d> swerveEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/SwerveCamEstimatedPose", Pose2d.struct)
-          .publish();
-
-  private final StructPublisher<Pose2d> shooterEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/ShooterCamEstimatedPose", Pose2d.struct)
-          .publish();
-  private final StructPublisher<Pose2d> questEstimatedPosePublisher =
-      NetworkTableInstance.getDefault()
-          .getStructTopic("Subsystems/Vision/QuestEstimatedPose", Pose2d.struct)
-          .publish();
-
   public VisionSubsystem(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
-    swervePoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SWERVE_CAM);
-    shooterPoseEstimator =
-        new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_SHOOTER_CAM);
+    frontPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_FRONT_CAM);
+    shooterPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_REAR_CAM);
   }
 
   @Override
   public void periodic() {
-
+    Logger.recordOutput("Subsystems/Vision/Quest Pose Set", startingPoseSet);
+    Logger.recordOutput("Subsystem/Vision/QuestIsConnected", questNav.isConnected());
     updateQuestNav();
-    updatePose(swerveCamera, swerveEstimatedPosePublisher, swervePoseEstimator, robotContainer);
-    updatePose(shooterCamera, shooterEstimatedPosePublisher, shooterPoseEstimator, robotContainer);
+    updatePose(frontCamera, "Subsystems/Vision/SwerveCamEstimatedPose", frontPoseEstimator);
+    updatePose(rearCamera, "Subsystems / Vision / ShooterCamEstimatedPose", shooterPoseEstimator);
   }
 
-  private void updatePose(
-      PhotonCamera camera,
-      StructPublisher<Pose2d> publisher,
-      PhotonPoseEstimator poseEstimator,
-      RobotContainer robotContainer) {
+  private void updatePose(PhotonCamera camera, String key, PhotonPoseEstimator poseEstimator) {
     var resultsList = camera.getAllUnreadResults();
     for (var change : resultsList) {
-      var bestTarget = change.getBestTarget();
-      var tagCount = change.getTargets().size();
-      var ambiguity = bestTarget.getPoseAmbiguity();
-      var distance = bestTarget.getBestCameraToTarget().getTranslation().getNorm();
+      if (change.hasTargets()) {
+        var bestTarget = change.getBestTarget();
 
-      if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
-        var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
+        Logger.recordOutput("Subsystems/Vision/BestTarget", bestTarget.getFiducialId());
 
-        visionEst.ifPresent(
-            estimate -> {
-              var estimatedPose = estimate.estimatedPose.toPose2d();
+        var tagCount = change.getTargets().size();
+        var ambiguity = bestTarget.getPoseAmbiguity();
+        var distance = bestTarget.getBestCameraToTarget().getTranslation().getNorm();
+        Logger.recordOutput("Subsystems/Vision/TagCount", tagCount);
+        Logger.recordOutput("Subsystems/Vision/Ambiguity", ambiguity);
+        Logger.recordOutput("Subsystems/Vision/Distance", distance);
+        if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
+          var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
 
-              var changeInDistance =
-                  swerveSubsystem
-                      .getPose()
-                      .getTranslation()
-                      .getDistance(estimatedPose.getTranslation());
-              if ((startingPoseSet == true && changeInDistance < 1 || startingPoseSet == false)) {
-                swerveSubsystem.addVisionMeasurement(
-                    estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
-                if (startingPoseSet == false
-                    || robotContainer.driverXbox.start().getAsBoolean() == true) {
-                  initializePose(estimate.estimatedPose);
+          if (visionEst.isEmpty()) {
+            visionEst = poseEstimator.estimateLowestAmbiguityPose(change);
+          }
+
+          visionEst.ifPresent(
+              estimate -> {
+                var estimatedPose = estimate.estimatedPose.toPose2d();
+
+                var changeInDistance =
+                    swerveSubsystem
+                        .getPose()
+                        .getTranslation()
+                        .getDistance(estimatedPose.getTranslation());
+                Logger.recordOutput(key, estimatedPose);
+
+                if ((startingPoseSet == true && changeInDistance < 1 || startingPoseSet == false)) {
+                  swerveSubsystem.addVisionMeasurement(
+                      estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
                 }
-              }
-            });
+              });
+        }
       }
     }
   }
@@ -133,26 +122,28 @@ public class VisionSubsystem extends SubsystemBase {
     for (PoseFrame questFrame : questFrames) {
       if (questFrame.isTracking()) {
         // Get the pose of the Quest
-        Pose3d questPose = questFrame.questPose3d();
+        Pose3d questPose3d = questFrame.questPose3d();
         // Get timestamp for when the data was sent
         double timestamp = questFrame.dataTimestamp();
 
         // Transform by the mount pose to get your robot pose
-        Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
+        Pose3d questPose = questPose3d.transformBy(ROBOT_TO_QUEST.inverse());
 
         // You can put some sort of filtering here if you would like!
 
         // Add the measurement to our estimator
-        var quest2DPose = robotPose.toPose2d();
-        swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
-        questEstimatedPosePublisher.set(quest2DPose);
+        var quest2DPose = questPose.toPose2d();
+        Logger.recordOutput("Subsystems/Vision/QuestEstimatedPose", quest2DPose);
+        if (startingPoseSet == true) {
+          // swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
+        }
       }
     }
   }
 
   public void initializePose(Pose3d initialPose) {
 
-    if (questNav.isConnected() && !startingPoseSet) {
+    if (questNav.isConnected()) {
       questNav.setPose(initialPose);
       startingPoseSet = true;
     }

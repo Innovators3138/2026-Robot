@@ -75,7 +75,11 @@ public class FireCommand extends Command {
                   } else {
                     return RPM.of(0);
                   }
-                }));
+                })).finallyDo(()-> {
+                  feedersubsystem.setFeederAngularVelocity(RPM.of(0));
+                  hotdogsubsystem.setHotdogAngularVelocity(RPM.of(0));
+                  shooterSubsystem.setAngularVelocity(RPM.of(0));
+                });
   }
 
   public static Command pass(

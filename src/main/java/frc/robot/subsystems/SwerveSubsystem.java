@@ -148,13 +148,20 @@ public class SwerveSubsystem extends SubsystemBase {
     SwerveInputStream inputStream =
         SwerveInputStream.of(
                 swerveDrive,
-                () -> yLimiter.calculate(driverController.getLeftY() * -1),
-                () -> xLimiter.calculate(driverController.getLeftX() * -1))
+                () -> {
+                  return driverController.getLeftY() * -1;
+                  //return yLimiter.calculate(driverController.getLeftY() * -1);
+                },
+                () -> {
+                return driverController.getLeftX() * -1;
+                  //return xLimiter.calculate(driverController.getLeftX() * -1);
+                })
             /* () -> driverController.getLeftY() * -0.5,
             () -> driverController.getLeftX() * -0.5)
              uncomment this for testing in the shop */
             .withControllerRotationAxis(
                 () -> {
+                  //return driverController.getRightX() * -1;
                   return rotationLimiter.calculate(driverController.getRightX() * -1);
                 })
             .deadband(0.05)
@@ -267,9 +274,12 @@ public class SwerveSubsystem extends SubsystemBase {
             MAX_ACCELERATION.in(MetersPerSecondPerSecond),
             swerveDrive.getMaximumChassisAngularVelocity(),
             Units.degreesToRadians(720));
-    return AutoBuilder.pathfindToPose(pose, constraints, MetersPerSecond.of(0));
+    return drivetoPose(pose, constraints);
   }
+  public Command drivetoPose(Pose2d pose, PathConstraints pathConstraints) {
 
+    return AutoBuilder.pathfindToPose(pose, pathConstraints, MetersPerSecond.of(0));
+  }
   public double calculateHubAngle() {
     var hubPose = Constants.FieldConstants.getHub();
     var robotPose = getPose();

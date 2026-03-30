@@ -64,7 +64,7 @@ public class RobotContainer {
               if ((setpoint) > -0.05) {
                 return RPM.of(0);
               } else {
-                return RPM.of(setpoint * -3000);
+                return RPM.of(setpoint * -5000);
               }
             }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
@@ -107,7 +107,7 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger()
         .onFalse(FireCommand.unjam(feederSubsystem, hotdogSubsystem).withTimeout(1));
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(2000)));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(2500)));
 
     operatorXbox
         .rightTrigger()

@@ -88,9 +88,9 @@ public class AutoCommands {
       throws FileVersionException, IOException, ParseException {
     var selectedIntake = intakeChooser.getSelected();
     PathConstraints constraints =
-        new PathConstraints(5.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
+        new PathConstraints(0.50, 0.50, Units.degreesToRadians(360), Units.degreesToRadians(360));
     if (selectedIntake.equals("Depot Intake")) {
-      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getDepot());
+      return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getDepot(), constraints);
     } else if (selectedIntake.equals("Left Intake")) {
       return AutoBuilder.pathfindThenFollowPath(
           PathPlannerPath.fromPathFile("Left Intake"), constraints);
@@ -114,8 +114,8 @@ public class AutoCommands {
               robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
               robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
             })
-        .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(900)))
-        .raceWith(driveToLoadingCommand)
+        .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
+        .raceWith(driveToLoadingCommand).andThen(Commands.waitSeconds(3))
         .andThen(driveToShootingCommand)
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
@@ -125,6 +125,6 @@ public class AutoCommands {
             FireCommand.fire(
                 robotContainer.feederSubsystem,
                 robotContainer.hotdogSubsystem,
-                robotContainer.shooterSubsystem));
+                robotContainer.shooterSubsystem).withTimeout(5));
   }
 }

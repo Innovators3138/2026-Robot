@@ -16,7 +16,7 @@ public class SwerveTestContainer {
     driverXbox.start().onTrue(swerveSubsystem.resetOdometry());
     driverXbox
         .a()
-        .onTrue(swerveSubsystem.drivetoPose(new Pose2d(13.5, 4.037, Rotation2d.fromDegrees(180))));
+        .onTrue(swerveSubsystem.drivetoPose(new Pose2d(2.5, 4.037, Rotation2d.fromDegrees(0))));
 
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveRobotOriented(driverXbox, operatorXbox));
   }

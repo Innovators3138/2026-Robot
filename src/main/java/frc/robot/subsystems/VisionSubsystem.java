@@ -27,7 +27,7 @@ public class VisionSubsystem extends SubsystemBase {
   private static final Transform3d ROBOT_TO_FRONT_CAM =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-.218156, -0.2482, 0.498943),
-          new Rotation3d(0.0, Units.degreesToRadians(15), 0));
+          new Rotation3d(0.0, Units.degreesToRadians(-15), 0));
   private static final Transform3d ROBOT_TO_REAR_CAM =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.300192, -.2482, 0.496084),
@@ -117,7 +117,6 @@ public class VisionSubsystem extends SubsystemBase {
   private void updateQuestNav() {
     // trust me
     PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
-    var robotPose = new Pose3d(swerveSubsystem.getPose());
 
     // Loop over the pose data frames and send them to the pose estimator
     for (PoseFrame questFrame : questFrames) {
@@ -128,12 +127,12 @@ public class VisionSubsystem extends SubsystemBase {
         double timestamp = questFrame.dataTimestamp();
 
         // Transform by the mount pose to get your robot pose
-        Pose3d questPose = robotPose.transformBy(ROBOT_TO_QUEST.inverse());
+        Pose3d questPose = questPose3d.transformBy(ROBOT_TO_QUEST.inverse());
 
         // You can put some sort of filtering here if you would like!
 
         // Add the measurement to our estimator
-        var quest2DPose = robotPose.toPose2d();
+        var quest2DPose = questPose.toPose2d();
         Logger.recordOutput("Subsystems/Vision/QuestEstimatedPose", quest2DPose);
         if (startingPoseSet == true) {
           // swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);

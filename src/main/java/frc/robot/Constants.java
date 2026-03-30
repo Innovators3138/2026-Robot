@@ -13,7 +13,7 @@ public class Constants {
 
   public static final class FieldConstants {
     public static Pose2d BLUE_HUB = new Pose2d(4.625594, 4.034663, Rotation2d.kZero);
-    public static Pose2d RED_HUB = new Pose2d(11.915394, 4.034663, Rotation2d.kZero);
+
     public static Pose2d BLUE_STARTING_POSITION = new Pose2d(1, 1, Rotation2d.kZero);
     public static Pose2d KZERO = new Pose2d(1, 1.0, Rotation2d.kZero);
     public static Pose2d BLUE_DEPOT = new Pose2d(0.95, 5.833, Rotation2d.k180deg);

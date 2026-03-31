@@ -13,6 +13,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -35,7 +36,7 @@ public class FeederSubsystem extends SubsystemBase {
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(40), RotationsPerSecondPerSecond.of(50))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.1, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.133, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.25, 0))
           // Telemetry name and verbosity level
           .withTelemetry("FeederMotor", TelemetryVerbosity.HIGH)
@@ -46,7 +47,7 @@ public class FeederSubsystem extends SubsystemBase {
           // You could also use .withGearing(12) which does the same thing.
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(2)))
           // Motor properties to prevent over currenting.
-          .withMotorInverted(false)
+          .withMotorInverted(true)
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(40));
 
@@ -80,5 +81,9 @@ public class FeederSubsystem extends SubsystemBase {
 
   public Command setFeederAngularVelocity(AngularVelocity angularVelocity) {
     return feeder.setSpeed(angularVelocity);
+  }
+
+  public Command setFeederAngularVelocity(Supplier<AngularVelocity> angularVelocitySupplier) {
+    return feeder.setSpeed(angularVelocitySupplier);
   }
 }

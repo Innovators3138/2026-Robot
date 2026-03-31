@@ -5,63 +5,49 @@
     {
       "name": "Teleoperated",
       "grid_layout": {
-        "layouts": [
-          {
-            "title": "BatterySim",
-            "x": 1152.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "BatteryVoltage (Volts)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Voltage View",
-                "properties": {
-                  "topic": "/SmartDashboard/BatterySim/BatteryVoltage (Volts)",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": 4.0,
-                  "max_value": 13.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
-                }
-              },
-              {
-                "title": "TotalCurrent (Amps)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Number Bar",
-                "properties": {
-                  "topic": "/SmartDashboard/BatterySim/TotalCurrent (Amps)",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "min_value": -1.0,
-                  "max_value": 1.0,
-                  "divisions": 5,
-                  "inverted": false,
-                  "orientation": "horizontal"
-                }
-              }
-            ]
-          }
-        ],
+        "layouts": [],
         "containers": [
           {
-            "title": "Field",
-            "x": 1408.0,
+            "title": "swerve",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "YAGSL Swerve Drive",
+            "properties": {
+              "topic": "/SmartDashboard/swerve",
+              "period": 0.06,
+              "show_robot_rotation": true,
+              "show_desired_states": true,
+              "angle_offset": 0.0
+            }
+          },
+          {
+            "title": "Shooter",
+            "x": 0.0,
             "y": 0.0,
-            "width": 1152.0,
+            "width": 512.0,
+            "height": 512.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/Mechanisms/ShooterMech/ShooterMotor/mechanism/velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 100.0,
+              "number_of_labels": 12,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "Field",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 768.0,
             "height": 512.0,
             "type": "Field",
             "properties": {
@@ -79,39 +65,132 @@
             }
           },
           {
-            "title": "swerve",
-            "x": 1152.0,
-            "y": 256.0,
+            "title": "Intake",
+            "x": 0.0,
+            "y": 512.0,
             "width": 256.0,
             "height": 256.0,
-            "type": "YAGSL Swerve Drive",
+            "type": "Radial Gauge",
             "properties": {
-              "topic": "/SmartDashboard/swerve",
-              "period": 0.06,
-              "show_robot_rotation": true,
-              "show_desired_states": true,
-              "angle_offset": 0.0
+              "topic": "/Mechanisms/IntakeMech/IntakeMotor/mechanism/velocity",
+              "period": 0.033,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 20.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
             }
           },
           {
-            "title": "velocity",
-            "x": 640.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 512.0,
+            "title": "Hotdog",
+            "x": 256.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
             "type": "Radial Gauge",
             "properties": {
-              "topic": "/Mechanisms/ShooterMech/ShooterMotor/rotor/velocity",
+              "topic": "/Mechanisms/HotdogMech/HotdogMotor/mechanism/velocity",
               "period": 0.06,
               "data_type": "double",
               "start_angle": -140.0,
               "end_angle": 140.0,
               "min_value": 0.0,
-              "max_value": 100.0,
-              "number_of_labels": 12,
+              "max_value": 10.0,
+              "number_of_labels": 8,
               "wrap_value": false,
               "show_pointer": true,
               "show_ticks": true
+            }
+          },
+          {
+            "title": "Feeder",
+            "x": 512.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
+            "properties": {
+              "topic": "/Mechanisms/FeederMech/FeederMotor/mechanism/velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 50.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
+            }
+          },
+          {
+            "title": "Distance In Inches",
+            "x": 768.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Command/FireCommand/DistanceInInches",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "BatteryVoltage",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Voltage View",
+            "properties": {
+              "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 13.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Robot",
+            "x": 1024.0,
+            "y": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RadioStatus/Connected",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Quest",
+            "x": 1152.0,
+            "y": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Subsystem/Vision/QuestIsConnected",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
@@ -123,19 +202,67 @@
         "layouts": [],
         "containers": [
           {
-            "title": "SendableChooser[0]",
-            "x": 640.0,
+            "title": "Start",
+            "x": 512.0,
             "y": 0.0,
-            "width": 512.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/SendableChooser[0]",
+              "topic": "/SmartDashboard/SendableChooser[1]",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Intake",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/SendableChooser[2]",
               "period": 0.06,
               "sort_options": false
             }
           }
         ]
+      }
+    },
+    {
+      "name": "Tab 3",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "HotdogSubsystem",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Live Tuning",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Mechanisms/Commands/HotdogSubsystem/Live Tuning",
+                  "period": 0.06,
+                  "show_type": true,
+                  "maximize_button_space": false
+                }
+              }
+            ]
+          }
+        ],
+        "containers": []
       }
     }
   ]

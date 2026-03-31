@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.harnesses.SwerveTestRobot;
 
 public final class Main {
   private Main() {}

@@ -105,12 +105,12 @@ public class AutoCommands {
             })
         .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
         .raceWith(driveToLoadingCommand)
-        .andThen(Commands.waitSeconds(3))
+        .andThen(Commands.waitSeconds(1))
         .andThen(driveToShootingCommand)
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
                 .alongWith(robotContainer.swerveSubsystem.autoAimCommand())
-                .withTimeout(0.75))
+                .withTimeout(1.5))
         .andThen(
             FireCommand.fire(
                     robotContainer.feederSubsystem,

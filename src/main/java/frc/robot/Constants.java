@@ -21,7 +21,7 @@ public class Constants {
     public static Pose2d BLUE_SHOOT_LEFT = new Pose2d(2.052, 2.688, Rotation2d.fromDegrees(32.07));
     public static Pose2d BLUE_SHOOT_MIDDLE = new Pose2d(2.5, 4.037, Rotation2d.fromDegrees(0));
     public static Pose2d BLUE_START_RIGHT = new Pose2d(3.6, 1.97, Rotation2d.kZero);
-
+    public static Pose2d BLUE_MIDDLE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.kZero);
     public static Pose2d BLUE_START_LEFT = new Pose2d(3.6, 6.115, Rotation2d.k180deg);
 
     public static Pose2d getRightShoot() {

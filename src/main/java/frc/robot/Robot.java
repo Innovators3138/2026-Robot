@@ -3,27 +3,39 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.pathplanner.lib.util.FileVersionException;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.simulation.ClimberSimulator;
 import frc.robot.simulation.ShotSimulator;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
 
   private ShotSimulator shotSimulator;
-  private ClimberSimulator climberSimulator;
 
   public Robot() {
     robotContainer = new RobotContainer();
   }
 
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    Logger.recordMetadata("Project", "2026-Robot");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter("/U/logs")); // USB stick
+      Logger.addDataReceiver(new NT4Publisher()); // live view
+    } else {
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+  }
 
   @Override
   public void robotPeriodic() {
@@ -35,6 +47,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {}
+
+  @Override
+  public void autonomousPeriodic() {}
 
   @Override
   public void autonomousInit() {
@@ -50,9 +65,6 @@ public class Robot extends TimedRobot {
       ;
     }
   }
-
-  @Override
-  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
@@ -78,13 +90,11 @@ public class Robot extends TimedRobot {
         new ShotSimulator(
             robotContainer, robotContainer.feederSubsystem, robotContainer.swerveSubsystem);
     shotSimulator.generateBalls();
-    climberSimulator = new ClimberSimulator(robotContainer.climberSubsystem);
   }
 
   @Override
   public void simulationPeriodic() {
     var dt = Seconds.of(getPeriod());
     shotSimulator.update(dt);
-    climberSimulator.update(dt);
   }
 }

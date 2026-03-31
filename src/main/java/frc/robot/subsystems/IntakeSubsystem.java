@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Servo;
@@ -26,17 +27,19 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeSubsystem extends SubsystemBase {
+  private boolean isJammed = false;
+  private final Debouncer jamDebouncer = new Debouncer(0.3);
   private final Servo hopperServo = new Servo(2);
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
+              0.05, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.265, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
           // Telemetry name and verbosity level
           .withTelemetry("IntakeMotor", TelemetryVerbosity.HIGH)
@@ -45,13 +48,17 @@ public class IntakeSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(4)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(2)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
-          .withStatorCurrentLimit(Amps.of(40));
+          .withStatorCurrentLimit(Amps.of(100));
 
-  private SparkMax intakeMotor = new SparkMax(4, MotorType.kBrushless);
+  public boolean isJammed() {
+    return isJammed;
+  }
+
+  private SparkMax intakeMotor = new SparkMax(16, MotorType.kBrushless);
 
   private SmartMotorController intakeSmartMotorController =
       new SparkWrapper(intakeMotor, DCMotor.getNEO(1), smcConfig);
@@ -68,6 +75,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     intake.updateTelemetry();
+    isJammed = jamDebouncer.calculate(true);
   }
 
   @Override
@@ -85,5 +93,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void openHopper() {
     hopperServo.set(1.0);
+  }
+
+  public void resetServo() {
+    hopperServo.set(0);
   }
 }

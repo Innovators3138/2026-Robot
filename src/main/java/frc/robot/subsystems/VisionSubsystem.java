@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -48,7 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
   public final PhotonPoseEstimator shooterPoseEstimator;
   private final PhotonCamera frontCamera = new PhotonCamera("Arducam-1");
   private final PhotonCamera rearCamera = new PhotonCamera("Arducam-2");
-  private final QuestNav questNav = new QuestNav();
+  public final QuestNav questNav = new QuestNav();
   private final SwerveSubsystem swerveSubsystem;
   private boolean startingPoseSet = false;
 
@@ -59,6 +58,10 @@ public class VisionSubsystem extends SubsystemBase {
     this.swerveSubsystem = swerveSubsystem;
     frontPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_FRONT_CAM);
     shooterPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_REAR_CAM);
+    questNav.onCommandSuccess(
+        response -> {
+          startingPoseSet = true;
+        });
   }
 
   @Override
@@ -145,7 +148,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     if (questNav.isConnected()) {
       questNav.setPose(initialPose);
-      startingPoseSet = true;
     }
   }
 }

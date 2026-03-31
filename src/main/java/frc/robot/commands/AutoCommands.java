@@ -25,7 +25,6 @@ public class AutoCommands {
   public static SendableChooser<String> startingChooser = new SendableChooser<>();
   public static SendableChooser<String> intakeChooser = new SendableChooser<>();
   public double axisMultiplier;
-  public static Pose2d BLUE_MIDDLE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.kZero);
 
   public static Pose2d getLaunchPose() {
     var basePosition = Constants.FieldConstants.forCurrentAllience(BLUE_TARGET);
@@ -34,7 +33,9 @@ public class AutoCommands {
   }
 
   public static Pose2d getMiddleStartingPose() {
-    var basePosition = Constants.FieldConstants.forCurrentAllience(BLUE_MIDDLE_STARTING_POSE);
+    var basePosition =
+        Constants.FieldConstants.forCurrentAllience(
+            Constants.FieldConstants.BLUE_MIDDLE_STARTING_POSE);
     return basePosition;
   }
 
@@ -92,17 +93,29 @@ public class AutoCommands {
     }
   }
 
+  private static Command initializeStartingPose(RobotContainer robotContainer) {
+
+    return Commands.waitUntil(() -> robotContainer.visionSubsystem.questNav.isConnected())
+        .withTimeout(1)
+        .andThen(
+            Commands.runOnce(
+                () -> {
+                  robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
+                  robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
+                }));
+  }
+
   public static Command createAuto(RobotContainer robotContainer)
       throws FileVersionException, IOException, ParseException {
     Command driveToShootingCommand = getShootingCommand(robotContainer);
     Command driveToLoadingCommand = getLoadingCommand(robotContainer);
 
-    return Commands.runOnce(
-            () -> {
-              robotContainer.intakeSubsystem.openHopper();
-              robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
-              robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
-            })
+    return initializeStartingPose(robotContainer)
+        .andThen(
+            Commands.runOnce(
+                () -> {
+                  robotContainer.intakeSubsystem.openHopper();
+                }))
         .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
         .raceWith(driveToLoadingCommand)
         .andThen(Commands.waitSeconds(3))

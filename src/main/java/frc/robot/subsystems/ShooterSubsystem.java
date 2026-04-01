@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
               0.01, 0, 0.0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withSimClosedLoopController(
               0.05, 0, 0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.11, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.105, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.125, 0))
           .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))

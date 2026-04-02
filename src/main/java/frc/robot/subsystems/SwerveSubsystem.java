@@ -44,6 +44,8 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveInputStream;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
 
@@ -71,7 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
 
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/neo");
-
+SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try {
       swerveDrive =
           new SwerveParser(swerveJsonDirectory)
@@ -80,6 +82,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
       swerveDrive.setMaximumAllowableSpeeds(
           MAX_DRIVE_SPEED.in(MetersPerSecond), MAX_ROTATION_SPEED.in(RadiansPerSecond));
+
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }

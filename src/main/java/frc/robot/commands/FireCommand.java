@@ -27,11 +27,12 @@ public class FireCommand extends Command {
           .publish();
 
   static {
-    inchesToRPS.put(96.0, 52.5);
-    inchesToRPS.put(26.0, 40.83);
-    inchesToRPS.put(141.0, 60.833);
-    inchesToRPS.put(157.0, 62.5);
-    inchesToRPS.put(45.0, 42.5);
+   inchesToRPS.put(34.607, 41.506713); // bumper shot
+    inchesToRPS.put(62.729, 44.055893);
+    inchesToRPS.put(82.603, 48.055893);
+    inchesToRPS.put(119.194, 55.0);
+    inchesToRPS.put(158.513, 60.055893);
+    inchesToRPS.put(179.096,63.6392233333);
   }
 
   public static double flywheelOffset;

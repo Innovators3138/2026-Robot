@@ -23,7 +23,7 @@ public class LEDSubsystem extends SubsystemBase {
   public LEDSubsystem(ShooterSubsystem shooterSubsystem, SwerveSubsystem swerveSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
     this.swerveSubsystem = swerveSubsystem;
-    this.candle = new CANdle(21);
+    this.candle = new CANdle(36);
     leftAimController =
         new LEDRangeController(19, 28, 45.0, false, "Subsystems/LED/LeftAim/LitLEDCount");
     rightAimController =

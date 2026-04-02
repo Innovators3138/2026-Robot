@@ -44,7 +44,7 @@ public class AutoCommands {
     return collectionZone;
   }
 
-  private static Pose2d getStartingPosition() {
+  public static Pose2d getStartingPosition() {
     var selectedStart = startingChooser.getSelected();
     if (selectedStart.equals("Right Start")) {
 
@@ -110,20 +110,18 @@ public class AutoCommands {
     Command driveToShootingCommand = getShootingCommand(robotContainer);
     Command driveToLoadingCommand = getLoadingCommand(robotContainer);
 
-    return initializeStartingPose(robotContainer)
-        .andThen(
-            Commands.runOnce(
-                () -> {
-                  robotContainer.intakeSubsystem.openHopper();
-                }))
+    return Commands.runOnce(
+            () -> {
+              robotContainer.intakeSubsystem.openHopper();
+            })
         .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
         .raceWith(driveToLoadingCommand)
-        .andThen(Commands.waitSeconds(3))
+        .andThen(Commands.waitSeconds(1))
         .andThen(driveToShootingCommand)
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)
                 .alongWith(robotContainer.swerveSubsystem.autoAimCommand())
-                .withTimeout(0.75))
+                .withTimeout(1.5))
         .andThen(
             FireCommand.fire(
                     robotContainer.feederSubsystem,

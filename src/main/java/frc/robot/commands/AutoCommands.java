@@ -43,7 +43,7 @@ public class AutoCommands {
     return collectionZone;
   }
 
-  private static Pose2d getStartingPosition() {
+  public static Pose2d getStartingPosition() {
     var selectedStart = startingChooser.getSelected();
     if (selectedStart.equals("Right Start")) {
 
@@ -100,8 +100,6 @@ public class AutoCommands {
     return Commands.runOnce(
             () -> {
               robotContainer.intakeSubsystem.openHopper();
-              robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
-              robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
             })
         .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
         .raceWith(driveToLoadingCommand)

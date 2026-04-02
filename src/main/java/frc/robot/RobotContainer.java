@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.RPM;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
+
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,6 +54,12 @@ public class RobotContainer {
 
     NamedCommands.registerCommand(
         "fireCommand", FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
+
+
+    AutoCommands.startingChooser.onChange(command -> {
+      visionSubsystem.initializePose(new Pose3d(AutoCommands.getStartingPosition()));
+      swerveSubsystem.resetOdometry(AutoCommands.getStartingPosition());
+    });
   }
 
   private void configureBindings() {

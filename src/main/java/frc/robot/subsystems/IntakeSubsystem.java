@@ -93,8 +93,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Command openHopper() {
-    return Commands.startEnd(() -> hopperServo.setSpeed(1.0), () -> hopperServo.setSpeed(0.0))
-        .withTimeout(1);
+    return Commands.runOnce(() -> hopperServo.setPosition(1));
   }
 
   public void resetServo() {

@@ -96,7 +96,10 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/Vision/TagCount", tagCount);
         Logger.recordOutput("Subsystems/Vision/Ambiguity", ambiguity);
         Logger.recordOutput("Subsystems/Vision/Distance", distance);
-        if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
+        if (ambiguity >= 0
+            && ambiguity < 0.2
+            && distance < 18
+            && (tagCount >= 2 || distance < 3.0)) {
 
           var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
 

@@ -133,9 +133,15 @@ public class RobotContainer {
             FireCommand.targetLock(shooterSubsystem, swerveSubsystem)
                 .alongWith(swerveSubsystem.autoAimCommand()));
 
-    operatorXbox.povDown().whileTrue(Commands.runOnce(() -> intakeSubsystem.openHopper()));
+    operatorXbox.x().onTrue(intakeSubsystem.openHopper());
     operatorXbox.b().whileTrue(intakeSubsystem.setAngularVelocity(RPM.of(-900)));
-
+    driverXbox
+        .start()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  swerveSubsystem.resetOdometry(AutoCommands.getMiddleStartingPose());
+                }));
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
     }

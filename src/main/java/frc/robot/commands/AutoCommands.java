@@ -85,10 +85,9 @@ public class AutoCommands {
     PathConstraints fastConstraints =
         new PathConstraints(2, 2, Units.degreesToRadians(360), Units.degreesToRadians(360));
     if (selectedIntake.equals("Depot Intake")) {
-      return Commands.runOnce(
-              () -> {
-                robotContainer.intakeSubsystem.openHopper();
-              })
+      return robotContainer
+          .intakeSubsystem
+          .openHopper()
           .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
           .raceWith(
               robotContainer
@@ -96,10 +95,9 @@ public class AutoCommands {
                   .drivetoPose(Constants.FieldConstants.getDepot(), slowConstraints)
                   .andThen(Commands.waitSeconds(1)));
     } else if (selectedIntake.equals("Left Intake")) {
-      return Commands.runOnce(
-              () -> {
-                robotContainer.intakeSubsystem.openHopper();
-              })
+      return robotContainer
+          .intakeSubsystem
+          .openHopper()
           .andThen(Commands.waitSeconds(1))
           .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
           .raceWith(
@@ -107,10 +105,9 @@ public class AutoCommands {
                   PathPlannerPath.fromPathFile("Left Intake"), fastConstraints));
     } else if (selectedIntake.equals("Right Intake")) {
 
-      return Commands.runOnce(
-              () -> {
-                robotContainer.intakeSubsystem.openHopper();
-              })
+      return robotContainer
+          .intakeSubsystem
+          .openHopper()
           .andThen(Commands.waitSeconds(1))
           .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
           .raceWith(

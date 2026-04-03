@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
@@ -22,7 +23,8 @@ public class VisionSubsystem extends SubsystemBase {
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
-          new Rotation3d(0.0, 0.0, 4.71238898)); // Adjust these values based on your mounting
+          new Rotation3d(
+              0.0, 0.0, Units.degreesToRadians(-90))); // Adjust these values based on your mounting
   private static final Transform3d ROBOT_TO_FRONT_CAM =
       new Transform3d(
           new edu.wpi.first.math.geometry.Translation3d(-.218156, -0.2482, 0.498943),
@@ -58,19 +60,26 @@ public class VisionSubsystem extends SubsystemBase {
     this.swerveSubsystem = swerveSubsystem;
     frontPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_FRONT_CAM);
     shooterPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_REAR_CAM);
+
     questNav.onCommandSuccess(
         response -> {
           startingPoseSet = true;
+          System.out.println("Pose reset succeeded for command ID: " + response.getCommandId());
         });
+
+    questNav.onCommandFailure(
+        response ->
+            DriverStation.reportError("Pose reset failed: " + response.getErrorMessage(), false));
   }
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Subsystems/Vision/Quest Pose Set", startingPoseSet);
-    Logger.recordOutput("Subsystem/Vision/QuestIsConnected", questNav.isConnected());
+    questNav.commandPeriodic();
+    Logger.recordOutput("Subsystems/Vision/QuestIsConnected", questNav.isConnected());
+    Logger.recordOutput("Subsystems/Vision/QuestPoseSet", startingPoseSet);
     updateQuestNav();
     updatePose(frontCamera, "Subsystems/Vision/SwerveCamEstimatedPose", frontPoseEstimator);
-    updatePose(rearCamera, "Subsystems / Vision / ShooterCamEstimatedPose", shooterPoseEstimator);
+    updatePose(rearCamera, "Subsystems/Vision/ShooterCamEstimatedPose", shooterPoseEstimator);
   }
 
   private void updatePose(PhotonCamera camera, String key, PhotonPoseEstimator poseEstimator) {
@@ -88,6 +97,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Subsystems/Vision/Ambiguity", ambiguity);
         Logger.recordOutput("Subsystems/Vision/Distance", distance);
         if (ambiguity >= 0 && ambiguity < 0.2 && (tagCount >= 2 || distance < 3.0)) {
+
           var visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
 
           if (visionEst.isEmpty()) {
@@ -109,6 +119,9 @@ public class VisionSubsystem extends SubsystemBase {
                   swerveSubsystem.addVisionMeasurement(
                       estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
                 }
+                if (ambiguity >= 0 && ambiguity < 0.05 && tagCount >= 2) {
+                  questNav.setPose(estimate.estimatedPose.transformBy(ROBOT_TO_QUEST));
+                }
               });
         }
       }
@@ -120,6 +133,13 @@ public class VisionSubsystem extends SubsystemBase {
   private void updateQuestNav() {
     // trust me
     PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+
+    questNav
+        .getBatteryPercent()
+        .ifPresent(
+            battery -> {
+              Logger.recordOutput("Subsystems/Vision/QuestBattery", battery);
+            });
 
     // Loop over the pose data frames and send them to the pose estimator
     for (PoseFrame questFrame : questFrames) {
@@ -145,9 +165,10 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   public void initializePose(Pose3d initialPose) {
-
+    startingPoseSet = false;
     if (questNav.isConnected()) {
-      questNav.setPose(initialPose);
+      questNav.setPose(initialPose.transformBy(ROBOT_TO_QUEST));
+      Logger.recordOutput("Subsystems/Vision/QuestResetPose", initialPose.toPose2d());
     }
   }
 }

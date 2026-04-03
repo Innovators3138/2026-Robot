@@ -23,6 +23,17 @@ public class Constants {
     public static Pose2d BLUE_START_RIGHT = new Pose2d(3.6, 1.97, Rotation2d.kZero);
     public static Pose2d BLUE_MIDDLE_STARTING_POSE = new Pose2d(3.509, 4, Rotation2d.kZero);
     public static Pose2d BLUE_START_LEFT = new Pose2d(3.6, 6.115, Rotation2d.k180deg);
+    public static Pose2d BLUE_TRENCH_START_LEFT = new Pose2d(3.565, 7.596, Rotation2d.kZero);
+
+    public static Pose2d BLUE_TRENCH_START_RIGHT = new Pose2d(3.613, 0.409, Rotation2d.kZero);
+
+    public static Pose2d getLeftTrenchStart() {
+      return forCurrentAllience(BLUE_TRENCH_START_LEFT);
+    }
+
+    public static Pose2d getRightTrenchStart() {
+      return forCurrentAllience(BLUE_TRENCH_START_RIGHT);
+    }
 
     public static Pose2d getRightShoot() {
       var leftShootPosition = forCurrentAllience(BLUE_SHOOT_LEFT);

@@ -58,7 +58,7 @@ public class Robot extends LoggedRobot {
     } catch (FileVersionException | IOException | ParseException e) {
       e.printStackTrace();
     }
-    robotContainer.swerveSubsystem.resetOdometry(Constants.FieldConstants.getInitialPose());
+
 
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);

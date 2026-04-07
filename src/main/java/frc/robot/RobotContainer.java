@@ -58,7 +58,7 @@ public class RobotContainer {
 
     AutoCommands.startingChooser.onChange(
         command -> {
-          visionSubsystem.initializePose(new Pose3d(AutoCommands.getStartingPosition()));
+          visionSubsystem.resetQuestPose(new Pose3d(AutoCommands.getStartingPosition()));
           swerveSubsystem.resetOdometry(AutoCommands.getStartingPosition());
         });
   }

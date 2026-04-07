@@ -110,20 +110,13 @@ public class VisionSubsystem extends SubsystemBase {
           visionEst.ifPresent(
               estimate -> {
                 var estimatedPose = estimate.estimatedPose.toPose2d();
-
-                var changeInDistance =
-                    swerveSubsystem
-                        .getPose()
-                        .getTranslation()
-                        .getDistance(estimatedPose.getTranslation());
                 Logger.recordOutput(key, estimatedPose);
 
-                if ((startingPoseSet == true && changeInDistance < 1 || startingPoseSet == false)) {
-                  swerveSubsystem.addVisionMeasurement(
-                      estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
-                }
+                swerveSubsystem.addVisionMeasurement(
+                    estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
+
                 if (ambiguity >= 0 && ambiguity < 0.05 && tagCount >= 2) {
-                  questNav.setPose(estimate.estimatedPose.transformBy(ROBOT_TO_QUEST));
+                  resetQuestPose(estimate.estimatedPose);
                 }
               });
         }
@@ -167,7 +160,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
   }
 
-  public void initializePose(Pose3d initialPose) {
+  public void resetQuestPose(Pose3d initialPose) {
     startingPoseSet = false;
     if (questNav.isConnected()) {
       questNav.setPose(initialPose.transformBy(ROBOT_TO_QUEST));

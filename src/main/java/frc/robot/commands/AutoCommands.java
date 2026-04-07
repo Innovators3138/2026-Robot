@@ -125,7 +125,7 @@ public class AutoCommands {
         .andThen(
             Commands.runOnce(
                 () -> {
-                  robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
+                  robotContainer.visionSubsystem.resetQuestPose(new Pose3d(getStartingPosition()));
                   robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
                 }));
   }

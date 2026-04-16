@@ -52,15 +52,19 @@ public class AutoCommands {
     } else if (selectedStart.equals("Middle Start")) {
 
       return getMiddleStartingPose();
-    } else {
+    } else if (selectedStart.equals("Left Start")) {
 
       return Constants.FieldConstants.getLeftStart();
+    } else if (selectedStart.equals("Left Trench Start")) {
+      return Constants.FieldConstants.getLeftTrenchStart();
+    } else {
+      return Constants.FieldConstants.getRightTrenchStart();
     }
   }
 
   private static Command getShootingCommand(RobotContainer robotContainer) {
     var selectedStart = startingChooser.getSelected();
-    if (selectedStart.equals("Right Start")) {
+    if (selectedStart.equals("Right Start") || selectedStart.equals("Right Trench Start")) {
 
       return robotContainer.swerveSubsystem.drivetoPose(Constants.FieldConstants.getRightShoot());
     } else if (selectedStart.equals("Middle Start")) {
@@ -76,18 +80,39 @@ public class AutoCommands {
   private static Command getLoadingCommand(RobotContainer robotContainer)
       throws FileVersionException, IOException, ParseException {
     var selectedIntake = intakeChooser.getSelected();
-    PathConstraints constraints =
+    PathConstraints slowConstraints =
         new PathConstraints(0.50, 0.50, Units.degreesToRadians(360), Units.degreesToRadians(360));
+    PathConstraints fastConstraints =
+        new PathConstraints(2, 2, Units.degreesToRadians(360), Units.degreesToRadians(360));
     if (selectedIntake.equals("Depot Intake")) {
-      return robotContainer.swerveSubsystem.drivetoPose(
-          Constants.FieldConstants.getDepot(), constraints);
+      return robotContainer
+          .intakeSubsystem
+          .openHopper()
+          .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
+          .raceWith(
+              robotContainer
+                  .swerveSubsystem
+                  .drivetoPose(Constants.FieldConstants.getDepot(), slowConstraints)
+                  .andThen(Commands.waitSeconds(1)));
     } else if (selectedIntake.equals("Left Intake")) {
-      return AutoBuilder.pathfindThenFollowPath(
-          PathPlannerPath.fromPathFile("Left Intake"), constraints);
+      return robotContainer
+          .intakeSubsystem
+          .openHopper()
+          .andThen(Commands.waitSeconds(1))
+          .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
+          .raceWith(
+              AutoBuilder.pathfindThenFollowPath(
+                  PathPlannerPath.fromPathFile("Left Intake"), fastConstraints));
     } else if (selectedIntake.equals("Right Intake")) {
 
-      return AutoBuilder.pathfindThenFollowPath(
-          PathPlannerPath.fromPathFile("Right Intake"), constraints);
+      return robotContainer
+          .intakeSubsystem
+          .openHopper()
+          .andThen(Commands.waitSeconds(1))
+          .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
+          .raceWith(
+              AutoBuilder.pathfindThenFollowPath(
+                  PathPlannerPath.fromPathFile("Right Intake"), fastConstraints));
     } else {
       return Commands.none();
     }
@@ -100,7 +125,7 @@ public class AutoCommands {
         .andThen(
             Commands.runOnce(
                 () -> {
-                  robotContainer.visionSubsystem.initializePose(new Pose3d(getStartingPosition()));
+                  robotContainer.visionSubsystem.resetQuestPose(new Pose3d(getStartingPosition()));
                   robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
                 }));
   }
@@ -110,13 +135,7 @@ public class AutoCommands {
     Command driveToShootingCommand = getShootingCommand(robotContainer);
     Command driveToLoadingCommand = getLoadingCommand(robotContainer);
 
-    return Commands.runOnce(
-            () -> {
-              robotContainer.intakeSubsystem.openHopper();
-            })
-        .andThen(robotContainer.intakeSubsystem.setAngularVelocity(RPM.of(2500)))
-        .raceWith(driveToLoadingCommand)
-        .andThen(Commands.waitSeconds(1))
+    return driveToLoadingCommand
         .andThen(driveToShootingCommand)
         .andThen(
             FireCommand.targetLock(robotContainer.shooterSubsystem, robotContainer.swerveSubsystem)

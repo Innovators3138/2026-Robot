@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.RPM;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,17 +48,19 @@ public class RobotContainer {
     AutoCommands.intakeChooser.addOption("Depot Intake", "Depot Intake");
     AutoCommands.intakeChooser.addOption("Right Intake", "Right Intake");
     AutoCommands.intakeChooser.addOption("No Intake", "No Intake");
+    AutoCommands.startingChooser.addOption("Right Trench Start", "Right Trench Start");
+    AutoCommands.startingChooser.addOption("Left Trench Start", "Left Trench Start");
     SmartDashboard.putData(AutoCommands.startingChooser);
     SmartDashboard.putData(AutoCommands.intakeChooser);
 
     NamedCommands.registerCommand(
         "fireCommand", FireCommand.fire(feederSubsystem, hotdogSubsystem, shooterSubsystem));
 
-
-    AutoCommands.startingChooser.onChange(command -> {
-      visionSubsystem.initializePose(new Pose3d(AutoCommands.getStartingPosition()));
-      swerveSubsystem.resetOdometry(AutoCommands.getStartingPosition());
-    });
+    AutoCommands.startingChooser.onChange(
+        command -> {
+          visionSubsystem.resetQuestPose(new Pose3d(AutoCommands.getStartingPosition()));
+          swerveSubsystem.resetOdometry(AutoCommands.getStartingPosition());
+        });
   }
 
   private void configureBindings() {
@@ -132,9 +133,15 @@ public class RobotContainer {
             FireCommand.targetLock(shooterSubsystem, swerveSubsystem)
                 .alongWith(swerveSubsystem.autoAimCommand()));
 
-    operatorXbox.povDown().whileTrue(Commands.runOnce(() -> intakeSubsystem.openHopper()));
+    operatorXbox.x().onTrue(intakeSubsystem.openHopper());
     operatorXbox.b().whileTrue(intakeSubsystem.setAngularVelocity(RPM.of(-900)));
-
+    driverXbox
+        .start()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  swerveSubsystem.resetOdometry(AutoCommands.getMiddleStartingPose());
+                }));
     if (Robot.isSimulation()) {
       driverXbox.start().onTrue(swerveSubsystem.resetSimOdometry());
     }

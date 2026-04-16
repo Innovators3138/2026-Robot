@@ -14,6 +14,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -91,11 +92,11 @@ public class IntakeSubsystem extends SubsystemBase {
     return intake.setSpeed(angularVelocity);
   }
 
-  public void openHopper() {
-    hopperServo.set(1.0);
+  public Command openHopper() {
+    return Commands.runOnce(() -> hopperServo.setPosition(1));
   }
 
   public void resetServo() {
-    hopperServo.set(0);
+    hopperServo.setSpeed(0.0);
   }
 }

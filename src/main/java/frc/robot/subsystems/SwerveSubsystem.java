@@ -51,7 +51,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public static LinearVelocity MAX_DRIVE_SPEED = MetersPerSecond.of(3);
   public static LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(3);
-  public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.5);
+  public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.75);
   private boolean autoAim = false;
   private final SwerveDrive swerveDrive;
 
@@ -73,7 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
 
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/neo");
-SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try {
       swerveDrive =
           new SwerveParser(swerveJsonDirectory)
@@ -153,18 +153,18 @@ SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
                 swerveDrive,
                 () -> {
                   return driverController.getLeftY() * -1;
-                  //return yLimiter.calculate(driverController.getLeftY() * -1);
+                  // return yLimiter.calculate(driverController.getLeftY() * -1);
                 },
                 () -> {
-                return driverController.getLeftX() * -1;
-                  //return xLimiter.calculate(driverController.getLeftX() * -1);
+                  return driverController.getLeftX() * -1;
+                  // return xLimiter.calculate(driverController.getLeftX() * -1);
                 })
             /* () -> driverController.getLeftY() * -0.5,
             () -> driverController.getLeftX() * -0.5)
              uncomment this for testing in the shop */
             .withControllerRotationAxis(
                 () -> {
-                  //return driverController.getRightX() * -1;
+                  // return driverController.getRightX() * -1;
                   return rotationLimiter.calculate(driverController.getRightX() * -1);
                 })
             .deadband(0.05)
@@ -279,10 +279,12 @@ SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
             Units.degreesToRadians(720));
     return drivetoPose(pose, constraints);
   }
+
   public Command drivetoPose(Pose2d pose, PathConstraints pathConstraints) {
 
     return AutoBuilder.pathfindToPose(pose, pathConstraints, MetersPerSecond.of(0));
   }
+
   public double calculateHubAngle() {
     var hubPose = Constants.FieldConstants.getHub();
     var robotPose = getPose();

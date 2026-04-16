@@ -27,12 +27,12 @@ public class FireCommand extends Command {
           .publish();
 
   static {
-   inchesToRPS.put(34.607, 41.506713); // bumper shot
+    inchesToRPS.put(34.607, 41.506713); // bumper shot
     inchesToRPS.put(62.729, 44.055893);
     inchesToRPS.put(82.603, 48.055893);
     inchesToRPS.put(119.194, 55.0);
     inchesToRPS.put(158.513, 60.055893);
-    inchesToRPS.put(179.096,63.6392233333);
+    inchesToRPS.put(179.096, 63.6392233333);
   }
 
   public static double flywheelOffset;
@@ -57,30 +57,35 @@ public class FireCommand extends Command {
       HotdogSubsystem hotdogsubsystem,
       ShooterSubsystem shooterSubsystem) {
 
+    var feederOnSpeed = RPM.of(2400);
+    var offSpeed = RPM.of(0);
+    var _500RPMs = RPM.of(500);
     return feedersubsystem
         .setFeederAngularVelocity(
             () -> {
-              if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+              if (shooterSubsystem.getRealAngularVelocity().gte(_500RPMs)) {
 
-                return RPM.of(2400);
+                return feederOnSpeed;
               } else {
-                return RPM.of(0);
+                return offSpeed;
               }
             })
         .alongWith(
             hotdogsubsystem.setHotdogAngularVelocity(
                 () -> {
-                  if (shooterSubsystem.getRealAngularVelocity().gte(RPM.of(500))) {
+                  if (shooterSubsystem.getRealAngularVelocity().gte(_500RPMs)) {
 
-                    return RPM.of(500);
+                    return _500RPMs;
                   } else {
-                    return RPM.of(0);
+                    return offSpeed;
                   }
-                })).finallyDo(()-> {
-                  feedersubsystem.setFeederAngularVelocity(RPM.of(0));
-                  hotdogsubsystem.setHotdogAngularVelocity(RPM.of(0));
-                  shooterSubsystem.setAngularVelocity(RPM.of(0));
-                });
+                }))
+        .finallyDo(
+            () -> {
+              feedersubsystem.setFeederAngularVelocity(RPM.of(0));
+              hotdogsubsystem.setHotdogAngularVelocity(RPM.of(0));
+              shooterSubsystem.setAngularVelocity(RPM.of(0));
+            });
   }
 
   public static Command pass(

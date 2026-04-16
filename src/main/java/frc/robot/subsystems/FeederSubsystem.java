@@ -49,7 +49,7 @@ public class FeederSubsystem extends SubsystemBase {
           // Motor properties to prevent over currenting.
           .withMotorInverted(true)
           .withIdleMode(MotorMode.COAST)
-          .withStatorCurrentLimit(Amps.of(40));
+          .withStatorCurrentLimit(Amps.of(60));
 
   private SparkMax feederMotor = new SparkMax(14, MotorType.kBrushless);
 

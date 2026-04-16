@@ -43,22 +43,28 @@ public class LEDSubsystem extends SubsystemBase {
     return percentage;
   }
 
+  private int counter = 0;
+
   @Override
   public void periodic() {
-    candle.setControl(new SolidColor(18, 18).withColor(green));
+    counter++;
+    if (counter == 20) {
+      counter = 0;
+      candle.setControl(new SolidColor(18, 18).withColor(green));
 
-    double hubAngle = swerveSubsystem.calculateHubAngle();
-    leftAimController.update(candle, hubAngle);
-    rightAimController.update(candle, -hubAngle);
+      double hubAngle = swerveSubsystem.calculateHubAngle();
+      leftAimController.update(candle, hubAngle);
+      rightAimController.update(candle, -hubAngle);
 
-    double speedSetpoint =
-        shooterSubsystem.getAngularVelocitySetpoint().map(s -> s.in(RPM)).orElse(0.0);
+      double speedSetpoint =
+          shooterSubsystem.getAngularVelocitySetpoint().map(s -> s.in(RPM)).orElse(0.0);
 
-    if (speedSetpoint == 0) {
-      speedController.disable(candle);
-    } else {
-      double speedError = speedSetpoint - shooterSubsystem.getRealAngularVelocity().in(RPM);
-      speedController.update(candle, speedError);
+      if (speedSetpoint == 0) {
+        speedController.disable(candle);
+      } else {
+        double speedError = speedSetpoint - shooterSubsystem.getRealAngularVelocity().in(RPM);
+        speedController.update(candle, speedError);
+      }
     }
   }
 }

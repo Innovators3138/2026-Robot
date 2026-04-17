@@ -22,7 +22,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   private static final Transform3d ROBOT_TO_QUEST =
       new Transform3d(
-          new edu.wpi.first.math.geometry.Translation3d(-0.1398778, 0.195199, 0.348361),
+          new edu.wpi.first.math.geometry.Translation3d(-0.22860, -0.3075, 0.34964),
           new Rotation3d(
               0.0, 0.0, Units.degreesToRadians(-90))); // Adjust these values based on your mounting
   private static final Transform3d ROBOT_TO_FRONT_CAM =
@@ -78,8 +78,8 @@ public class VisionSubsystem extends SubsystemBase {
     Logger.recordOutput("Subsystems/Vision/QuestIsConnected", questNav.isConnected());
     Logger.recordOutput("Subsystems/Vision/QuestPoseSet", startingPoseSet);
     updateQuestNav();
-    updatePose(frontCamera, "Subsystems/Vision/SwerveCamEstimatedPose", frontPoseEstimator);
-    updatePose(rearCamera, "Subsystems/Vision/ShooterCamEstimatedPose", shooterPoseEstimator);
+    updatePose(frontCamera, "Subsystems/Vision/FrontCamEstimatedPose", frontPoseEstimator);
+    updatePose(rearCamera, "Subsystems/Vision/RearCamEstimatedPose", shooterPoseEstimator);
   }
 
   private void updatePose(PhotonCamera camera, String key, PhotonPoseEstimator poseEstimator) {

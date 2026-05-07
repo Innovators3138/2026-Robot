@@ -6,8 +6,12 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -72,6 +76,16 @@ public class IntakeSubsystem extends SubsystemBase {
           .withTelemetry("IntakeMech", TelemetryVerbosity.HIGH);
 
   private FlyWheel intake = new FlyWheel(flywheelConfig);
+  private SparkMax intakeMotorLeader = new SparkMax(16, MotorType.kBrushless);
+  private SparkMax intakeMotorFollower = new SparkMax(22, MotorType.kBrushless);
+
+  public IntakeSubsystem() {
+    var followerConfig = new SparkMaxConfig();
+    followerConfig.follow(16, true);
+    followerConfig.idleMode(IdleMode.kCoast);
+    intakeMotorFollower.configure(
+        followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
 
   @Override
   public void periodic() {

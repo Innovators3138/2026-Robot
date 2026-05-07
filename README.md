@@ -5,6 +5,7 @@
 - CAN MOTORS
 
 - intakeMotor: CAN ID 16
+- intakeFollower: CAN ID 22
 - backleftdrive CAN ID 5
 - backleftangle CAN ID 6
 - backrightdrive CAN ID 7

@@ -77,7 +77,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private FlyWheel intake = new FlyWheel(flywheelConfig);
   private SparkMax intakeMotorLeader = new SparkMax(16, MotorType.kBrushless);
-  private SparkMax intakeMotorFollower = new SparkMax(22, MotorType.kBrushless);
+  private SparkMax intakeMotorFollower = new SparkMax(17, MotorType.kBrushless);
 
   public IntakeSubsystem() {
     var followerConfig = new SparkMaxConfig();

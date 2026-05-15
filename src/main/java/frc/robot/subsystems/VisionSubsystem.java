@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
@@ -61,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
     frontPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_FRONT_CAM);
     shooterPoseEstimator = new PhotonPoseEstimator(VisionSubsystem.fieldLayout, ROBOT_TO_REAR_CAM);
 
-    questNav.onCommandSuccess(
+    /* questNav.onCommandSuccess(
         response -> {
           startingPoseSet = true;
           System.out.println("Pose reset succeeded for command ID: " + response.getCommandId());
@@ -69,7 +68,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     questNav.onCommandFailure(
         response ->
-            DriverStation.reportError("Pose reset failed: " + response.getErrorMessage(), false));
+            DriverStation.reportError("Pose reset failed: " + response.getErrorMessage(), false)); */
   }
 
   @Override

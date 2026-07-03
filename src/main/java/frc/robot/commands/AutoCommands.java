@@ -7,7 +7,6 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -125,7 +124,8 @@ public class AutoCommands {
         .andThen(
             Commands.runOnce(
                 () -> {
-                  robotContainer.visionSubsystem.resetQuestPose(new Pose3d(getStartingPosition()));
+                  // robotContainer.visionSubsystem.resetQuestPose(new
+                  // Pose3d(getStartingPosition()));
                   robotContainer.swerveSubsystem.resetOdometry(getStartingPosition());
                 }));
   }

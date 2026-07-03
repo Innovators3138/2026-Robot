@@ -44,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase {
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.265, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.135, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.5, 0))
           // Telemetry name and verbosity level
           .withTelemetry("IntakeMotor", TelemetryVerbosity.HIGH)
@@ -53,7 +53,7 @@ public class IntakeSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(2)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
@@ -76,7 +76,7 @@ public class IntakeSubsystem extends SubsystemBase {
           .withTelemetry("IntakeMech", TelemetryVerbosity.HIGH);
 
   private FlyWheel intake = new FlyWheel(flywheelConfig);
-  private SparkMax intakeMotorLeader = new SparkMax(16, MotorType.kBrushless);
+
   private SparkMax intakeMotorFollower = new SparkMax(2, MotorType.kBrushless);
 
   public IntakeSubsystem() {

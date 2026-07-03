@@ -49,8 +49,8 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
 
-  public static LinearVelocity MAX_DRIVE_SPEED = MetersPerSecond.of(3);
-  public static LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(3);
+  public static LinearVelocity MAX_DRIVE_SPEED = MetersPerSecond.of(1.5);
+  public static LinearAcceleration MAX_ACCELERATION = MetersPerSecondPerSecond.of(1.5);
   public static AngularVelocity MAX_ROTATION_SPEED = RotationsPerSecond.of(0.75);
   private boolean autoAim = false;
   private final SwerveDrive swerveDrive;

@@ -74,9 +74,9 @@ public class VisionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     questNav.commandPeriodic();
-    Logger.recordOutput("Subsystems/Vision/QuestIsConnected", questNav.isConnected());
-    Logger.recordOutput("Subsystems/Vision/QuestPoseSet", startingPoseSet);
-    updateQuestNav();
+    // Logger.recordOutput("Subsystems/Vision/QuestIsConnected", questNav.isConnected());
+    // Logger.recordOutput("Subsystems/Vision/QuestPoseSet", startingPoseSet);
+    // updateQuestNav();
     updatePose(frontCamera, "Subsystems/Vision/SwerveCamEstimatedPose", frontPoseEstimator);
     updatePose(rearCamera, "Subsystems/Vision/ShooterCamEstimatedPose", shooterPoseEstimator);
   }
@@ -114,9 +114,9 @@ public class VisionSubsystem extends SubsystemBase {
                 swerveSubsystem.addVisionMeasurement(
                     estimatedPose, estimate.timestampSeconds, CAMERA_STD_DEVS);
 
-                if (ambiguity >= 0 && ambiguity < 0.05 && tagCount >= 2) {
-                  resetQuestPose(estimate.estimatedPose);
-                }
+                // if (ambiguity >= 0 && ambiguity < 0.05 && tagCount >= 2) {
+                //   resetQuestPose(estimate.estimatedPose);
+                // }
               });
         }
       }
@@ -153,7 +153,7 @@ public class VisionSubsystem extends SubsystemBase {
         var quest2DPose = questPose.toPose2d();
         Logger.recordOutput("Subsystems/Vision/QuestEstimatedPose", quest2DPose);
         if (startingPoseSet == true) {
-          // swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
+          swerveSubsystem.addVisionMeasurement(quest2DPose, timestamp, QUESTNAV_STD_DEVS);
         }
       }
     }

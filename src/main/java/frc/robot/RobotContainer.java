@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.RPM;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.FileVersionException;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,7 +57,7 @@ public class RobotContainer {
 
     AutoCommands.startingChooser.onChange(
         command -> {
-          visionSubsystem.resetQuestPose(new Pose3d(AutoCommands.getStartingPosition()));
+          // visionSubsystem.resetQuestPose(new Pose3d(AutoCommands.getStartingPosition()));
           swerveSubsystem.resetOdometry(AutoCommands.getStartingPosition());
         });
   }
@@ -73,7 +72,7 @@ public class RobotContainer {
               if ((setpoint) > -0.05) {
                 return RPM.of(0);
               } else {
-                return RPM.of(setpoint * -5000);
+                return RPM.of(setpoint * -2500);
               }
             }));
     intakeSubsystem.setDefaultCommand(intakeSubsystem.setAngularVelocity(RPM.of(0)));
@@ -93,7 +92,8 @@ public class RobotContainer {
                 () -> {
                   FireCommand.flywheelOffset -= 2;
                 }));
-
+    operatorXbox.rightBumper().toggleOnTrue(shooterSubsystem.setAngularVelocity(RPM.of(2400)));
+    operatorXbox.leftBumper().toggleOnTrue(shooterSubsystem.setAngularVelocity(RPM.of(2600)));
     operatorXbox
         .povLeft()
         .onTrue(
@@ -116,7 +116,7 @@ public class RobotContainer {
     operatorXbox
         .rightTrigger()
         .onFalse(FireCommand.unjam(feederSubsystem, hotdogSubsystem).withTimeout(1));
-    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(2500)));
+    operatorXbox.a().toggleOnTrue(intakeSubsystem.setAngularVelocity(RPM.of(3000)));
 
     operatorXbox
         .rightTrigger()

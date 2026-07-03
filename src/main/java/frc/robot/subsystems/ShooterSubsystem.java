@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
               0.01, 0, 0.0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
           .withSimClosedLoopController(
               0.05, 0, 0, RotationsPerSecond.of(50), RotationsPerSecondPerSecond.of(80))
-          .withFeedforward(new SimpleMotorFeedforward(0, 0.105, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0, 0.1075, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0.125, 0))
           .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
@@ -67,8 +67,8 @@ public class ShooterSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.COAST)
           .withStatorCurrentLimit(Amps.of(70));
 
-  private SparkMax shooterMotorLeaderLeft = new SparkMax(20, MotorType.kBrushless);
-  private SparkMax shooterMotorFollowerLeft = new SparkMax(21, MotorType.kBrushless);
+  private SparkMax shooterMotorLeaderLeft = new SparkMax(21, MotorType.kBrushless);
+  private SparkMax shooterMotorFollowerLeft = new SparkMax(20, MotorType.kBrushless);
   private SparkMax shooterMotorFollowerRightA = new SparkMax(18, MotorType.kBrushless);
   private SparkMax shooterMotorFollowerRightB = new SparkMax(19, MotorType.kBrushless);
 
@@ -86,13 +86,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     var followerConfigLeft = new SparkMaxConfig();
-    followerConfigLeft.follow(20, false);
+    followerConfigLeft.follow(21, false);
     followerConfigLeft.idleMode(IdleMode.kCoast);
     shooterMotorFollowerLeft.configure(
         followerConfigLeft, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     var followerConfigRight = new SparkMaxConfig();
-    followerConfigRight.follow(20, true);
+    followerConfigRight.follow(21, true);
     followerConfigRight.idleMode(IdleMode.kCoast);
     shooterMotorFollowerRightA.configure(
         followerConfigRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

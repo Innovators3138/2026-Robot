@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -91,6 +92,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     intake.updateTelemetry();
     isJammed = jamDebouncer.calculate(true);
+    Logger.recordOutput("Subsystems/intake/angularvelocity", getAngularVelocity());
   }
 
   @Override

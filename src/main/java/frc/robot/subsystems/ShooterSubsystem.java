@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -103,6 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     shooter.updateTelemetry();
+    Logger.recordOutput("Subsystems/shooter/angularvelocity", getRealAngularVelocity());
   }
 
   @Override

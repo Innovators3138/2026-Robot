@@ -40,7 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              0.05, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
+              0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           .withSimClosedLoopController(
               0, 0, 0, RotationsPerSecond.of(25), RotationsPerSecondPerSecond.of(35))
           // Feedforward Constants
